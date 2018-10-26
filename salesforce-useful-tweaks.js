@@ -7,8 +7,8 @@
 // @version        1.8
 // ==/UserScript==
 
-// e1, e1     == element 1, 2
-// els1, els2 == element selector 1, 2
+// e1, e2, e3       == element 1, 2
+// els1, els2, els3 == element selector 1, 2
 
 var goog_search = "http://www.google.com/search?q=";
 var c_cvesearch = "https://cve.mitre.org/cgi-bin/cvename.cgi?name=cve-";
@@ -51,8 +51,8 @@ for (var i = 0, l = els1.length; i < l; i++) {
   // el1.innerHTML = el1.innerHTML.replace(/(?=(https?:\/{2}[.a-z0-9A-Z%=\~\+\/&\:\?\-#]+))\1(?!['"]|<\/a>)+/gi, '<a style="color:blue;" href="$&">$&</a>');
 }
 
-var els2 = document.querySelectorAll('.noStandardTab .dataRow.even');
-for (var k = 0, n = els2.length; k < n; k++) {
-  var el2 = els2[k];
-  el2.innerHTML = el2.innerHTML.replace(/<td class="\s+dataCell\s+"/gi, '<td class=" dataCell " style="border:1px solid #cecece; background-color: #f0f0f5;"');
+var els3 = document.querySelectorAll('.noStandardTab .dataRow.even');
+for (var k = 0, n = els3.length; k < n; k++) {
+  var el3 = els3[k];
+  el3.innerHTML = el3.innerHTML.replace(/<td class="\s+dataCell\s+"/gi, '<td class=" dataCell " style="border:1px solid #cecece; background-color: #f0f0f5;"');
 }
