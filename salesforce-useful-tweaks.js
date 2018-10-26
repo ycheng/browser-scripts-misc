@@ -18,6 +18,13 @@ var u_cvesearch = "https://people.canonical.com/~ubuntu-security/cve/";
 // modify font size and colors however you need for your preferences
 document.styleSheets[0].insertRule('div#cas15_ileinner { font:8pt !important; padding:1em; color:black; background-color: lightgreen;border:1px solid #cecece;font:8pt monospace;', 0);
 
+// Hacky, but checks for CVE references in the case summary, re-links them as below
+var els2 = document.querySelectorAll('#cas15_ileinner');
+for (var r = 0, s = els2.length; r < s; r++) {
+ var el2 = els2[r];
+    el2.innerHTML = el2.innerHTML.replace(/cve-(\d{4})-(\d{4})/gi, '<span title="Search for CVE-$1-$2"><a style="color:blue;" href="' + u_cvesearch + '$1/CVE-$1-$2.html" target="_blank">CVE-$1-$2</a></span>');
+}
+
 // This modifies each individual row of the case comments
 document.styleSheets[0].insertRule('.noStandardTab td.dataCell { word-wrap:break-word;font:8pt monospace !important;', 1);
 
