@@ -22,7 +22,7 @@ document.styleSheets[0].insertRule('div#cas15_ileinner { font:8pt !important; pa
 var els2 = document.querySelectorAll('#cas15_ileinner');
 for (var r = 0, s = els2.length; r < s; r++) {
  var el2 = els2[r];
-    el2.innerHTML = el2.innerHTML.replace(/cve-(\d{4})-(\b\d{4,5}\b)/gi, '<span title="Search for CVE-$1-$2"><a style="color:blue;" href="' + u_cvesearch + '$1/CVE-$1-$2.html" target="_blank">CVE-$1-$2</a></span>');
+    el2.innerHTML = el2.innerHTML.replace(/cve-(\d{4})-(\b\d{4,9}\b)/gi, '<span title="Search for CVE-$1-$2"><a style="color:blue;" href="' + u_cvesearch + '$1/CVE-$1-$2.html" target="_blank">CVE-$1-$2</a></span>');
 }
 
 // This modifies each individual row of the case comments
@@ -45,7 +45,7 @@ for (var i = 0, l = els1.length; i < l; i++) {
 
   // These will dynamically link in any references to CVEs to their requisite search URLs
   // el1.innerHTML = el1.innerHTML.replace(/cve-(\d{4})-(\d{4})/gi, '<span title="Search for CVE-$1"><a style="color:blue;" href="' + c_cvesearch + '$1-$2" target="_blank">CVE-$1-$2</a></span>');
-  el1.innerHTML = el1.innerHTML.replace(/cve-(\d{4})-(\b\d{4,5}\b)/gi, '<span title="Search for CVE-$1-$2"><a style="color:blue;" href="' + u_cvesearch + '$1/CVE-$1-$2.html" target="_blank">CVE-$1-$2</a></span>');
+  el1.innerHTML = el1.innerHTML.replace(/cve-(\d{4})-(\b\d{4,9}\b)/gi, '<span title="Search for CVE-$1-$2"><a style="color:blue;" href="' + u_cvesearch + '$1/CVE-$1-$2.html" target="_blank">CVE-$1-$2</a></span>');
 
   // Attempt to turn anything that looks like a URL in a case comment, into a clickable link
   // el1.innerHTML = el1.innerHTML.replace(/(?=(https?:\/{2}[.a-z0-9A-Z%=\~\+\/&\:\?\-#]+))\1(?!['"]|<\/a>)+/gi, '<a style="color:blue;" href="$&">$&</a>');
