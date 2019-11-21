@@ -44,15 +44,15 @@ function monitor_page () {
     var now_minutes = new Date().getMinutes() + '';
     var now_seconds = new Date().getSeconds() + '';
     var time_now = now_hours + ":" + now_minutes + "." + now_seconds;
-    console.log ('[' + time_now + '] Status was: ' + agent_status + '\nAlert sent:' + alert_sent);
     // End debug, remove this block if you don't need console messages
-
+    // console.log ('[' + time_now + '] Status was: ' + agent_status + '\nAlert sent:' + alert_sent);
     if (agent_status != 'idle' && alert_sent == 0) {
-        var alert_message = agent_name + ": You are no longer logged into the PBX portal, please log in again!";
+        var alert_message = agent_name + ": You are no longer active on the PBX, please verify status.";
         alert(alert_message)
         pageTitleNotification.on(alert_message, 500);
         ++alert_sent;
-    } else if (agent_status == 'idle') {
+    // Make sure we handle all non-released conditions that could occur
+    } else if (agent_status == 'idle' || agent_status == 'pre-call' || agent_status == 'pre-session outbound') {
         pageTitleNotification.off()
         alert_sent = 0;
     }
