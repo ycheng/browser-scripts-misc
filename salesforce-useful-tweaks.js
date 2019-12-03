@@ -4,7 +4,9 @@
 // @description    Style and tweak Salesforce to be more productive for Engineers and Support
 // @include        /^https?://.*.salesforce\.com/.*$/
 // @author         setuid@gmail.com
-// @version        1.9
+// @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
+// @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
+// @version        2.3
 // @require        http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js
 // @grant          GM_addStyle
 // ==/UserScript==
@@ -61,16 +63,28 @@ for (var k = 0, n = els3.length; k < n; k++) {
     el3.innerHTML = el3.innerHTML.replace(/<td class="\s+dataCell\s+"/gi, '<td class=" dataCell " style="border:1px solid #cecece; background-color: #f0f0f5;"');
 }
 
-
 // Query selectors by XPath
 function getElementByXpath(path) {
-    return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.textContent;
+    var foo = document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+    if (foo) return foo.textContent;
+    else return "";
 }
 
-var user = getElementByXpath("//*[contains(text(),'Created By')]/following::a[1]").replace(/(.*?) \(portal\)/, '$1')
-var acc_tam = getElementByXpath("//*[contains(text(),'Technical Account Manager')]/preceding::th[1]").replace(/User:(.*?)/, '$1')
-var acc_dse = getElementByXpath("//*[contains(text(),'Dedicated')]/preceding::th[1]").replace(/User:(.*?)/, '$1')
+var toolbox = ''
+var customer = getElementByXpath("//*[contains(text(),'Customer')]/following::a[2]")
+if (customer) {
+    toolbox += `The customer user is: <strong>` + customer + `</strong><br />`
+}
 
+var acct_tam = getElementByXpath("//*[contains(text(),'Technical Account Manager')]/preceding::th[1]").replace(/User:(.*?)/, '$1')
+if (acct_tam) {
+   toolbox += `The TAM for this account is: <strong>` + acct_tam + `</strong><br />`
+}
+
+var acct_dse = getElementByXpath("//*[contains(text(),'Dedicated')]/preceding::th[1]").replace(/User:(.*?)/, '$1')
+if (acct_dse) {
+    toolbox += `The DSE for this account is: <strong>` + acct_dse + `</strong>`
+}
 
 $(".efhpDescription").prepend(`
 <style>
@@ -99,10 +113,7 @@ $(".efhpDescription").prepend(`
 </style>
 <div id="tam">
    <div id="tam_header">TechOps Toolbox (drag me)</div>
-   <p id="acc_tam">The customer user is: <strong>` + user + `</strong><br />
-   The TAM for this account is: <strong>` + acc_tam + `</strong><br />
-   The DSE for this account is: <strong>` + acc_dse + `</strong></p>
-
+   <p id="acc_tam">` + toolbox + `</p>
 </div>
 </div>
 `);
