@@ -24,53 +24,55 @@ document.styleSheets[0].insertRule('div#cas15_ileinner { font:8pt !important; pa
 // Hacky, but checks for CVE references in the case summary, re-links them as below
 var els2 = document.querySelectorAll('#cas15_ileinner');
 for (var r = 0, s = els2.length; r < s; r++) {
- var el2 = els2[r];
+    var el2 = els2[r];
     el2.innerHTML = el2.innerHTML.replace(/cve-(\d{4})-(\b\d{4,9}\b)/gi, '<span title="Search for CVE-$1-$2"><a style="color:blue;" href="' + u_cvesearch + '$1/CVE-$1-$2.html" target="_blank">CVE-$1-$2</a></span>');
 }
+
 
 // This modifies each individual row of the case comments
 document.styleSheets[0].insertRule('.noStandardTab td.dataCell { word-wrap:break-word;font:8pt monospace !important;', 1);
 
 var els1 = document.querySelectorAll('.noStandardTab .dataRow');
 for (var i = 0, l = els1.length; i < l; i++) {
-  var el1 = els1[i];
+    var el1 = els1[i];
 
-  // Theses will alternate row colors between internal vs. external case comments
-  el1.innerHTML = el1.innerHTML.replace(/(Created By:.*)/, '<span style="background-color:lightgreen;display:block;">$1</span>');
-  el1.innerHTML = el1.innerHTML.replace(/(Created By: .+ \(portal\).*<\/b>)/gi, '<div style="background-color: yellow; display: block;">$1</div><\/b>');
+    // Theses will alternate row colors between internal vs. external case comments
+    el1.innerHTML = el1.innerHTML.replace(/(Created By:.*)/, '<span style="background-color:lightgreen;display:block;">$1</span>');
+    el1.innerHTML = el1.innerHTML.replace(/(Created By: .+ \(portal\).*<\/b>)/gi, '<div style="background-color: yellow; display: block;">$1</div><\/b>');
 
-  // Special handling for attachments inline
-  el1.innerHTML = el1.innerHTML.replace(/New Attachment added: ([^()]+) \((https?:\/\/[.a-z0-9A-Z]+\/.+)\)/gi, '<strong style="color: red;">IMPORTANT New Attachment added</strong>: <a style="color:blue;" href="$2">$1</a>');
+    // Special handling for attachments inline
+    el1.innerHTML = el1.innerHTML.replace(/New Attachment added: ([^()]+) \((https?:\/\/[.a-z0-9A-Z]+\/.+)\)/gi, '<strong style="color: red;">IMPORTANT New Attachment added</strong>: <a style="color:blue;" href="$2">$1</a>');
 
-  // This will hyperlink the keywords off to Google searches for those words
-  // Feel free to build up a dict of any you wish to search for, samples below
-  // el1.innerHTML = el1.innerHTML.replace(/(openstack|Liberty|Mitaka|Newton|Queens|Pike|github|chef|preseed)/gi, '<a style="color:blue;" href="' + goog_search + '$&' + " title="Search Google for $&..." target="_blank">$&</a>');
+    // This will hyperlink the keywords off to Google searches for those words
+    // Feel free to build up a dict of any you wish to search for, samples below
+    // el1.innerHTML = el1.innerHTML.replace(/(openstack|Liberty|Mitaka|Newton|Queens|Pike|github|chef|preseed)/gi, '<a style="color:blue;" href="' + goog_search + '$&' + " title="Search Google for $&..." target="_blank">$&</a>');
 
-  // These will dynamically link in any references to CVEs to their requisite search URLs
-  // el1.innerHTML = el1.innerHTML.replace(/cve-(\d{4})-(\d{4})/gi, '<span title="Search for CVE-$1"><a style="color:blue;" href="' + c_cvesearch + '$1-$2" target="_blank">CVE-$1-$2</a></span>');
-  el1.innerHTML = el1.innerHTML.replace(/cve-(\d{4})-(\b\d{4,9}\b)/gi, '<span title="Search for CVE-$1-$2"><a style="color:blue;" href="' + u_cvesearch + '$1/CVE-$1-$2.html" target="_blank">CVE-$1-$2</a></span>');
+    // These will dynamically link in any references to CVEs to their requisite search URLs
+    // el1.innerHTML = el1.innerHTML.replace(/cve-(\d{4})-(\d{4})/gi, '<span title="Search for CVE-$1"><a style="color:blue;" href="' + c_cvesearch + '$1-$2" target="_blank">CVE-$1-$2</a></span>');
+    el1.innerHTML = el1.innerHTML.replace(/cve-(\d{4})-(\b\d{4,9}\b)/gi, '<span title="Search for CVE-$1-$2"><a style="color:blue;" href="' + u_cvesearch + '$1/CVE-$1-$2.html" target="_blank">CVE-$1-$2</a></span>');
 
-  // Attempt to turn anything that looks like a URL in a case comment, into a clickable link
-  // el1.innerHTML = el1.innerHTML.replace(/(?=(https?:\/{2}[.a-z0-9A-Z%=\~\+\/&\:\?\-#]+))\1(?!['"]|<\/a>)+/gi, '<a style="color:blue;" href="$&">$&</a>');
+    // Attempt to turn anything that looks like a URL in a case comment, into a clickable link
+    // el1.innerHTML = el1.innerHTML.replace(/(?=(https?:\/{2}[.a-z0-9A-Z%=\~\+\/&\:\?\-#]+))\1(?!['"]|<\/a>)+/gi, '<a style="color:blue;" href="$&">$&</a>');
 }
 
 var els3 = document.querySelectorAll('.noStandardTab .dataRow.even');
 for (var k = 0, n = els3.length; k < n; k++) {
-  var el3 = els3[k];
-  el3.innerHTML = el3.innerHTML.replace(/<td class="\s+dataCell\s+"/gi, '<td class=" dataCell " style="border:1px solid #cecece; background-color: #f0f0f5;"');
+    var el3 = els3[k];
+    el3.innerHTML = el3.innerHTML.replace(/<td class="\s+dataCell\s+"/gi, '<td class=" dataCell " style="border:1px solid #cecece; background-color: #f0f0f5;"');
 }
 
+
+// Query selectors by XPath
 function getElementByXpath(path) {
-  return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.textContent;
+    return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.textContent;
 }
 
-// Warning, this is bound to be brittle, until it's optimized, but Salesforce HTML is... also brittle.
-var contact = getElementByXpath("/html/body/div[1]/div[3]/table/tbody/tr/td/div[2]/div[1]/div/div[1]/table/tbody/tr/td[1]/div[3]/span/div")
-var acct_tam = getElementByXpath("/html/body/div[1]/div[3]/table/tbody/tr/td/div[2]/div[3]/div[1]/div[2]/div[2]/div[1]/div[2]/div/div[1]/div[1]/div/div[2]/table/tbody/tr[2]/th/a")
+var user = getElementByXpath("//*[contains(text(),'Created By')]/following::a[1]").replace(/(.*?) \(portal\)/, '$1')
+var acc_tam = getElementByXpath("//*[contains(text(),'Technical Account Manager')]/preceding::th[1]").replace(/User:(.*?)/, '$1')
+var acc_dse = getElementByXpath("//*[contains(text(),'Dedicated')]/preceding::th[1]").replace(/User:(.*?)/, '$1')
 
-acct_tam = acct_tam.replace(/User:(.*?)/, '$1')
 
-$(".efhpDescription").prepend ( `
+$(".efhpDescription").prepend(`
 <style>
 #tam {
     position: absolute;
@@ -89,52 +91,59 @@ $(".efhpDescription").prepend ( `
 }
 
 #acc_tam {
+    text-align: left;
     margin: 1em;
     font-weight: 400
 }
 
 </style>
 <div id="tam">
-   <div id="tam_header">TechOps Toolbox</div>
-   <p id="acc_tam">The customer user is: <strong>` + contact + `</strong><br />
-   The TAM for this account is: <strong>` + acct_tam + `</strong></p>
+   <div id="tam_header">TechOps Toolbox (drag me)</div>
+   <p id="acc_tam">The customer user is: <strong>` + user + `</strong><br />
+   The TAM for this account is: <strong>` + acc_tam + `</strong><br />
+   The DSE for this account is: <strong>` + acc_dse + `</strong></p>
+
 </div>
 </div>
-` );
+`);
 
 
+// This is needed to create the draggable toolbox around the page
 dragElement(document.getElementById("tam"));
 
 function dragElement(elmnt) {
-  var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-  if (document.getElementById(elmnt.id + "header")) {
-    document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
-  } else {
-    elmnt.onmousedown = dragMouseDown;
-  }
+    var pos1 = 0,
+        pos2 = 0,
+        pos3 = 0,
+        pos4 = 0;
+    if (document.getElementById(elmnt.id + "header")) {
+        document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
+    } else {
+        elmnt.onmousedown = dragMouseDown;
+    }
 
-  function dragMouseDown(e) {
-    e = e || window.event;
-    e.preventDefault();
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    document.onmouseup = closeDragElement;
-    document.onmousemove = elementDrag;
-  }
+    function dragMouseDown(e) {
+        e = e || window.event;
+        e.preventDefault();
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        document.onmousemove = elementDrag;
+    }
 
-  function elementDrag(e) {
-    e = e || window.event;
-    e.preventDefault();
-    pos1 = pos3 - e.clientX;
-    pos2 = pos4 - e.clientY;
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-  }
+    function elementDrag(e) {
+        e = e || window.event;
+        e.preventDefault();
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+        elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+    }
 
-  function closeDragElement() {
-    document.onmouseup = null;
-    document.onmousemove = null;
-  }
+    function closeDragElement() {
+        document.onmouseup = null;
+        document.onmousemove = null;
+    }
 }
