@@ -6,14 +6,13 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
-// @version        2.3
-// @require        http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js
+// @version        2.4
+// @require        https://code.jquery.com/jquery-3.4.1.js
 // @grant          GM_addStyle
 // ==/UserScript==
 
 // e1, e2, e3       == element 1, 2
 // els1, els2, els3 == element selector 1, 2
-
 var goog_search = "http://www.google.com/search?q=";
 var c_cvesearch = "https://cve.mitre.org/cgi-bin/cvename.cgi?name=cve-";
 var u_cvesearch = "https://people.canonical.com/~ubuntu-security/cve/";
@@ -70,6 +69,8 @@ function getElementByXpath(path) {
     else return "";
 }
 
+var me = $('span')[1].title.replace(/(\w+)\s.*/, '$1')
+
 var toolbox = ''
 var customer = getElementByXpath("//*[contains(text(),'Customer')]/following::a[2]")
 if (customer) {
@@ -78,7 +79,7 @@ if (customer) {
 
 var acct_tam = getElementByXpath("//*[contains(text(),'Technical Account Manager')]/preceding::th[1]").replace(/User:(.*?)/, '$1')
 if (acct_tam) {
-   toolbox += `The TAM for this account is: <strong>` + acct_tam + `</strong><br />`
+    toolbox += `The TAM for this account is: <strong>` + acct_tam + `</strong><br />`
 }
 
 var acct_dse = getElementByXpath("//*[contains(text(),'Dedicated')]/preceding::th[1]").replace(/User:(.*?)/, '$1')
@@ -97,23 +98,32 @@ $(".efhpDescription").prepend(`
     text-align: center
 }
 
-#tam_header {
+#tbox_header {
     cursor: move;
     z-index: 10;
-    background-color: red;
+    background-color: #4287f5;
     color: #fff
 }
 
-#acc_tam {
+#toolbox {
     text-align: left;
     margin: 1em;
     font-weight: 400
 }
 
+.close {
+  cursor: pointer;
+  position: absolute;
+  top: 10%;
+  right: 1%;
+  transform: translate(0%, -50%);
+}
+
 </style>
 <div id="tam">
-   <div id="tam_header">TechOps Toolbox (drag me)</div>
-   <p id="acc_tam">` + toolbox + `</p>
+
+   <div id="tbox_header">` + me + `'s TechOps Toolbox (drag me)<span id='close' class='close'>&#x2716;</span></div>
+   <p id="toolbox">` + toolbox + `</p>
 </div>
 </div>
 `);
@@ -121,6 +131,14 @@ $(".efhpDescription").prepend(`
 
 // This is needed to create the draggable toolbox around the page
 dragElement(document.getElementById("tam"));
+
+window.onload = function() {
+    document.getElementById('close').onclick = function() {
+        this.parentNode.parentNode.parentNode
+            .removeChild(this.parentNode.parentNode);
+        return false;
+    };
+};
 
 function dragElement(elmnt) {
     var pos1 = 0,
