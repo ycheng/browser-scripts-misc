@@ -65,13 +65,12 @@ function getElementByXpath(path) {
 }
 
 // Warning, this is bound to be brittle, until it's optimized, but Salesforce HTML is... also brittle.
-   // var tam = getElementByXpath("/html/body/div[1]/div[3]/table/tbody/tr/td/div[2]/div[3]/div[1]/div[2]/div[2]/div[1]/div[2]/div/div[1]/div[1]/div/div[2]/table/tbody/tr[2]/td[2]")
-   var tam = getElementByXpath("/html/body/div[1]/div[3]/table/tbody/tr/td/div[2]/div[3]/div[1]/div[2]/div[2]/div[1]/div[2]/div/div[1]/div[1]/div/div[2]/table/tbody/tr[2]/th/a")
-// var tam = getElementByXpath("/html/body/div[1]/div[3]/table/tbody/tr/td/div[2]/div[3]/div[1]/div[2]/div[2]/div[1]/div[2]/div/div[3]/div[1]/div/div[2]/table/tbody/tr[2]/th/a")
+var contact = getElementByXpath("/html/body/div[1]/div[3]/table/tbody/tr/td/div[2]/div[1]/div/div[1]/table/tbody/tr/td[1]/div[3]/span/div")
+var acct_tam = getElementByXpath("/html/body/div[1]/div[3]/table/tbody/tr/td/div[2]/div[3]/div[1]/div[2]/div[2]/div[1]/div[2]/div/div[1]/div[1]/div/div[2]/table/tbody/tr[2]/th/a")
 
-tam = tam.replace(/User:(.*?)/, '$1')
+acct_tam = acct_tam.replace(/User:(.*?)/, '$1')
 
-$(".multiforce").prepend ( `
+$(".efhpDescription").prepend ( `
 <style>
 #tam {
     position: absolute;
@@ -97,7 +96,8 @@ $(".multiforce").prepend ( `
 </style>
 <div id="tam">
    <div id="tam_header">TechOps Toolbox</div>
-   <p id="acc_tam">The TAM for this account is: <strong>` + tam + `</strong></p>
+   <p id="acc_tam">The customer user is: <strong>` + contact + `</strong><br />
+   The TAM for this account is: <strong>` + acct_tam + `</strong></p>
 </div>
 </div>
 ` );
