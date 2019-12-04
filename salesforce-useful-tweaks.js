@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
-// @version        2.5
+// @version        2.6
 // @require        https://code.jquery.com/jquery-3.4.1.js
 // @grant          GM_addStyle
 // ==/UserScript==
@@ -76,6 +76,11 @@ var toolbox = ''
 var customer = getElementByXpath("//*[contains(text(),'Customer')]/following::a[2]")
 if (customer) {
     toolbox += `The customer user is: <strong>` + customer + `</strong><br />`
+}
+
+var case_owner = getElementByXpath("//*[contains(text(),'Case Owner')]/following::td[1]")
+if (case_owner) {
+    toolbox += `The Case Owner for this account is: <strong>` + case_owner + `</strong><br />`
 }
 
 var acct_tam = getElementByXpath("//*[contains(text(),'Technical Account Manager')]/preceding::th[1]").replace(/User:(.*?)/, '$1')
