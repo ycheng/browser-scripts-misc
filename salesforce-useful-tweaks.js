@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
-// @version        2.8
+// @version        2.9
 // @require        https://code.jquery.com/jquery-3.4.1.js
 // @grant          GM_addStyle
 // ==/UserScript==
