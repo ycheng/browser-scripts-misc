@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
-// @version        2.7
+// @version        2.8
 // @require        https://code.jquery.com/jquery-3.4.1.js
 // @grant          GM_addStyle
 // ==/UserScript==
@@ -75,22 +75,22 @@ var me = $('span')[1].title.replace(/(\w+)\s.*/, '$1')
 var toolbox = ''
 var customer = getElementByXpath("//*[contains(text(),'Customer')]/following::a[2]")
 if (customer) {
-    toolbox += `The Customer user is: <strong>` + customer + `</strong><br />`
+    toolbox += `Customer: <strong>` + customer + `</strong><br />`
 }
 
 var case_owner = getElementByXpath("//*[contains(text(),'Case Owner')]/following::td[1]")
 if (case_owner) {
-    toolbox += `The Case Owner for this account is: <strong>` + case_owner + `</strong><br />`
+    toolbox += `Case Owner: <strong>` + case_owner + `</strong><br />`
 }
 
 var acct_tam = getElementByXpath("//*[contains(text(),'Technical Account Manager')]/preceding::th[1]").replace(/User:(.*?)/, '$1')
 if (acct_tam) {
-    toolbox += `The TAM for this account is: <strong>` + acct_tam + `</strong><br />`
+    toolbox += `TAM: <strong>` + acct_tam + `</strong><br />`
 }
 
 var acct_dse = getElementByXpath("//*[contains(text(),'Dedicated')]/preceding::th[1]").replace(/User:(.*?)/, '$1')
 if (acct_dse) {
-    toolbox += `The DSE for this account is: <strong>` + acct_dse + `</strong>`
+    toolbox += `DSE: <strong>` + acct_dse + `</strong>`
 }
 
 $(".efhpDescription").prepend(`
