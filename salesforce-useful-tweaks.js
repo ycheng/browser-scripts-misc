@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
-// @version        2.9
+// @version        2.10
 // @require        https://code.jquery.com/jquery-3.4.1.js
 // @grant          GM_addStyle
 // ==/UserScript==
@@ -73,6 +73,13 @@ function getElementByXpath(path) {
 var me = $('span')[1].title.replace(/(\w+)\s.*/, '$1')
 
 var toolbox = ''
+var sev_level = getElementByXpath("//*[contains(text(),'Severity Level')]/following::div[1]").replace(/.*L(\d+).*/, 'L$1')
+if (sev_level) {
+    // Add some urgency to the L1 level cases
+    sev_level.includes('L1') ? sev_level = `<span class="urgent">` + sev_level + `</span>` : sev_level
+    toolbox += `Severity: <strong>` +  sev_level + `</strong><br />`
+}
+
 var customer = getElementByXpath("//*[contains(text(),'Customer')]/following::a[2]")
 if (customer) {
     toolbox += `Customer: <strong>` + customer + `</strong><br />`
@@ -95,40 +102,21 @@ if (acct_dse) {
 
 $(".efdvJumpLinkBody").append(`
 <style>
-#tam {
-    position: fixed;
-    border-radius: 0 0 10px 10px;
-    z-index: 9;
-    background-color: #f1f1f1;
-    border: 1px solid #d3d3d3;
-    text-align: center
+#tam{position:fixed;border-radius:0 0 10px 10px;z-index:9;background-color:#f1f1f1;border:1px solid #d3d3d3;text-align:center}
+#tbox_header{cursor:move;z-index:10;background-color:#4287f5;color:#fff}
+#toolbox{text-align:left;margin:1em;font-weight:400 -webkit-column-width:160px;-moz-column-width:160px;column-width:160px;wrap:soft;}
+.close{cursor:pointer;position:absolute;top:10%;right:1%;transform:translate(0%, -50%);}
+.urgent{animation:urgent 0.7s infinite;}
+@keyframes urgent{0%{color:#f00;}
+ 49%{color:transparent;}
+ 50%{color:transparent;}
+ 99%{color:transparent;}
+ 100%{color:#000;}
 }
-
-#tbox_header {
-    cursor: move;
-    z-index: 10;
-    background-color: #4287f5;
-    color: #fff
-}
-
-#toolbox {
-    text-align: left;
-    margin: 1em;
-    font-weight: 400
-}
-
-.close {
-  cursor: pointer;
-  position: absolute;
-  top: 10%;
-  right: 1%;
-  transform: translate(0%, -50%);
-}
-
 </style>
 <div id="tam">
 
-   <div id="tbox_header">` + me + `'s TechOps Toolbox (drag me)<span id='close' class='close'>&#x2716;</span></div>
+   <div id="tbox_header">` + me + `'s Toolbox (drag)<span id='close' class='close'>&#x2716;</span></div>
    <p id="toolbox">` + toolbox + `</p>
 </div>
 </div>
