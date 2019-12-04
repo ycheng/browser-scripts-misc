@@ -93,12 +93,10 @@ if (acct_dse) {
     toolbox += `DSE: <strong>` + acct_dse + `</strong>`
 }
 
-$(".efhpDescription").prepend(`
+$(".efdvJumpLinkBody").append(`
 <style>
 #tam {
     position: fixed;
-    bottom: 1em;
-    left:3em;
     border-radius: 0 0 10px 10px;
     z-index: 9;
     background-color: #f1f1f1;
