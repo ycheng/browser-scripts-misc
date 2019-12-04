@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
-// @version        2.6
+// @version        2.7
 // @require        https://code.jquery.com/jquery-3.4.1.js
 // @grant          GM_addStyle
 // ==/UserScript==
@@ -75,7 +75,7 @@ var me = $('span')[1].title.replace(/(\w+)\s.*/, '$1')
 var toolbox = ''
 var customer = getElementByXpath("//*[contains(text(),'Customer')]/following::a[2]")
 if (customer) {
-    toolbox += `The customer user is: <strong>` + customer + `</strong><br />`
+    toolbox += `The Customer user is: <strong>` + customer + `</strong><br />`
 }
 
 var case_owner = getElementByXpath("//*[contains(text(),'Case Owner')]/following::td[1]")
@@ -96,7 +96,9 @@ if (acct_dse) {
 $(".efhpDescription").prepend(`
 <style>
 #tam {
-    position: absolute;
+    position: fixed;
+    bottom: 1em;
+    left:3em;
     border-radius: 0 0 10px 10px;
     z-index: 9;
     background-color: #f1f1f1;
