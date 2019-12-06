@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
-// @version        2.13
+// @version        2.14
 // @require        https://code.jquery.com/jquery-3.4.1.js
 // @grant          GM_addStyle
 // ==/UserScript==
@@ -27,6 +27,9 @@ document.querySelectorAll('#cas15_ileinner').forEach(node => {
 	node.innerHTML = node.innerHTML.replace(/cve-(\d{4})-(\b\d{4,9}\b)/gi,
 		'<span title="Search for CVE-$1-$2"><a style="color:blue;" href="' + u_cvesearch + '$1/CVE-$1-$2.html" target="_blank">CVE-$1-$2</a></span>')
 });
+
+var me = document.getElementsByTagName('span')
+me = me[1].title.replace(/(\w+)\s.*/, '$1')
 
 document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
 	node.innerHTML = node.innerHTML.replace(/(Created By:.*)/,
@@ -54,9 +57,6 @@ document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
 	node.innerHTML = node.innerHTML.replace(/<a href(.*) title="Make Public(.*?)<td class="\s+dataCell\s+">(.*)/gi,
 		'<a href $1 title="Make Public $2<td class="dataCell" id="private"><span class="watermark">private comment</span>$3')
 });
-
-// This needs a rethink, if [1] is undefined
-var me = $('span')[1].title.replace(/(\w+)\s.*/, '$1')
 
 var toolbox = ''
 var sev_level = getElementByXpath("//*[contains(text(),'Severity Level')]/following::div[1]").replace(/.*L(\d+).*/, 'L$1')
@@ -86,60 +86,73 @@ if (acct_dse) {
 	toolbox += `DSE: <strong>` + acct_dse.trim() + `</strong>`
 }
 
-$(".efdvJumpLinkBody").append(`
-<style>
-#tam{position:fixed;border-radius:0 0 10px 10px;z-index:9;background-color:#f1f1f1;border:1px solid #d3d3d3;text-align:center}
-#tbox_header{cursor:move;z-index:10;background-color:#4287f5;color:#fff}
-#toolbox{text-align:left;margin:1em;font-weight:400 -webkit-column-width:160px;-moz-column-width:160px;column-width:160px;}
+var style = document.createElement('style');
+style.innerHTML = `
 #private{background-color:#fff2e6;}
-div #cas15_ileinner{font:8pt !important;padding:1em;color:black;background-color:lightgreen;border:1px solid #cecece;font:8pt monospace;}
+#tam{background-color:#f1f1f1;border:1px solid #d3d3d3;border-radius:0 0 10px 10px;position:fixed;text-align:center;z-index:9;}
+#tbox_header{background-color:#4287f5;color:#fff;cursor:move;z-index:10;}
+#toolbox{-moz-column-width:160px;column-width:160px;font-weight:400 0;margin:1em;text-align:left;}
+.close{cursor:pointer;position:absolute;right:1%;top:10%;transform:translate(0%,-50%);}
+.noStandardTab td.dataCell{font:8pt monospace!important;word-wrap:break-word;}
 .noStandardTab tr.dataRow.even td.dataCell:nth-of-type(2){background:#f0f0f5;border:1px solid #cecece;}
-.noStandardTab td.dataCell{word-wrap:break-word;font:8pt monospace !important;}
-.techops{background-color:lightgreen;display:block;margin:-.5em;padding-left:.5em;}
-.portaluser{background-color:yellow;display:block;margin:-.5em;padding-left:.5em;}
-.close{cursor:pointer;position:absolute;top:10%;right:1%;transform:translate(0%, -50%);}
-.urgent{animation:urgent 0.7s infinite;}
-@keyframes urgent{0%{color:#f00;}
+.portaluser{background-color:#FF0;display:block;margin:-.5em;padding-left:.5em;}
+.techops{background-color:#90EE90;display:block;margin:-.5em;padding-left:.5em;}
+.urgent{animation:urgent .7s infinite;}
+.watermark{color:red;font-size:1em;left:1.2em;opacity:0.5;position:absolute;vertical-align:bottom;z-index:1000;}
+div #cas15_ileinner{background-color:#90EE90;border:1px solid #cecece;color:#000;font:8pt monospace !important;padding:1em;}
+@keyframes urgent{
+  0%{color:#f00;}
  49%{color:transparent;}
  50%{color:transparent;}
  99%{color:transparent;}
  100%{color:#000;}
-}
-.watermark{position:absolute;vertical-align:bottom;color:#f00;opacity:0.5;font-size:1em;left:1.2em;z-index:1000;}
-</style>
-<div id="tam">
-   <div id="tbox_header">` + me + `'s Toolbox (drag)<span id='close' class='close'>✖</span></div>
-   <p id="toolbox">` + toolbox + `</p>
-</div>
-</div>
+}`;
+document.head.appendChild(style);
+
+var techops_toolbox = (`
+ <div id="tam">
+    <div id="tbox_header">` + me + `'s Toolbox (drag)<span id='close' class='close'>✖</span></div>
+    <p id="toolbox">` + toolbox + `</p>
+    </div>
+ </div>
 `);
 
+var append_toolbox = document.getElementsByClassName('efdvJumpLinkBody')
+append_toolbox[0].innerHTML += techops_toolbox
 
 // This is needed to create the draggable toolbox around the page
-dragElement(document.getElementById("tam"));
+dragElement(document.getElementById('tam'));
 
 window.onload = function () {
 	document.getElementById("close").onclick = function () {
-		return this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode), !1
+		return this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode)
 	}
 };
 
-function dragElement(e) {
-	var n = 0,
-		t = 0,
-		o = 0,
-		u = 0;
+// This prevents mis-clicks on objects like "Make Public" and "Close Case" without a popup warning
+//     $(document).on("click", "a", function (t) {
+//         t.preventDefault();
+//         var n = $(this).attr("href");
+//         n.startsWith("http") || (n = document.baseURI + n), confirm("Do you want to visit the following link?\n\n" + n) ? location.href = n : t.preventDefault()
+//     });
 
-	function l(e) {
-		(e = e || window.event).preventDefault(), o = e.clientX, u = e.clientY, document.onmouseup = m, document.onmousemove = d
+function dragElement(n) {
+	var t = 0,
+		o = 0,
+		u = 0,
+		l = 0;
+
+	function e(e) {
+		(e = e || window.event).preventDefault(); u = e.clientX; l = e.clientY; document.onmouseup = m; document.onmousemove = d
 	}
 
-	function d(l) {
-		(l = l || window.event).preventDefault(), n = o - l.clientX, t = u - l.clientY, o = l.clientX, u = l.clientY, e.style.top = e.offsetTop - t + "px", e.style.left = e.offsetLeft - n + "px"
+	function d(e) {
+		(e = e || window.event).preventDefault(); t = u - e.clientX; o = l - e.clientY; u = e.clientX; l = e.clientY; n.style.top = n.offsetTop - o + "px"; n.style.left = n.offsetLeft - t + "px"
 	}
 
 	function m() {
-		document.onmouseup = null, document.onmousemove = null
+		document.onmouseup = null; document.onmousemove = null
 	}
-	document.getElementById(e.id + "header") ? document.getElementById(e.id + "header").onmousedown = l : e.onmousedown = l
+	document.getElementById(n.id + "header") ? document.getElementById(n.id + "header").onmousedown = e : n.onmousedown = e
 }
+
