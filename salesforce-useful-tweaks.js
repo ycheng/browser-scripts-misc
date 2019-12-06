@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
-// @version        2.11
+// @version        2.12
 // @require        https://code.jquery.com/jquery-3.4.1.js
 // @grant          GM_addStyle
 // ==/UserScript==
@@ -35,8 +35,8 @@ document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
 		'<div class="portaluser">$1</div><\/b>')
 
     // Special handling for attachments in case comments
-	node.innerHTML = node.innerHTML.replace(/New Attachment added: ([^()]+) \((https?:\/\/[.a-z0-9A-Z]+\/.+)\)/gi,
-		'<strong style="color: red;">IMPORTANT New Attachment added</strong>: <a style="color:blue;" href="$2">$1</a>')
+	node.innerHTML = node.innerHTML.replace(/\-New Attachment added: ([^()]+)/gi,
+		'&#128206; <span style="color:red;">IMPORTANT New Attachment added</span>: $1')
 
     // These will dynamically link in any references to CVEs to their requisite search URLs
 	node.innerHTML = node.innerHTML.replace(/cve-(\d{4})-(\b\d{4,9}\b)/gi,
@@ -45,7 +45,7 @@ document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
 		'$1/CVE-$1-$2.html" target="_blank">CVE-$1-$2</a></span>')
 
     // Attempt to turn anything that looks like a URL in a case comment, into a clickable link
-	node.innerHTML = node.innerHTML.replace(/(?=(https?:\/{2}[.a-z0-9A-Z%=\~\+\/&\:\?\-#]+))\1(?!['"]|<\/a>)+/gi,
+    node.innerHTML = node.innerHTML.replace(/(?=(https?:\/{2}[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?))\1(?!['"]|<\/a>)+/gi,
 		'<a style="color:blue;" href="$&">$&</a>')
 
 	// This is brittle, it should be: getElementByXpath("//*[contains(text(),'Make Public')]/following::td[1]")
@@ -112,6 +112,7 @@ div #cas15_ileinner{font:8pt !important;padding:1em;color:black;background-color
 </div>
 </div>
 `);
+
 
 // This is needed to create the draggable toolbox around the page
 dragElement(document.getElementById("tam"));
