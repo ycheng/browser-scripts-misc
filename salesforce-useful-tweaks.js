@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
-// @version        2.12
+// @version        2.13
 // @require        https://code.jquery.com/jquery-3.4.1.js
 // @grant          GM_addStyle
 // ==/UserScript==
@@ -20,6 +20,7 @@ function getElementByXpath(path) {
 
 var c_cvesearch = "https://cve.mitre.org/cgi-bin/cvename.cgi?name=cve-";
 var u_cvesearch = "https://people.canonical.com/~ubuntu-security/cve/";
+var attachments = getElementByXpath("/html/body//a[contains(text(),'Google Docs & Attachments')]/@href")
 
 // Hacky, but checks for CVE references in the case summary, re-links them as below
 document.querySelectorAll('#cas15_ileinner').forEach(node => {
@@ -36,7 +37,7 @@ document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
 
     // Special handling for attachments in case comments
 	node.innerHTML = node.innerHTML.replace(/\-New Attachment added: ([^()]+)/gi,
-		'&#128206; <span style="color:red;">IMPORTANT New Attachment added</span>: $1')
+		'&#128206; <span style="color:red;">IMPORTANT New Attachment added</span>: <a href="' + attachments + '">$1</a>')
 
     // These will dynamically link in any references to CVEs to their requisite search URLs
 	node.innerHTML = node.innerHTML.replace(/cve-(\d{4})-(\b\d{4,9}\b)/gi,
