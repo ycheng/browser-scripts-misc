@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
-// @version        2.17
+// @version        2.18
 // @require        https://code.jquery.com/jquery-3.4.1.js
 // @grant          GM_addStyle
 // ==/UserScript==
@@ -66,7 +66,7 @@ if (sev_level) {
 	// Add some urgency to the L1 level cases
 	sev_level.includes('L1') ? sev_level = `<span class="urgent">` + sev_level + `</span>` : sev_level
 	sev_level.includes('L1') ? tbox_header = '#f00' : tbox_header = '#4287f5'
-    style.innerHTML += `#tbox_header{background-color: ` + tbox_header + `;}`
+    style.innerHTML += `#tbox_header{background: ` + tbox_header + `;}`
 	toolbox += `Severity: <strong>` + sev_level.trim() + `</strong><br />`
 }
 
@@ -98,6 +98,7 @@ style.innerHTML += `
 .close{cursor:pointer;position:absolute;right:1%;top:10%;transform:translate(0%,-50%);}
 .noStandardTab td.dataCell{font:8pt monospace!important;word-wrap:break-word;}
 .noStandardTab tr.dataRow.even td.dataCell:nth-of-type(2){background:#f0f0f5;border:1px solid #cecece;}
+div.listRelatedObject.caseBlock div.bPageBlock.brandSecondaryBrd.secondaryPalette table.list tr.even {background: #f0f0f0;}
 .portaluser{background-color:#FF0;display:block;margin:-.5em;padding-left:.5em;}
 .techops{background-color:#90EE90;display:block;margin:-.5em;padding-left:.5em;}
 .urgent{animation:urgent .7s infinite;}
