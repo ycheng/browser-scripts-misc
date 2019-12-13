@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
-// @version        2.14
+// @version        2.15
 // @require        https://code.jquery.com/jquery-3.4.1.js
 // @grant          GM_addStyle
 // ==/UserScript==
@@ -24,8 +24,8 @@ var attachments = getElementByXpath("/html/body//a[contains(text(),'Google Docs 
 
 // Hacky, but checks for CVE references in the case summary, re-links them as below
 document.querySelectorAll('#cas15_ileinner').forEach(node => {
-	node.innerHTML = node.innerHTML.replace(/cve-(\d{4})-(\b\d{4,9}\b)/gi,
-		'<span title="Search for CVE-$1-$2"><a style="color:blue;" href="' + u_cvesearch + '$1/CVE-$1-$2.html" target="_blank">CVE-$1-$2</a></span>')
+	node.innerHTML = node.innerHTML.replace(/\b([^\/]|^)cve-(\d{4})-(\d{4,7})\b/gim,
+		'<span title="Search for CVE-$2-$3">&nbsp;<a style="color:blue;" href="' + u_cvesearch + '$1/CVE-$2-$3.html" target="_blank">CVE-$2-$3</a></span>')
 });
 
 var me = document.getElementsByTagName('span')
@@ -42,15 +42,15 @@ document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
 	node.innerHTML = node.innerHTML.replace(/\-New Attachment added: ([^()]+)/gi,
 		'&#128206; <span style="color:red;">IMPORTANT New Attachment added</span>: <a href="' + attachments + '">$1</a>')
 
-    // These will dynamically link in any references to CVEs to their requisite search URLs
-	node.innerHTML = node.innerHTML.replace(/cve-(\d{4})-(\b\d{4,9}\b)/gi,
-		'<span title="Search for CVE-$1-$2"><a style="color:blue;" href="' +
-		u_cvesearch +
-		'$1/CVE-$1-$2.html" target="_blank">CVE-$1-$2</a></span>')
-
     // Attempt to turn anything that looks like a URL in a case comment, into a clickable link
     node.innerHTML = node.innerHTML.replace(/(?=(https?:\/{2}[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?))\1(?!['"]|<\/a>)+/gi,
 		'<a style="color:blue;" href="$&">$&</a>')
+
+    // These will dynamically link in any references to CVEs to their requisite search URLs
+	node.innerHTML = node.innerHTML.replace(/\b([^\/]|^)cve-(\d{4})-(\d{4,7})\b/gim,
+		'<span title="Search for CVE-$2-$3">&nbsp;<a style="color:blue;" href="' +
+		u_cvesearch +
+		'CVE-$2-$3.html" target="_blank">CVE-$2-$3</a></span>')
 
 	// This is brittle, it should be: getElementByXpath("//*[contains(text(),'Make Public')]/following::td[1]")
 	// I don't like it, I'll fix it later.
