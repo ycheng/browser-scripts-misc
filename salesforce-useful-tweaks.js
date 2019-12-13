@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
-// @version        2.16
+// @version        2.17
 // @require        https://code.jquery.com/jquery-3.4.1.js
 // @grant          GM_addStyle
 // ==/UserScript==
@@ -21,6 +21,7 @@ function getElementByXpath(path) {
 var c_cvesearch = "https://cve.mitre.org/cgi-bin/cvename.cgi?name=cve-";
 var u_cvesearch = "https://people.canonical.com/~ubuntu-security/cve/";
 var attachments = getElementByXpath("/html/body//a[contains(text(),'Google Docs & Attachments')]/@href")
+var style = document.createElement('style');
 
 // Hacky, but checks for CVE references in the case summary, re-links them as below
 document.querySelectorAll('#cas15_ileinner').forEach(node => {
@@ -59,10 +60,13 @@ document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
 });
 
 var toolbox = ''
+var tbox_header = ''
 var sev_level = getElementByXpath("//*[contains(text(),'Severity Level')]/following::div[1]").replace(/.*L(\d+).*/, 'L$1')
 if (sev_level) {
 	// Add some urgency to the L1 level cases
 	sev_level.includes('L1') ? sev_level = `<span class="urgent">` + sev_level + `</span>` : sev_level
+	sev_level.includes('L1') ? tbox_header = '#f00' : tbox_header = '#4287f5'
+    style.innerHTML += `#tbox_header{background-color: ` + tbox_header + `;}`
 	toolbox += `Severity: <strong>` + sev_level.trim() + `</strong><br />`
 }
 
@@ -86,11 +90,10 @@ if (acct_dse) {
 	toolbox += `DSE: <strong>` + acct_dse.trim() + `</strong>`
 }
 
-var style = document.createElement('style');
-style.innerHTML = `
+style.innerHTML += `
 #private{background-color:#fff2e6;}
 #tam{background-color:#f1f1f1;border:1px solid #d3d3d3;border-radius:0 0 10px 10px;position:fixed;text-align:center;z-index:9;}
-#tbox_header{background-color:#4287f5;color:#fff;cursor:move;z-index:10;}
+#tbox_header{color:#fff;cursor:move;z-index:10;}
 #toolbox{-moz-column-width:160px;column-width:160px;font-weight:400 0;margin:1em;text-align:left;}
 .close{cursor:pointer;position:absolute;right:1%;top:10%;transform:translate(0%,-50%);}
 .noStandardTab td.dataCell{font:8pt monospace!important;word-wrap:break-word;}
