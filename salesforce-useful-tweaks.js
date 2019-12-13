@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
-// @version        2.15
+// @version        2.16
 // @require        https://code.jquery.com/jquery-3.4.1.js
 // @grant          GM_addStyle
 // ==/UserScript==
@@ -24,8 +24,8 @@ var attachments = getElementByXpath("/html/body//a[contains(text(),'Google Docs 
 
 // Hacky, but checks for CVE references in the case summary, re-links them as below
 document.querySelectorAll('#cas15_ileinner').forEach(node => {
-	node.innerHTML = node.innerHTML.replace(/\b([^\/]|^)cve-(\d{4})-(\d{4,7})\b/gim,
-		'<span title="Search for CVE-$2-$3">&nbsp;<a style="color:blue;" href="' + u_cvesearch + '$1/CVE-$2-$3.html" target="_blank">CVE-$2-$3</a></span>')
+	node.innerHTML = node.innerHTML.replace(/(?:[^\/])(cve-\d{4}-\d{4,7})/gim,
+		'<span title="Search for $1">&nbsp;<a style="color:blue;" href="' + u_cvesearch + '$1.html" target="_blank">$1</a></span>')
 });
 
 var me = document.getElementsByTagName('span')
@@ -47,10 +47,10 @@ document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
 		'<a style="color:blue;" href="$&">$&</a>')
 
     // These will dynamically link in any references to CVEs to their requisite search URLs
-	node.innerHTML = node.innerHTML.replace(/\b([^\/]|^)cve-(\d{4})-(\d{4,7})\b/gim,
-		'<span title="Search for CVE-$2-$3">&nbsp;<a style="color:blue;" href="' +
+	node.innerHTML = node.innerHTML.replace(/(?:[^\/])(cve-\d{4}-\d{4,7})/gim,
+		'<span title="Search for $1">&nbsp;<a style="color:blue;" href="' +
 		u_cvesearch +
-		'CVE-$2-$3.html" target="_blank">CVE-$2-$3</a></span>')
+		'$1.html" target="_blank">$1</a></span>')
 
 	// This is brittle, it should be: getElementByXpath("//*[contains(text(),'Make Public')]/following::td[1]")
 	// I don't like it, I'll fix it later.
@@ -111,7 +111,7 @@ document.head.appendChild(style);
 
 var techops_toolbox = (`
  <div id="tam">
-    <div id="tbox_header">` + me + `'s Toolbox (drag)<span id='close' class='close'>✖</span></div>
+    <div id="tbox_header">` + me + `'s Toolbox (drag)<span id="close" class="close">✖</span></div>
     <p id="toolbox">` + toolbox + `</p>
     </div>
  </div>
@@ -155,4 +155,3 @@ function dragElement(n) {
 	}
 	document.getElementById(n.id + "header") ? document.getElementById(n.id + "header").onmousedown = e : n.onmousedown = e
 }
-
