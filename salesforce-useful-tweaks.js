@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
-// @version        2.18
+// @version        2.19
 // @require        https://code.jquery.com/jquery-3.4.1.js
 // @grant          GM_addStyle
 // ==/UserScript==
@@ -44,7 +44,7 @@ document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
 		'&#128206; <span style="color:red;">IMPORTANT New Attachment added</span>: <a href="' + attachments + '">$1</a>')
 
     // Attempt to turn anything that looks like a URL in a case comment, into a clickable link
-    node.innerHTML = node.innerHTML.replace(/(?=(https?:\/{2}[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?))\1(?!['"]|<\/a>)+/gi,
+    node.innerHTML = node.innerHTML.replace(/(?=(https?:\/{2}[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\;//=]*)?))\1(?!['"]|<\/a>)+/gim,
 		'<a style="color:blue;" href="$&">$&</a>')
 
     // These will dynamically link in any references to CVEs to their requisite search URLs
