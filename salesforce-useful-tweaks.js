@@ -96,7 +96,7 @@ if (acct_dse) {
 
 style.innerHTML += `
 #private{background-color:#fff2e6;}
-#tam{background-color:#f1f1f1;border:1px solid #d3d3d3;border-radius:0 0 10px 10px;position:fixed;text-align:center;z-index:9;}
+#tools{background-color:#f1f1f1;border:1px solid #d3d3d3;border-radius:0 0 10px 10px;position:fixed;text-align:center;z-index:9;}
 #tbox_header{color:#fff;cursor:move;z-index:10;}
 #toolbox{-moz-column-width:160px;column-width:160px;font-weight:400 0;margin:1em;text-align:left;}
 .close{cursor:pointer;position:absolute;right:1%;top:4%;transform:translate(0%,-50%);}
@@ -116,8 +116,8 @@ hr {border: 0; height: 1px; background-image: linear-gradient(to right, rgba(0, 
  99%{color:transparent;}
  100%{color:#000;}
 }`;
-document.head.appendChild(style);
 
+document.head.appendChild(style);
 
 var append_toolbox = ''
 var new_timecard = document.querySelector('input[value="New time card"]').getAttribute('onclick')
@@ -133,13 +133,14 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
     toolbox += '<br />&#9742;&nbsp;<a style="display:inline;margin:0; padding:0;" href="https://' + document.domain + log_call_m[2] + '">Log a Call</a></span>'
     append_toolbox = document.getElementsByClassName('efdvJumpLinkBody')
 } else {
-    append_toolbox = document.getElementsByClassName('chatterexpando')
+    append_toolbox = document.getElementsByClassName('zen-mediaBody')
+    style.innerHTML += `#tools{right:4em;}#toolbox{-moz-column-width:200px;column-width:200px;}`
 }
 
 toolbox += '<hr />&#9201;&nbsp;<a style="display:inline;margin:0; padding:0;" href="https://' + document.domain + new_timecard_m[2] + '">New time card</a>'
 
 var techops_toolbox = (`
- <div id="tam">
+ <div id="tools">
    <div id="tbox_header">` + me + `'s Toolbox (drag)<span id="close" class="close">✖</span></div>
      <p id="toolbox">` + toolbox + `</p>
    </div>
@@ -149,7 +150,7 @@ var techops_toolbox = (`
 append_toolbox[0].innerHTML += techops_toolbox
 
 // This is needed to create the draggable toolbox around the page
-dragElement(document.getElementById('tam'));
+dragElement(document.getElementById('tools'));
 
 window.onload = function () {
 	document.getElementById("close").onclick = function () {
