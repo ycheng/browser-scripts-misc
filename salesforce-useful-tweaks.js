@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
-// @version        2.23
+// @version        2.24
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -118,17 +118,25 @@ hr {border: 0; height: 1px; background-image: linear-gradient(to right, rgba(0, 
 }`;
 document.head.appendChild(style);
 
-var log_call = document.querySelector('input[value="Log a Call"]').getAttribute('onclick')
-var log_call_m = log_call.match(/navigateToUrl(.*?['"]([^'"]*)['"])/);
 
+var append_toolbox = ''
 var new_timecard = document.querySelector('input[value="New time card"]').getAttribute('onclick')
 var new_timecard_m = new_timecard.match(/this.form.action = (.*?['"]([^'"]*)['"])/);
 
-var related_lists = document.querySelectorAll('.efdvJumpLinkBody > ul')
-related_lists[0].insertAdjacentHTML('beforeend', '<hr /><li><a href="https://' + document.domain + log_call_m[2] + '">Log a Call</a></li>');
+if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
+    var log_call = document.querySelector('input[value="Log a Call"]').getAttribute('onclick')
+    var log_call_m = log_call.match(/navigateToUrl(.*?['"]([^'"]*)['"])/);
+    var related_lists = document.querySelectorAll('.efdvJumpLinkBody > ul')
+
+    related_lists[0].insertAdjacentHTML('beforeend', '<hr /><li><a href="https://' + document.domain + new_timecard_m[2] + '">New time card</a></li>');
+    related_lists[0].insertAdjacentHTML('beforeend', '<li><a href="https://' + document.domain + log_call_m[2] + '">Log a Call</a></li>');
+    toolbox += '<br />&#9742;&nbsp;<a style="display:inline;margin:0; padding:0;" href="https://' + document.domain + log_call_m[2] + '">Log a Call</a></span>'
+    append_toolbox = document.getElementsByClassName('efdvJumpLinkBody')
+} else {
+    append_toolbox = document.getElementsByClassName('chatterexpando')
+}
 
 toolbox += '<hr />&#9201;&nbsp;<a style="display:inline;margin:0; padding:0;" href="https://' + document.domain + new_timecard_m[2] + '">New time card</a>'
-toolbox += '<br />&#9742;&nbsp;<a style="display:inline;margin:0; padding:0;" href="https://' + document.domain + log_call_m[2] + '">Log a Call</a></span>'
 
 var techops_toolbox = (`
  <div id="tam">
@@ -138,9 +146,7 @@ var techops_toolbox = (`
  </div>
 `);
 
-var append_toolbox = document.getElementsByClassName('efdvJumpLinkBody')
 append_toolbox[0].innerHTML += techops_toolbox
-
 
 // This is needed to create the draggable toolbox around the page
 dragElement(document.getElementById('tam'));
