@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
-// @version        2.33
+// @version        2.32
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -145,13 +145,13 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
     document.querySelectorAll('.efdvJumpLinkTitle')[0].insertAdjacentHTML('afterbegin', '<a id="top" title="Jump to top" href="#">&#9650;</a><a id="end" title="Jump to bottom" href="#footer">&#9660;</a>')
     document.getElementsByClassName('sfdcBody')[0].insertAdjacentHTML('beforeend', '<footer id="footer">testing</footer>')
 
+    related_list_items[0].insertAdjacentHTML('beforeend', '<hr />Uploaded files:')
     var index = 0
     while (index < case_attachments.length) {
         related_list_items[0].insertAdjacentHTML('beforeend', `<li style="overflow-wrap: break-word;"><a href="${case_attachments[index]}">&#128193; File ${case_attachments[index][0].split('/').slice(-1)[0]} (${index})</a></li>`);
         // related_list_items[0].insertAdjacentHTML('beforeend', `<li><a href="${case_attachments[index]}" title="${case_attachments[index][0].split('/').slice(-1)[0]}">&#128193; File (${index})</a></li>`);
         index++
     }
-
     related_list_items[0].insertAdjacentHTML('beforeend', '<hr /><li><a class="tbox_call" title="All calls must be logged separately from time cards" href="https://' + log_call_msg + '">Log a Call</a></li>');
     related_list_items[0].insertAdjacentHTML('beforeend', '<li><a title="Add a new time card. Must be done by EOD!" class="tbox_time" href="https://' + new_timecard_msg + '">New time card</a></li>');
     append_toolbox = document.getElementsByClassName('efdvJumpLinkBody')
