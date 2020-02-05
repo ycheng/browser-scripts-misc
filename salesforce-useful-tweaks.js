@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
-// @version        2.25
+// @version        2.26
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -21,6 +21,9 @@ var c_cvesearch = "https://cve.mitre.org/cgi-bin/cvename.cgi?name=cve-";
 var u_cvesearch = "https://people.canonical.com/~ubuntu-security/cve/";
 var attachments = getElementByXpath("/html/body//a[contains(text(),'Files')]/@href");
 var style = document.createElement('style');
+var profile_details = document.querySelectorAll('.efhpLabeledFieldValue > a')
+
+// alert(profile_details[0])
 
 // Hacky, but checks for CVE references in the case summary, re-links them as below
 document.querySelectorAll('#cas15_ileinner').forEach(node => {
@@ -63,6 +66,33 @@ document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
 
 });
 
+style.innerHTML += `
+#private{background-color:#fff2e6;}
+#tools{background-color:#f1f1f1;border:1px solid #d3d3d3;border-radius:0 0 10px 10px;position:fixed;text-align:center;z-index:9;}
+#tbox_header{color:#fff;cursor:move;z-index:10;}
+#toolbox{-moz-column-width:160px;column-width:160px;font-weight:400 0;margin:1em;text-align:left;}
+.efdvJumpLink{position:fixed;z-index:8;border:1px solid #000;background-color:#ddeef4;border-radius:10px;}
+.close{cursor:pointer;position:absolute;right:1%;top:4px;transform:translate(0%,-50%);}
+.noStandardTab td.dataCell{font:8pt monospace!important;word-wrap:break-word;}
+.noStandardTab tr.dataRow.even td.dataCell:nth-of-type(2){background:#f0f0f5;border:1px solid #cecece;}
+div.listRelatedObject.caseBlock div.bPageBlock.brandSecondaryBrd.secondaryPalette table.list tr.even {background: #f0f0f0;}
+.portaluser{background-color:#ff0;display:block;margin:-.5em;padding-left:.5em;}
+.techops{background-color:#90ee90;display:block;margin:-.5em;padding-left:.5em;}
+.urgent{animation:urgent .7s infinite;}
+.watermark{color:red;font-size:1em;left:1.2em;opacity:0.5;position:absolute;vertical-align:bottom;z-index:1000;}
+div #cas15_ileinner{background-color:#90ee90;border:1px solid #cecece;color:#000;font:8pt monospace !important;padding:1em;}
+hr {border: 0; height: 1px; background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));}
+.tbox_call, .tbox_time{margin:0;text-align: left;}
+.tbox_call::before{margin-left:.5em;content:"\u260E ";}
+.tbox_time::before{margin-left:.5em;content:"\u23F1 ";}
+@keyframes urgent{
+  0%{color:#f00;}
+ 49%{color:transparent;}
+ 50%{color:transparent;}
+ 99%{color:transparent;}
+ 100%{color:#000;}
+`;
+
 var toolbox = ''
 var tbox_header = ''
 var sev_level = getElementByXpath("//*[contains(text(),'Severity Level')]/following::div[1]").replace(/.*L(\d+).*/, 'L$1')
@@ -70,7 +100,8 @@ if (sev_level) {
 	// Add some urgency to the L1 level cases
 	sev_level.includes('L1') ? sev_level = `<span class="urgent">` + sev_level + `</span>` : sev_level
 	sev_level.includes('L1') ? tbox_header = '#f00' : tbox_header = '#4287f5'
-    style.innerHTML += `#tbox_header{background: ` + tbox_header + `;}`
+    sev_level.includes('L1') ? style.innerHTML += '.efdvJumpLink{border:2px solid #f00;border-radius:10px;}' : ''
+    // style.innerHTML += `#tbox_header{background: ` + tbox_header + `;}`
 	toolbox += `Severity: <strong>` + sev_level.trim() + `</strong><br />`
 }
 
@@ -94,50 +125,30 @@ if (acct_dse) {
 	toolbox += `DSE: <strong>` + acct_dse.trim() + `</strong>`
 }
 
-style.innerHTML += `
-#private{background-color:#fff2e6;}
-#tools{background-color:#f1f1f1;border:1px solid #d3d3d3;border-radius:0 0 10px 10px;position:fixed;text-align:center;z-index:9;}
-#tbox_header{color:#fff;cursor:move;z-index:10;}
-#toolbox{-moz-column-width:160px;column-width:160px;font-weight:400 0;margin:1em;text-align:left;}
-.close{cursor:pointer;position:absolute;right:1%;top:4px;transform:translate(0%,-50%);}
-.noStandardTab td.dataCell{font:8pt monospace!important;word-wrap:break-word;}
-.noStandardTab tr.dataRow.even td.dataCell:nth-of-type(2){background:#f0f0f5;border:1px solid #cecece;}
-div.listRelatedObject.caseBlock div.bPageBlock.brandSecondaryBrd.secondaryPalette table.list tr.even {background: #f0f0f0;}
-.portaluser{background-color:#FF0;display:block;margin:-.5em;padding-left:.5em;}
-.techops{background-color:#90EE90;display:block;margin:-.5em;padding-left:.5em;}
-.urgent{animation:urgent .7s infinite;}
-.watermark{color:red;font-size:1em;left:1.2em;opacity:0.5;position:absolute;vertical-align:bottom;z-index:1000;}
-div #cas15_ileinner{background-color:#90EE90;border:1px solid #cecece;color:#000;font:8pt monospace !important;padding:1em;}
-hr {border: 0; height: 1px; background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));}
-@keyframes urgent{
-  0%{color:#f00;}
- 49%{color:transparent;}
- 50%{color:transparent;}
- 99%{color:transparent;}
- 100%{color:#000;}
-}`;
-
-document.head.appendChild(style);
-
 var append_toolbox = ''
 var new_timecard = document.querySelector('input[value="New time card"]').getAttribute('onclick')
-var new_timecard_m = new_timecard.match(/this.form.action = (.*?['"]([^'"]*)['"])/);
+var new_timecard_match = new_timecard.match(/this.form.action = (.*?['"]([^'"]*)['"])/);
+var new_timecard_msg = document.domain + new_timecard_match[2]
 
 if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
     var log_call = document.querySelector('input[value="Log a Call"]').getAttribute('onclick')
-    var log_call_m = log_call.match(/navigateToUrl(.*?['"]([^'"]*)['"])/);
+    var log_call_match = log_call.match(/navigateToUrl(.*?['"]([^'"]*)['"])/);
+    var log_call_msg = document.domain + log_call_match[2]
     var related_lists = document.querySelectorAll('.efdvJumpLinkBody > ul')
 
-    related_lists[0].insertAdjacentHTML('beforeend', '<hr /><li><a href="https://' + document.domain + new_timecard_m[2] + '">New time card</a></li>');
-    related_lists[0].insertAdjacentHTML('beforeend', '<li><a href="https://' + document.domain + log_call_m[2] + '">Log a Call</a></li>');
-    toolbox += '<hr />&#9742;&nbsp;<a style="display:inline;margin:0; padding:0;" href="https://' + document.domain + log_call_m[2] + '">Log a Call</a><br />'
+    related_lists[0].insertAdjacentHTML('beforeend', '<hr /><li><a class="tbox_call" href="https://' + log_call_msg + '">Log a Call</a></li>');
+    related_lists[0].insertAdjacentHTML('beforeend', '<li><a class="tbox_time" href="https://' + new_timecard_msg + '">New time card</a></li>');
+    // toolbox += '<hr /> <a href="https://' + log_call_msg + '" title="All calls must be logged separately from timecards">Log a Call</a>'
     append_toolbox = document.getElementsByClassName('efdvJumpLinkBody')
-} else {
+    related_lists[0].insertAdjacentHTML('beforebegin', '<br />' + toolbox + '<hr />')
+} else { // Non-case-related page rendering
     append_toolbox = document.getElementsByClassName('thumbnailTable')
     style.innerHTML += `#tools{border:1px solid #ccc;}#toolbox{-moz-column-width:200px;column-width:200px;}`
 }
 
-toolbox += '&#9201;&nbsp;<a style="display:inline;margin:0; padding:0;" href="https://' + document.domain + new_timecard_m[2] + '">New time card</a>'
+// toolbox += ' <a href="https://' + new_timecard_msg + '"  title="Enter a new timecard on this case">New time card</a>'
+
+document.head.appendChild(style);
 
 var techops_toolbox = (`
  <div id="tools">
@@ -147,7 +158,14 @@ var techops_toolbox = (`
  </div>
 `);
 
-append_toolbox[0].outerHTML += techops_toolbox
+// append_toolbox[0].outerHTML += techops_toolbox
+
+
+
+
+
+
+// append_toolbox[0].outerHTML += techops_toolbox
 
 // This is needed to create the draggable toolbox around the page
 dragElement(document.getElementById('tools'));
@@ -184,3 +202,4 @@ function dragElement(n) {
 	}
 	document.getElementById(n.id + "header") ? document.getElementById(n.id + "header").onmousedown = e : n.onmousedown = e
 }
+
