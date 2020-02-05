@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
-// @version        2.24
+// @version        2.25
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -99,7 +99,7 @@ style.innerHTML += `
 #tools{background-color:#f1f1f1;border:1px solid #d3d3d3;border-radius:0 0 10px 10px;position:fixed;text-align:center;z-index:9;}
 #tbox_header{color:#fff;cursor:move;z-index:10;}
 #toolbox{-moz-column-width:160px;column-width:160px;font-weight:400 0;margin:1em;text-align:left;}
-.close{cursor:pointer;position:absolute;right:1%;top:4%;transform:translate(0%,-50%);}
+.close{cursor:pointer;position:absolute;right:1%;top:4px;transform:translate(0%,-50%);}
 .noStandardTab td.dataCell{font:8pt monospace!important;word-wrap:break-word;}
 .noStandardTab tr.dataRow.even td.dataCell:nth-of-type(2){background:#f0f0f5;border:1px solid #cecece;}
 div.listRelatedObject.caseBlock div.bPageBlock.brandSecondaryBrd.secondaryPalette table.list tr.even {background: #f0f0f0;}
@@ -130,14 +130,14 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
 
     related_lists[0].insertAdjacentHTML('beforeend', '<hr /><li><a href="https://' + document.domain + new_timecard_m[2] + '">New time card</a></li>');
     related_lists[0].insertAdjacentHTML('beforeend', '<li><a href="https://' + document.domain + log_call_m[2] + '">Log a Call</a></li>');
-    toolbox += '<br />&#9742;&nbsp;<a style="display:inline;margin:0; padding:0;" href="https://' + document.domain + log_call_m[2] + '">Log a Call</a></span>'
+    toolbox += '<hr />&#9742;&nbsp;<a style="display:inline;margin:0; padding:0;" href="https://' + document.domain + log_call_m[2] + '">Log a Call</a><br />'
     append_toolbox = document.getElementsByClassName('efdvJumpLinkBody')
 } else {
-    append_toolbox = document.getElementsByClassName('zen-mediaBody')
-    style.innerHTML += `#tools{right:4em;}#toolbox{-moz-column-width:200px;column-width:200px;}`
+    append_toolbox = document.getElementsByClassName('thumbnailTable')
+    style.innerHTML += `#tools{border:1px solid #ccc;}#toolbox{-moz-column-width:200px;column-width:200px;}`
 }
 
-toolbox += '<hr />&#9201;&nbsp;<a style="display:inline;margin:0; padding:0;" href="https://' + document.domain + new_timecard_m[2] + '">New time card</a>'
+toolbox += '&#9201;&nbsp;<a style="display:inline;margin:0; padding:0;" href="https://' + document.domain + new_timecard_m[2] + '">New time card</a>'
 
 var techops_toolbox = (`
  <div id="tools">
@@ -147,7 +147,7 @@ var techops_toolbox = (`
  </div>
 `);
 
-append_toolbox[0].innerHTML += techops_toolbox
+append_toolbox[0].outerHTML += techops_toolbox
 
 // This is needed to create the draggable toolbox around the page
 dragElement(document.getElementById('tools'));
