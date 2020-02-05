@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
-// @version        2.27
+// @version        2.28
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -22,6 +22,8 @@ var u_cvesearch = "https://people.canonical.com/~ubuntu-security/cve/";
 var attachments = getElementByXpath("/html/body//a[contains(text(),'Files')]/@href");
 var style = document.createElement('style');
 var profile_details = document.querySelectorAll('.efhpLabeledFieldValue > a')
+
+// alert(profile_details[0])
 
 // Hacky, but checks for CVE references in the case summary, re-links them as below
 document.querySelectorAll('#cas15_ileinner').forEach(node => {
@@ -69,7 +71,8 @@ style.innerHTML += `
 #tools{background-color:#f1f1f1;border:1px solid #d3d3d3;border-radius:0 0 10px 10px;position:fixed;text-align:center;z-index:9;}
 #tbox_header{color:#fff;cursor:move;z-index:10;}
 #toolbox{-moz-column-width:160px;column-width:160px;font-weight:400 0;margin:1em;text-align:left;}
-.efdvJumpLink{position:fixed;z-index:8;border:1px solid #000;background-color:#ddeef4;border-radius:10px;}
+.efdvJumpLink{position:fixed;z-index:8;border:1px solid #000;background-color:#ddeef4;border-radius:5px;box-shadow: 5px 10px #ccc;left:3em;width:150px;}
+.efdvJumpLinkTitle{font-weight:bold;text-align:center;color:#00f;width:100%;}
 .close{cursor:pointer;position:absolute;right:1%;top:4px;transform:translate(0%,-50%);}
 .noStandardTab td.dataCell{font:8pt monospace!important;word-wrap:break-word;}
 .noStandardTab tr.dataRow.even td.dataCell:nth-of-type(2){background:#f0f0f5;border:1px solid #cecece;}
@@ -99,6 +102,7 @@ if (sev_level) {
 	sev_level.includes('L1') ? sev_level = `<span class="urgent">` + sev_level + `</span>` : sev_level
 	sev_level.includes('L1') ? tbox_header = '#f00' : tbox_header = '#4287f5'
     sev_level.includes('L1') ? style.innerHTML += '.efdvJumpLink{border:2px solid #f00;border-radius:10px;}' : ''
+    // style.innerHTML += `#tbox_header{background: ` + tbox_header + `;}`
 	toolbox += `Severity: <strong>` + sev_level.trim() + `</strong><br />`
 }
 
@@ -133,14 +137,17 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
     var log_call_msg = document.domain + log_call_match[2]
     var related_lists = document.querySelectorAll('.efdvJumpLinkBody > ul')
 
-    related_lists[0].insertAdjacentHTML('beforeend', '<hr /><li><a class="tbox_call" title="All calls must be logged separately from case time cards." href="https://' + log_call_msg + '">Log a Call</a></li>');
-    related_lists[0].insertAdjacentHTML('beforeend', '<li><a title="Add a new time card to this case. Must be completed daily." class="tbox_time" href="https://' + new_timecard_msg + '">New time card</a></li>');
+    related_lists[0].insertAdjacentHTML('beforeend', '<hr /><li><a class="tbox_call" title="All calls must be logged separately from time cards" href="https://' + log_call_msg + '">Log a Call</a></li>');
+    related_lists[0].insertAdjacentHTML('beforeend', '<li><a title="Add a new time card. Must be done by EOD!" class="tbox_time" href="https://' + new_timecard_msg + '">New time card</a></li>');
+    // toolbox += '<hr /> <a href="https://' + log_call_msg + '" title="All calls must be logged separately from timecards">Log a Call</a>'
     append_toolbox = document.getElementsByClassName('efdvJumpLinkBody')
     related_lists[0].insertAdjacentHTML('beforebegin', '<br />' + toolbox + '<hr />')
 } else { // Non-case-related page rendering
     append_toolbox = document.getElementsByClassName('thumbnailTable')
     style.innerHTML += `#tools{border:1px solid #ccc;}#toolbox{-moz-column-width:200px;column-width:200px;}`
 }
+
+// toolbox += ' <a href="https://' + new_timecard_msg + '"  title="Enter a new timecard on this case">New time card</a>'
 
 document.head.appendChild(style);
 
@@ -151,3 +158,49 @@ var techops_toolbox = (`
    </div>
  </div>
 `);
+
+// append_toolbox[0].outerHTML += techops_toolbox
+
+
+
+
+
+
+// append_toolbox[0].outerHTML += techops_toolbox
+
+// This is needed to create the draggable toolbox around the page
+dragElement(document.getElementById('tools'));
+
+window.onload = function () {
+	document.getElementById("close").onclick = function () {
+		return this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode)
+	}
+};
+
+// This prevents mis-clicks on objects like "Make Public" and "Close Case" without a popup warning
+//     $(document).on("click", "a", function (t) {
+//         t.preventDefault();
+//         var n = $(this).attr("href");
+//         n.startsWith("http") || (n = document.baseURI + n), confirm("Do you want to visit the following link?\n\n" + n) ? location.href = n : t.preventDefault()
+//     });
+
+function dragElement(n) {
+	var t = 0,
+		o = 0,
+		u = 0,
+		l = 0;
+
+	function e(e) {
+		(e = e || window.event).preventDefault(); u = e.clientX; l = e.clientY; document.onmouseup = m; document.onmousemove = d
+	}
+
+	function d(e) {
+		(e = e || window.event).preventDefault(); t = u - e.clientX; o = l - e.clientY; u = e.clientX; l = e.clientY; n.style.top = n.offsetTop - o + "px"; n.style.left = n.offsetLeft - t + "px"
+	}
+
+	function m() {
+		document.onmouseup = null; document.onmousemove = null
+	}
+	document.getElementById(n.id + "header") ? document.getElementById(n.id + "header").onmousedown = e : n.onmousedown = e
+}
+
