@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
-// @version        2.32
+// @version        2.33
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -147,8 +147,8 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
 
     var index = 0
     while (index < case_attachments.length) {
-        // related_list_items[0].insertAdjacentHTML('beforeend', `<li><a href="${case_attachments[index]}">&#128193; File ${case_attachments[index][0].split('/').slice(-1)[0]} (${index})</a></li>`);
-        related_list_items[0].insertAdjacentHTML('beforeend', `<li><a href="${case_attachments[index]}" title="${case_attachments[index][0].split('/').slice(-1)[0]}">&#128193; File (${index})</a></li>`);
+        related_list_items[0].insertAdjacentHTML('beforeend', `<li style="overflow-wrap: break-word;"><a href="${case_attachments[index]}">&#128193; File ${case_attachments[index][0].split('/').slice(-1)[0]} (${index})</a></li>`);
+        // related_list_items[0].insertAdjacentHTML('beforeend', `<li><a href="${case_attachments[index]}" title="${case_attachments[index][0].split('/').slice(-1)[0]}">&#128193; File (${index})</a></li>`);
         index++
     }
 
@@ -169,3 +169,6 @@ document.head.appendChild(style);
 //         var n = $(this).attr("href");
 //         n.startsWith("http") || (n = document.baseURI + n), confirm("Do you want to visit the following link?\n\n" + n) ? location.href = n : t.preventDefault()
 //     });
+
+
+
