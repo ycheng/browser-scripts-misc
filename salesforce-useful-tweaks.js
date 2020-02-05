@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
-// @version        2.29
+// @version        2.30
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -139,9 +139,8 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
     var related_list_box = document.querySelectorAll('.efdvJumpLinkBody');
     var related_list_items = document.querySelectorAll('.efdvJumpLinkBody > ul');
 
-    document.querySelectorAll('.efdvJumpLinkTitle')[0].insertAdjacentHTML('afterbegin', '<a id="top" title="Back to top" href="#">&#11205;</a>')
-
-    // alert(related_list_items[0].outerHTML)
+    document.querySelectorAll('.efdvJumpLinkTitle')[0].insertAdjacentHTML('afterbegin', '<a id="top" title="Jump to top" href="#">&#9650;</a><a id="end" title="Jump to bottom" href="#footer">&#9660;</a>')
+    document.getElementsByClassName('sfdcBody')[0].insertAdjacentHTML('beforeend', '<footer id="footer">testing</footer>')
 
     related_list_items[0].insertAdjacentHTML('beforeend', '<hr /><li><a class="tbox_call" title="All calls must be logged separately from time cards" href="https://' + log_call_msg + '">Log a Call</a></li>');
     related_list_items[0].insertAdjacentHTML('beforeend', '<li><a title="Add a new time card. Must be done by EOD!" class="tbox_time" href="https://' + new_timecard_msg + '">New time card</a></li>');
