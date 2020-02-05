@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
-// @version        2.28
+// @version        2.29
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -21,9 +21,7 @@ var c_cvesearch = "https://cve.mitre.org/cgi-bin/cvename.cgi?name=cve-";
 var u_cvesearch = "https://people.canonical.com/~ubuntu-security/cve/";
 var attachments = getElementByXpath("/html/body//a[contains(text(),'Files')]/@href");
 var style = document.createElement('style');
-var profile_details = document.querySelectorAll('.efhpLabeledFieldValue > a')
-
-// alert(profile_details[0])
+var profile_details = document.querySelectorAll('.efhpLabeledFieldValue > a');
 
 // Hacky, but checks for CVE references in the case summary, re-links them as below
 document.querySelectorAll('#cas15_ileinner').forEach(node => {
@@ -73,6 +71,7 @@ style.innerHTML += `
 #toolbox{-moz-column-width:160px;column-width:160px;font-weight:400 0;margin:1em;text-align:left;}
 .efdvJumpLink{position:fixed;z-index:8;border:1px solid #000;background-color:#ddeef4;border-radius:5px;box-shadow: 5px 10px #ccc;left:3em;width:150px;}
 .efdvJumpLinkTitle{font-weight:bold;text-align:center;color:#00f;width:100%;}
+.efdvJumpLinkTitle a {all:unset;color:gray;float:right;text-decoration:none;}
 .close{cursor:pointer;position:absolute;right:1%;top:4px;transform:translate(0%,-50%);}
 .noStandardTab td.dataCell{font:8pt monospace!important;word-wrap:break-word;}
 .noStandardTab tr.dataRow.even td.dataCell:nth-of-type(2){background:#f0f0f5;border:1px solid #cecece;}
@@ -83,6 +82,7 @@ div.listRelatedObject.caseBlock div.bPageBlock.brandSecondaryBrd.secondaryPalett
 .watermark{color:red;font-size:1em;left:1.2em;opacity:0.5;position:absolute;vertical-align:bottom;z-index:1000;}
 div #cas15_ileinner{background-color:#90ee90;border:1px solid #cecece;color:#000;font:8pt monospace !important;padding:1em;}
 hr {border: 0; height: 1px; background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));}
+.efdvJumpLinkBody ul a {margin:0;padding:0.2em;}
 .tbox_call, .tbox_time{margin:0;text-align: left;}
 .tbox_call::before{margin-left:.5em;content:"\u260E ";}
 .tbox_time::before{margin-left:.5em;content:"\u23F1 ";}
@@ -127,27 +127,30 @@ if (acct_dse) {
 }
 
 var append_toolbox = ''
-var new_timecard = document.querySelector('input[value="New time card"]').getAttribute('onclick')
+var new_timecard = document.querySelector('input[value="New time card"]').getAttribute('onclick');
 var new_timecard_match = new_timecard.match(/this.form.action = (.*?['"]([^'"]*)['"])/);
-var new_timecard_msg = document.domain + new_timecard_match[2]
+var new_timecard_msg = document.domain + new_timecard_match[2];
 
 if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
-    var log_call = document.querySelector('input[value="Log a Call"]').getAttribute('onclick')
+    var log_call = document.querySelector('input[value="Log a Call"]').getAttribute('onclick');
     var log_call_match = log_call.match(/navigateToUrl(.*?['"]([^'"]*)['"])/);
     var log_call_msg = document.domain + log_call_match[2]
-    var related_lists = document.querySelectorAll('.efdvJumpLinkBody > ul')
 
-    related_lists[0].insertAdjacentHTML('beforeend', '<hr /><li><a class="tbox_call" title="All calls must be logged separately from time cards" href="https://' + log_call_msg + '">Log a Call</a></li>');
-    related_lists[0].insertAdjacentHTML('beforeend', '<li><a title="Add a new time card. Must be done by EOD!" class="tbox_time" href="https://' + new_timecard_msg + '">New time card</a></li>');
-    // toolbox += '<hr /> <a href="https://' + log_call_msg + '" title="All calls must be logged separately from timecards">Log a Call</a>'
+    var related_list_box = document.querySelectorAll('.efdvJumpLinkBody');
+    var related_list_items = document.querySelectorAll('.efdvJumpLinkBody > ul');
+
+    document.querySelectorAll('.efdvJumpLinkTitle')[0].insertAdjacentHTML('afterbegin', '<a id="top" title="Back to top" href="#">&#11205;</a>')
+
+    // alert(related_list_items[0].outerHTML)
+
+    related_list_items[0].insertAdjacentHTML('beforeend', '<hr /><li><a class="tbox_call" title="All calls must be logged separately from time cards" href="https://' + log_call_msg + '">Log a Call</a></li>');
+    related_list_items[0].insertAdjacentHTML('beforeend', '<li><a title="Add a new time card. Must be done by EOD!" class="tbox_time" href="https://' + new_timecard_msg + '">New time card</a></li>');
     append_toolbox = document.getElementsByClassName('efdvJumpLinkBody')
-    related_lists[0].insertAdjacentHTML('beforebegin', '<br />' + toolbox + '<hr />')
+    related_list_items[0].insertAdjacentHTML('beforebegin', '<br />' + toolbox + '<hr />')
 } else { // Non-case-related page rendering
     append_toolbox = document.getElementsByClassName('thumbnailTable')
     style.innerHTML += `#tools{border:1px solid #ccc;}#toolbox{-moz-column-width:200px;column-width:200px;}`
 }
-
-// toolbox += ' <a href="https://' + new_timecard_msg + '"  title="Enter a new timecard on this case">New time card</a>'
 
 document.head.appendChild(style);
 
@@ -158,15 +161,6 @@ var techops_toolbox = (`
    </div>
  </div>
 `);
-
-// append_toolbox[0].outerHTML += techops_toolbox
-
-
-
-
-
-
-// append_toolbox[0].outerHTML += techops_toolbox
 
 // This is needed to create the draggable toolbox around the page
 dragElement(document.getElementById('tools'));
