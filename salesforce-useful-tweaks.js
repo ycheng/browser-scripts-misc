@@ -6,9 +6,48 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
-// @version        2.30
+// @version        2.32
 // @grant          GM_addStyle
 // ==/UserScript==
+
+var c_cvesearch = "https://cve.mitre.org/cgi-bin/cvename.cgi?name=cve-";
+var u_cvesearch = "https://people.canonical.com/~ubuntu-security/cve/";
+
+var attachments = getElementByXpath("/html/body//a[contains(text(),'Files')]/@href");
+var case_attachments = []
+
+var style = document.createElement('style');
+var profile_details = document.querySelectorAll('.efhpLabeledFieldValue > a');
+
+var append_toolbox = ''
+var new_timecard = document.querySelector('input[value="New time card"]').getAttribute('onclick');
+
+var new_timecard_match = new_timecard.match(/this.form.action = (.*?['"]([^'"]*)['"])/);
+var new_timecard_msg = document.domain + new_timecard_match[2];
+
+var toolbox = ''
+var tbox_header = ''
+var sev_level = getElementByXpath("//*[contains(text(),'Severity Level')]/following::div[1]").replace(/.*L(\d+).*/, 'L$1')
+
+var customer = getElementByXpath("//*[contains(text(),'Customer')]/following::a[2]")
+if (customer) {
+	toolbox += `Customer user: <strong>` + customer.trim() + `</strong><br />`
+}
+
+var case_owner = getElementByXpath("//*[contains(text(),'Case Owner')]/following::td[1]")
+if (case_owner) {
+	toolbox += `Case owner: <strong>` + case_owner.trim() + `</strong><br />`
+}
+
+var acct_tam = getElementByXpath("//*[contains(text(),'Technical Account Manager')]/preceding::th[1]").replace(/User:(.*?)/, '$1')
+if (acct_tam) {
+	toolbox += `TAM: <strong>` + acct_tam.trim() + `</strong><br />`
+}
+
+var acct_dse = getElementByXpath("//*[contains(text(),'Dedicated')]/preceding::th[1]").replace(/User:(.*?)/, '$1')
+if (acct_dse) {
+	toolbox += `DSE: <strong>` + acct_dse.trim() + `</strong>`
+}
 
 // Query selectors by XPath
 function getElementByXpath(path) {
@@ -17,27 +56,20 @@ function getElementByXpath(path) {
 	else return "";
 }
 
-var c_cvesearch = "https://cve.mitre.org/cgi-bin/cvename.cgi?name=cve-";
-var u_cvesearch = "https://people.canonical.com/~ubuntu-security/cve/";
-var attachments = getElementByXpath("/html/body//a[contains(text(),'Files')]/@href");
-var style = document.createElement('style');
-var profile_details = document.querySelectorAll('.efhpLabeledFieldValue > a');
-
 // Hacky, but checks for CVE references in the case summary, re-links them as below
 document.querySelectorAll('#cas15_ileinner').forEach(node => {
 	node.innerHTML = node.innerHTML.replace(/(?:[^\/])(cve-\d{4}-\d{4,7})/gim,
 		'<span title="Search for $1">&nbsp;<a style="color:blue;" href="' + u_cvesearch + '$1.html" target="_blank">$1</a></span>')
 });
 
-// document.getElementByXpath("/html/body//td[contains(text(),'files.support')]").forEach(node => {
-// 	 alert(node)
-// });
-
-var me = document.getElementsByTagName('span')
-me = me[1].title.replace(/(\w+)\s.*/, '$1')
 
 document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
-	node.innerHTML = node.innerHTML.replace(/(Created By:.*)/,
+    // Build an array of all attachments linked in the case comments
+    if (node.innerHTML.match(/<br>https:\/\/files.support.*/)) {
+        case_attachments.push(node.innerHTML.match(/https?:\/{2}[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\;//=]*)?/gi))
+    }
+    // alert(node.innerHTML)
+    node.innerHTML = node.innerHTML.replace(/(Created By:.*)/,
 		'<span class="techops">$1</span>')
 
 	node.innerHTML = node.innerHTML.replace(/(Created By: .+ \(portal\).*<\/b>)/gi,
@@ -69,9 +101,9 @@ style.innerHTML += `
 #tools{background-color:#f1f1f1;border:1px solid #d3d3d3;border-radius:0 0 10px 10px;position:fixed;text-align:center;z-index:9;}
 #tbox_header{color:#fff;cursor:move;z-index:10;}
 #toolbox{-moz-column-width:160px;column-width:160px;font-weight:400 0;margin:1em;text-align:left;}
-.efdvJumpLink{position:fixed;z-index:8;border:1px solid #000;background-color:#ddeef4;border-radius:5px;box-shadow: 5px 10px #ccc;left:3em;width:150px;}
+.efdvJumpLink{position:fixed;z-index:8;border:1px solid #000;background-color:#ddeef4;border-radius:5px;box-shadow: 5px 5px #ccc;left:3em;width:150px;}
 .efdvJumpLinkTitle{font-weight:bold;text-align:center;color:#00f;width:100%;}
-.efdvJumpLinkTitle a {all:unset;color:gray;float:right;text-decoration:none;}
+.efdvJumpLinkTitle a{all:unset;color:gray;float:right;text-decoration:none;}
 .close{cursor:pointer;position:absolute;right:1%;top:4px;transform:translate(0%,-50%);}
 .noStandardTab td.dataCell{font:8pt monospace!important;word-wrap:break-word;}
 .noStandardTab tr.dataRow.even td.dataCell:nth-of-type(2){background:#f0f0f5;border:1px solid #cecece;}
@@ -84,8 +116,8 @@ div #cas15_ileinner{background-color:#90ee90;border:1px solid #cecece;color:#000
 hr {border: 0; height: 1px; background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));}
 .efdvJumpLinkBody ul a {margin:0;padding:0.2em;}
 .tbox_call, .tbox_time{margin:0;text-align: left;}
-.tbox_call::before{margin-left:.5em;content:"\u260E ";}
-.tbox_time::before{margin-left:.5em;content:"\u23F1 ";}
+.tbox_call::before{margin-left:.5em;content:"\uD83D\uDCDE ";}
+.tbox_time::before{margin-left:.5em;content:"\u23F0 ";}
 @keyframes urgent{
   0%{color:#f00;}
  49%{color:transparent;}
@@ -94,42 +126,13 @@ hr {border: 0; height: 1px; background-image: linear-gradient(to right, rgba(0, 
  100%{color:#000;}
 `;
 
-var toolbox = ''
-var tbox_header = ''
-var sev_level = getElementByXpath("//*[contains(text(),'Severity Level')]/following::div[1]").replace(/.*L(\d+).*/, 'L$1')
 if (sev_level) {
 	// Add some urgency to the L1 level cases
 	sev_level.includes('L1') ? sev_level = `<span class="urgent">` + sev_level + `</span>` : sev_level
 	sev_level.includes('L1') ? tbox_header = '#f00' : tbox_header = '#4287f5'
     sev_level.includes('L1') ? style.innerHTML += '.efdvJumpLink{border:2px solid #f00;border-radius:10px;}' : ''
-    // style.innerHTML += `#tbox_header{background: ` + tbox_header + `;}`
 	toolbox += `Severity: <strong>` + sev_level.trim() + `</strong><br />`
 }
-
-var customer = getElementByXpath("//*[contains(text(),'Customer')]/following::a[2]")
-if (customer) {
-	toolbox += `Customer user: <strong>` + customer.trim() + `</strong><br />`
-}
-
-var case_owner = getElementByXpath("//*[contains(text(),'Case Owner')]/following::td[1]")
-if (case_owner) {
-	toolbox += `Case owner: <strong>` + case_owner.trim() + `</strong><br />`
-}
-
-var acct_tam = getElementByXpath("//*[contains(text(),'Technical Account Manager')]/preceding::th[1]").replace(/User:(.*?)/, '$1')
-if (acct_tam) {
-	toolbox += `TAM: <strong>` + acct_tam.trim() + `</strong><br />`
-}
-
-var acct_dse = getElementByXpath("//*[contains(text(),'Dedicated')]/preceding::th[1]").replace(/User:(.*?)/, '$1')
-if (acct_dse) {
-	toolbox += `DSE: <strong>` + acct_dse.trim() + `</strong>`
-}
-
-var append_toolbox = ''
-var new_timecard = document.querySelector('input[value="New time card"]').getAttribute('onclick');
-var new_timecard_match = new_timecard.match(/this.form.action = (.*?['"]([^'"]*)['"])/);
-var new_timecard_msg = document.domain + new_timecard_match[2];
 
 if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
     var log_call = document.querySelector('input[value="Log a Call"]').getAttribute('onclick');
@@ -142,6 +145,13 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
     document.querySelectorAll('.efdvJumpLinkTitle')[0].insertAdjacentHTML('afterbegin', '<a id="top" title="Jump to top" href="#">&#9650;</a><a id="end" title="Jump to bottom" href="#footer">&#9660;</a>')
     document.getElementsByClassName('sfdcBody')[0].insertAdjacentHTML('beforeend', '<footer id="footer">testing</footer>')
 
+    var index = 0
+    while (index < case_attachments.length) {
+        // related_list_items[0].insertAdjacentHTML('beforeend', `<li><a href="${case_attachments[index]}">&#128193; File ${case_attachments[index][0].split('/').slice(-1)[0]} (${index})</a></li>`);
+        related_list_items[0].insertAdjacentHTML('beforeend', `<li><a href="${case_attachments[index]}" title="${case_attachments[index][0].split('/').slice(-1)[0]}">&#128193; File (${index})</a></li>`);
+        index++
+    }
+
     related_list_items[0].insertAdjacentHTML('beforeend', '<hr /><li><a class="tbox_call" title="All calls must be logged separately from time cards" href="https://' + log_call_msg + '">Log a Call</a></li>');
     related_list_items[0].insertAdjacentHTML('beforeend', '<li><a title="Add a new time card. Must be done by EOD!" class="tbox_time" href="https://' + new_timecard_msg + '">New time card</a></li>');
     append_toolbox = document.getElementsByClassName('efdvJumpLinkBody')
@@ -153,47 +163,9 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
 
 document.head.appendChild(style);
 
-var techops_toolbox = (`
- <div id="tools">
-   <div id="tbox_header">` + me + `'s Toolbox (drag)<span id="close" class="close">✖</span></div>
-     <p id="toolbox">` + toolbox + `</p>
-   </div>
- </div>
-`);
-
-// This is needed to create the draggable toolbox around the page
-dragElement(document.getElementById('tools'));
-
-window.onload = function () {
-	document.getElementById("close").onclick = function () {
-		return this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode)
-	}
-};
-
 // This prevents mis-clicks on objects like "Make Public" and "Close Case" without a popup warning
 //     $(document).on("click", "a", function (t) {
 //         t.preventDefault();
 //         var n = $(this).attr("href");
 //         n.startsWith("http") || (n = document.baseURI + n), confirm("Do you want to visit the following link?\n\n" + n) ? location.href = n : t.preventDefault()
 //     });
-
-function dragElement(n) {
-	var t = 0,
-		o = 0,
-		u = 0,
-		l = 0;
-
-	function e(e) {
-		(e = e || window.event).preventDefault(); u = e.clientX; l = e.clientY; document.onmouseup = m; document.onmousemove = d
-	}
-
-	function d(e) {
-		(e = e || window.event).preventDefault(); t = u - e.clientX; o = l - e.clientY; u = e.clientX; l = e.clientY; n.style.top = n.offsetTop - o + "px"; n.style.left = n.offsetLeft - t + "px"
-	}
-
-	function m() {
-		document.onmouseup = null; document.onmousemove = null
-	}
-	document.getElementById(n.id + "header") ? document.getElementById(n.id + "header").onmousedown = e : n.onmousedown = e
-}
-
