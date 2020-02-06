@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
-// @version        2.34
+// @version        2.35
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -64,7 +64,7 @@ document.querySelectorAll('#cas15_ileinner').forEach(node => {
 
 document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
     // Build an array of all attachments linked in the case comments
-    if (node.innerHTML.match(/<br>https:\/\/files.support.*/)) {
+    if (node.innerHTML.match(/<br>https?:\/\/files.support.*\/files/)) {
         case_attachments.push(node.innerHTML.match(/https?:\/([-a-zA-Z0-9()@:%_\+.~#?&\;//=]*)?/gi))
     }
     // alert(node.innerHTML)
@@ -162,12 +162,11 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
 
 document.head.appendChild(style);
 
-// This prevents mis-clicks on objects like "Make Public" and "Close Case" without a popup warning
-//     $(document).on("click", "a", function (t) {
-//         t.preventDefault();
-//         var n = $(this).attr("href");
-//         n.startsWith("http") || (n = document.baseURI + n), confirm("Do you want to visit the following link?\n\n" + n) ? location.href = n : t.preventDefault()
-//     });
+// This is needed to create the draggable toolbox around the page
+const qsa = (selector, parent = document) => parent.querySelectorAll(selector)
+qsa('[id^="efJumpLink"]').forEach(element => { dragElement(document.getElementById(element.id)); })
 
-
-
+function dragElement(n){var t=0,o=0,u=0,l=0;function e(e){(e=e||window.event).preventDefault();u=e.clientX;l=e.clientY;document.onmouseup=m;document.onmousemove=d}
+function d(e){(e=e||window.event).preventDefault();t=u-e.clientX;o=l-e.clientY;u=e.clientX;l=e.clientY;n.style.top=n.offsetTop-o+"px";n.style.left=n.offsetLeft-t+"px"}
+function m(){document.onmouseup=null;document.onmousemove=null}
+document.getElementById(n.id+"header")?document.getElementById(n.id+"header").onmousedown=e:n.onmousedown=e}
