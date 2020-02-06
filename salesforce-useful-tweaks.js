@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.37
+// @version        2.38
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -64,12 +64,15 @@ document.querySelectorAll('#cas15_ileinner').forEach(node => {
 document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
     // Build an array of all attachments linked in the case comments
     if (node.innerHTML.match(/<br>https?:\/\/files.support.*\/files/gim)) {
+        // let case_attachment_date = node.innerHTML.match(/(\d{4}-\d{2}-\d{2}.*UTC\-)/gim);
+        // console.log('DEBUG', case_attachment_date)
         let match = node.innerHTML.match(/https?:\/([-a-zA-Z0-9()@:%_\+.~#?&\;//=]*)?/gim);
         if (match) {
         	case_attachments.push.apply(case_attachments, match);
         }
     }
-    case_attachments.sort()
+    // Sort the file attachments by name, vs. default sort by newest -> oldest
+    // case_attachments.sort()
 
     // alert(node.innerHTML)
     node.innerHTML = node.innerHTML.replace(/(Created By:.*)/,
@@ -189,6 +192,7 @@ document.head.appendChild(style);
 
 var coll = document.getElementsByClassName("collapsible");
 var i;
+
 for (i = 0; i < coll.length; i++) {
   coll[i].addEventListener("click", function() {
     this.classList.toggle("active");
