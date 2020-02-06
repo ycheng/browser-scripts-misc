@@ -6,11 +6,12 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
-// @version        2.35
+// @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
+// @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
+// @version        2.36
 // @grant          GM_addStyle
 // ==/UserScript==
 
-var c_cvesearch = "https://cve.mitre.org/cgi-bin/cvename.cgi?name=cve-";
 var u_cvesearch = "https://people.canonical.com/~ubuntu-security/cve/";
 
 var attachments = getElementByXpath("/html/body//a[contains(text(),'Files')]/@href");
@@ -19,9 +20,7 @@ var case_attachments = []
 var style = document.createElement('style');
 var profile_details = document.querySelectorAll('.efhpLabeledFieldValue > a');
 
-var append_toolbox = ''
 var new_timecard = document.querySelector('input[value="New time card"]').getAttribute('onclick');
-
 var new_timecard_match = new_timecard.match(/this.form.action = (.*?['"]([^'"]*)['"])/);
 var new_timecard_msg = document.domain + new_timecard_match[2];
 
@@ -64,10 +63,14 @@ document.querySelectorAll('#cas15_ileinner').forEach(node => {
 
 document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
     // Build an array of all attachments linked in the case comments
-    if (node.innerHTML.match(/<br>https?:\/\/files.support.*\/files/)) {
-        case_attachments.push(node.innerHTML.match(/https?:\/([-a-zA-Z0-9()@:%_\+.~#?&\;//=]*)?/gi))
+    if (node.innerHTML.match(/<br>https?:\/\/files.support.*\/files/gim)) {
+        let match = node.innerHTML.match(/https?:\/([-a-zA-Z0-9()@:%_\+.~#?&\;//=]*)?/gim);
+        if (match) {
+            case_attachments.push.apply(case_attachments, match);
+        }
     }
-    // alert(node.innerHTML)
+    case_attachments.sort()
+
     node.innerHTML = node.innerHTML.replace(/(Created By:.*)/,
 		'<span class="techops">$1</span>')
 
@@ -92,37 +95,41 @@ document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
 	// I don't like it, I'll fix it later.
 	node.innerHTML = node.innerHTML.replace(/<a href(.*) title="Make Public(.*?)<td class="\s+dataCell\s+">(.*)/gi,
 		'<a href $1 title="Make Public $2<td class="dataCell" id="private"><span class="watermark">private comment</span>$3')
-
 });
 
 style.innerHTML += `
 #private{background-color:#fff2e6;}
-#tools{background-color:#f1f1f1;border:1px solid #d3d3d3;border-radius:0 0 10px 10px;position:fixed;text-align:center;z-index:9;}
 #tbox_header{color:#fff;cursor:move;z-index:10;}
 #toolbox{-moz-column-width:160px;column-width:160px;font-weight:400 0;margin:1em;text-align:left;}
-.efdvJumpLink{position:fixed;z-index:8;border:1px solid #000;background-color:#ddeef4;border-radius:5px;box-shadow: 5px 5px #ccc;left:3em;width:150px;}
-.efdvJumpLinkTitle{font-weight:bold;text-align:center;color:#00f;width:100%;}
-.efdvJumpLinkTitle a{all:unset;color:gray;float:right;text-decoration:none;}
+#tools{background-color:#f1f1f1;border:1px solid #d3d3d3;border-radius:0 0 10px 10px;position:fixed;text-align:center;z-index:9;}
 .close{cursor:pointer;position:absolute;right:1%;top:4px;transform:translate(0%,-50%);}
+.collapsible {display: none;}
+.content {display: none;overflow: hidden;}
+.efdvJumpLinkBody li {overflow-wrap:break-word;font-size:0.9em;}
+.efdvJumpLinkBody ul a {margin:0;padding:0.2em;}
+.efdvJumpLinkTitle a{all:unset;color:gray;float:right;text-decoration:none;}
+.efdvJumpLinkTitle{font-weight:bold;text-align:center;color:#00f;width:100%;}
+.efdvJumpLink{position:fixed;z-index:8;border:1px solid #000;background-color:#ddeef4;border-radius:5px;box-shadow: 5px 5px #ccc;left:3em;width:150px}
 .noStandardTab td.dataCell{font:8pt monospace!important;word-wrap:break-word;}
 .noStandardTab tr.dataRow.even td.dataCell:nth-of-type(2){background:#f0f0f5;border:1px solid #cecece;}
-div.listRelatedObject.caseBlock div.bPageBlock.brandSecondaryBrd.secondaryPalette table.list tr.even {background: #f0f0f0;}
 .portaluser{background-color:#ff0;display:block;margin:-.5em;padding-left:.5em;}
-.techops{background-color:#90ee90;display:block;margin:-.5em;padding-left:.5em;}
-.urgent{animation:urgent .7s infinite;}
-.watermark{color:red;font-size:1em;left:1.2em;opacity:0.5;position:absolute;vertical-align:bottom;z-index:1000;}
-div #cas15_ileinner{background-color:#90ee90;border:1px solid #cecece;color:#000;font:8pt monospace !important;padding:1em;}
-hr {border: 0; height: 1px; background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));}
-.efdvJumpLinkBody ul a {margin:0;padding:0.2em;}
 .tbox_call, .tbox_time{margin:0;text-align: left;}
 .tbox_call::before{margin-left:.5em;content:"\uD83D\uDCDE ";}
 .tbox_time::before{margin-left:.5em;content:"\u23F0 ";}
+.techops{background-color:#90ee90;display:block;margin:-.5em;padding-left:.5em;}
+.uploads{overflow-x:hidden;overflow-y:auto;max-height:600px;}
+.urgent{animation:urgent .7s infinite;}
+.watermark{color:red;font-size:1em;left:1.2em;opacity:0.5;position:absolute;vertical-align:bottom;z-index:1000;}
+div #cas15_ileinner{background-color:#90ee90;border:1px solid #cecece;color:#000;font:8pt monospace !important;padding:1em;}
+div.listRelatedObject.caseBlock div.bPageBlock.brandSecondaryBrd.secondaryPalette table.list tr.even {background: #f0f0f0;}
+hr {border: 0; height: 1px; background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));}
 @keyframes urgent{
   0%{color:#f00;}
  49%{color:transparent;}
  50%{color:transparent;}
  99%{color:transparent;}
  100%{color:#000;}
+
 `;
 
 if (sev_level) {
@@ -144,23 +151,49 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
     document.querySelectorAll('.efdvJumpLinkTitle')[0].insertAdjacentHTML('afterbegin', '<a id="top" title="Jump to top" href="#">&#9650;</a><a id="end" title="Jump to bottom" href="#footer">&#9660;</a>')
     document.getElementsByClassName('sfdcBody')[0].insertAdjacentHTML('beforeend', '<footer id="footer">testing</footer>')
 
-    related_list_items[0].insertAdjacentHTML('beforeend', '<hr />Uploaded files:')
-    var index = 0
-    while (index < case_attachments.length) {
-        related_list_items[0].insertAdjacentHTML('beforeend',
-                                                 `<li style="overflow-wrap: break-word;"><a href="${case_attachments[index]}" target="_blank">&#128193; File ${case_attachments[index][0].split('/').slice(-1)[0]} (${index})</a></li>`);
-        index++
-    }
-    related_list_items[0].insertAdjacentHTML('beforeend', `<hr /><li><a class="tbox_call" title="All calls must be logged separately from time cards" href="https://${log_call_msg}" target="_blank">Log a Call</a></li>`);
-    related_list_items[0].insertAdjacentHTML('beforeend', `<li><a title="Add a new time card. Must be done by EOD!" class="tbox_time" href="https://${new_timecard_msg}" target="_blank">New time card</a></li>`);
-    append_toolbox = document.getElementsByClassName('efdvJumpLinkBody')
     related_list_items[0].insertAdjacentHTML('beforebegin', `<br />${toolbox}<hr />`)
+
+    if (case_attachments.length > 0) {
+        var my_html = `<div class="collapsible"><hr />Uploaded files... (${case_attachments.length})</div>`
+        if (case_attachments.length > 10) {
+            my_html += `<div class="content uploads" style="display:none;">`;
+        } else {
+            my_html += `<div class="content uploads">`
+        }
+    }
+
+    case_attachments.forEach((link, index) => {
+        my_html += `<li><a href="${link}" title="${link}" target="_blank">&#128193; ${link.split('/').slice(-1)[0]} (${index})</a></li>`;
+        index++
+    });
+
+    my_html += `
+    </div><hr /><li><a class="tbox_call" title="All calls must be logged separately from time cards" href="https://${log_call_msg}" target="_blank">Log a Call</a></li>
+    <li><a title="Add a new time card. Must be done by EOD!" class="tbox_time" href="https://${new_timecard_msg}" target="_blank">New time card</a></li>`
+
+    related_list_items[0].insertAdjacentHTML('beforeend', my_html)
+
 } else { // Non-case-related page rendering
-    append_toolbox = document.getElementsByClassName('thumbnailTable')
     style.innerHTML += `#tools{border:1px solid #ccc;}#toolbox{-moz-column-width:200px;column-width:200px;}`
 }
 
 document.head.appendChild(style);
+
+
+// This creates the accordion for the attachments section
+var coll = document.getElementsByClassName("collapsible");
+var i;
+for (i = 0; i < coll.length; i++) {
+    coll[i].addEventListener("click", function() {
+      this.classList.toggle("active");
+      var content = this.nextElementSibling;
+      if (content.style.display === "block") {
+        content.style.display = "none";
+      } else {
+        content.style.display = "block";
+      }
+    });
+  }
 
 // This is needed to create the draggable toolbox around the page
 const qsa = (selector, parent = document) => parent.querySelectorAll(selector)
