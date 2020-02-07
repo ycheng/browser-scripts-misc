@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.41
+// @version        2.42
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -162,14 +162,15 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
     related_list_items[0].insertAdjacentHTML('beforebegin', `<br />${toolbox}<hr />`)
 
     var sidebar_html = ''
-    sidebar_html += create_link_list('Uploaded files', case_attachments, -1)
-    sidebar_html += create_link_list('Pastebin pastes', pastebin_links, -2)
 
     sidebar_html += `<hr />
                 <li><a class="tbox_call" title="All calls must be logged separately from time cards"
                    href="https://${log_call_msg}" target="_blank">Log a Call</a></li>
                 <li><a title="Add a new time card. Must be done by EOD!"
                   class="tbox_time" href="https://${new_timecard_msg}" target="_blank">New time card</a></li>`;
+
+    sidebar_html += create_link_list('Uploaded files', case_attachments, -1)
+    sidebar_html += create_link_list('Pastebin pastes', pastebin_links, -2)
 
     related_list_items[0].insertAdjacentHTML('beforeend', sidebar_html)
 
@@ -199,8 +200,9 @@ div.listRelatedObject.caseBlock div.bPageBlock.brandSecondaryBrd.secondaryPalett
 .watermark{color:red;font-size:1em;left:1.2em;opacity:0.5;position:absolute;vertical-align:bottom;z-index:1000;}
 div #cas15_ileinner{background-color:#90ee90;border:1px solid #cecece;color:#000;font:8pt monospace !important;padding:1em;}
 hr {border: 0; height: 1px; background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));}
-.efdvJumpLinkBody ul a {all:unset;margin:0;padding:0em;}
-.efdvJumpLinkBody li {overflow-wrap:break-word;font-size:0.8em;}
+.efdvJumpLinkBody a {all:unset;margin:0;padding:0em;}
+.efdvJumpLinkBody ul {margin:0em;padding:0em;}
+.efdvJumpLinkBody li {overflow-wrap:break-word;font-size:0.9em;padding:0.3em;}
 .tbox_call, .tbox_time{margin:0;text-align: left;}
 .tbox_call::before{margin-left:.5em;content:"\uD83D\uDCDE ";}
 .tbox_time::before{margin-left:.5em;content:"\u23F0 ";}
