@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.40
+// @version        2.41
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -67,11 +67,15 @@ var links_array = []
 function push_links(node, uri, links_array) {
     var re = new RegExp(uri, 'gim');
     if (node.innerHTML.match(re)) {
-        let match = node.innerHTML.match(/https?:\/([-a-zA-Z0-9()@:%_\+.~#?&\;//=]*)?/gim);
-        if (match) {
-            links_array.push.apply(links_array, match);
+        var results = node.innerHTML.match(re);
+        results.forEach(url => {
+            if(url.match(/https?:\/\/([-a-zA-Z0-9()@:%_\+.~#?&\;//=]*)?/gim)) {
+                links_array.push(url);
+            }
         }
+                       )
     }
+    // console.log(links_array)
     return links_array
 }
 
@@ -87,8 +91,13 @@ function create_link_list(title, array, slice) {
         }
     }
 
-    array.forEach((link, index=1) => {
-        html_string += `<li><a href="${link}" title="${link}" target="_blank">&#128193; (${index}) ${link.split('/').slice(slice)[0]} </a></li>`;
+    array.forEach((link, index) => {
+        var raw = ''
+        var counter = String(index).padStart(3, '0')
+        if (link.match(/pastebin/)) {
+            raw = `[<a href="${link}plain/" target="_blank">raw</a>]&nbsp;`
+        }
+        html_string += `<li>&#128193; [${counter}] ${raw}<a href="${link}" title="${link}" target="_blank">${link.split('/').slice(slice)[0]} </a></li>`;
         index++
         if(array[array.length-1] === link) { html_string += `</div>` }
     });
@@ -97,8 +106,8 @@ function create_link_list(title, array, slice) {
 
 document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
     // Build an array of all attachments linked in the case comments
-    case_attachments = push_links(node, 'https?:\/\/files.support.*\/files\/', case_attachments)
-    pastebin_links = push_links(node, 'https?:\/\/pastebin.*\/p', pastebin_links)
+    case_attachments = push_links(node, 'https?:\/\/files.support.*\/files\/[^\\s<]*', case_attachments)
+    pastebin_links = push_links(node, 'https?:\/\/pastebin.*\/p\/[^\\s<]*', pastebin_links)
 
     // Sort the file attachments by name, vs. default sort by newest -> oldest
     // case_attachments.sort()
@@ -190,7 +199,7 @@ div.listRelatedObject.caseBlock div.bPageBlock.brandSecondaryBrd.secondaryPalett
 .watermark{color:red;font-size:1em;left:1.2em;opacity:0.5;position:absolute;vertical-align:bottom;z-index:1000;}
 div #cas15_ileinner{background-color:#90ee90;border:1px solid #cecece;color:#000;font:8pt monospace !important;padding:1em;}
 hr {border: 0; height: 1px; background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));}
-.efdvJumpLinkBody ul a {margin:0;padding:0.2em;}
+.efdvJumpLinkBody ul a {all:unset;margin:0;padding:0em;}
 .efdvJumpLinkBody li {overflow-wrap:break-word;font-size:0.8em;}
 .tbox_call, .tbox_time{margin:0;text-align: left;}
 .tbox_call::before{margin-left:.5em;content:"\uD83D\uDCDE ";}
