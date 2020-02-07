@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.39
+// @version        2.40
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -16,6 +16,7 @@ var u_cvesearch = "https://people.canonical.com/~ubuntu-security/cve/";
 
 var attachments = getElementByXpath("/html/body//a[contains(text(),'Files')]/@href");
 var case_attachments = []
+var pastebin_links = []
 
 var style = document.createElement('style');
 var profile_details = document.querySelectorAll('.efhpLabeledFieldValue > a');
@@ -61,16 +62,44 @@ document.querySelectorAll('#cas15_ileinner').forEach(node => {
 		'<span title="Search for $1">&nbsp;<a style="color:blue;" href="' + u_cvesearch + '$1.html" target="_blank">$1</a></span>')
 });
 
-document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
-    // Build an array of all attachments linked in the case comments
-    if (node.innerHTML.match(/<br>https?:\/\/files.support.*\/files/gim)) {
-        // let case_attachment_date = node.innerHTML.match(/(\d{4}-\d{2}-\d{2}.*UTC\-)/gim);
-        // console.log('DEBUG', case_attachment_date)
+// Pull various URL links out of the case comments as we iterate through them
+var links_array = []
+function push_links(node, uri, links_array) {
+    var re = new RegExp(uri, 'gim');
+    if (node.innerHTML.match(re)) {
         let match = node.innerHTML.match(/https?:\/([-a-zA-Z0-9()@:%_\+.~#?&\;//=]*)?/gim);
         if (match) {
-        	case_attachments.push.apply(case_attachments, match);
+            links_array.push.apply(links_array, match);
         }
     }
+    return links_array
+}
+
+// Build the <li>${link}</li> list for the sidebar from array items
+function create_link_list(title, array, slice) {
+    var html_string = ''
+    if (array.length > 0) {
+        html_string += `<hr /><div class="collapsible">${title}... (${array.length})</div>`
+        if (array.length > 10) {
+            html_string += `<div class="content uploads" style="display:none;">`;
+        } else {
+            html_string += `<div class="content uploads">`
+        }
+    }
+
+    array.forEach((link, index=1) => {
+        html_string += `<li><a href="${link}" title="${link}" target="_blank">&#128193; (${index}) ${link.split('/').slice(slice)[0]} </a></li>`;
+        index++
+        if(array[array.length-1] === link) { html_string += `</div>` }
+    });
+    return html_string
+}
+
+document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
+    // Build an array of all attachments linked in the case comments
+    case_attachments = push_links(node, 'https?:\/\/files.support.*\/files\/', case_attachments)
+    pastebin_links = push_links(node, 'https?:\/\/pastebin.*\/p', pastebin_links)
+
     // Sort the file attachments by name, vs. default sort by newest -> oldest
     // case_attachments.sort()
 
@@ -123,29 +152,17 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
 
     related_list_items[0].insertAdjacentHTML('beforebegin', `<br />${toolbox}<hr />`)
 
-    var my_html = ''
-    if (case_attachments.length > 0) {
-        my_html = `<hr /><div class="collapsible">Uploaded files... (${case_attachments.length})</div>`
-        if (case_attachments.length > 10) {
-            my_html += `<div class="content uploads" style="display:none;">`;
-        } else {
-            my_html += `<div class="content uploads">`
-        }
-    }
+    var sidebar_html = ''
+    sidebar_html += create_link_list('Uploaded files', case_attachments, -1)
+    sidebar_html += create_link_list('Pastebin pastes', pastebin_links, -2)
 
-    case_attachments.forEach((link, index) => {
-        my_html += `<li><a href="${link}" title="${link}" target="_blank">&#128193; (${index}) ${link.split('/').slice(-1)[0]} </a></li>`;
-        index++
-        if(case_attachments[case_attachments.length-1] === link) { my_html += `</div>` }
-    });
-
-    my_html += `<hr />
+    sidebar_html += `<hr />
                 <li><a class="tbox_call" title="All calls must be logged separately from time cards"
                    href="https://${log_call_msg}" target="_blank">Log a Call</a></li>
                 <li><a title="Add a new time card. Must be done by EOD!"
                   class="tbox_time" href="https://${new_timecard_msg}" target="_blank">New time card</a></li>`;
 
-    related_list_items[0].insertAdjacentHTML('beforeend', my_html)
+    related_list_items[0].insertAdjacentHTML('beforeend', sidebar_html)
 
 } else { // Non-case-related page rendering
     style.innerHTML += `#tools{border:1px solid #ccc;}#toolbox{-moz-column-width:200px;column-width:200px;}`
@@ -184,12 +201,12 @@ hr {border: 0; height: 1px; background-image: linear-gradient(to right, rgba(0, 
  50%{color:transparent;}
  99%{color:transparent;}
  100%{color:#000;}
-.collapsible {display: blah;}
-.content {display: none;overflow: hidden;}
 `;
 
+// Add the injected stylesheet to the bottom of the page's <head> tag
 document.head.appendChild(style);
 
+// Create the collapsable 'Uploaded files...' dialog actions
 var coll = document.getElementsByClassName("collapsible");
 var i;
 
