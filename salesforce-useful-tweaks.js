@@ -9,7 +9,7 @@
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
 // @require        https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/js/all.min.js
-// @version        2.44
+// @version        2.45
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -180,7 +180,7 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
     var related_list_box = document.querySelectorAll('.efdvJumpLinkBody');
     var related_list_items = document.querySelectorAll('.efdvJumpLinkBody > ul');
 
-    document.querySelectorAll('.efdvJumpLinkTitle')[0].insertAdjacentHTML('afterbegin', '<a id="top" title="Jump to top" href="#">&#9650;</a><a id="end" title="Jump to bottom" href="#footer">&#9660;</a>')
+    document.querySelectorAll('.efdvJumpLinkTitle')[0].insertAdjacentHTML('afterbegin', '<a id="top" title="Jump to top" href="#"><i class="fas fa-arrow-up"></i></a><a id="end" title="Jump to bottom" href="#footer"><i class="fas fa-arrow-down"></i></a>')
     document.getElementsByClassName('sfdcBody')[0].insertAdjacentHTML('beforeend', '<footer id="footer">testing</footer>')
 
     related_list_items[0].insertAdjacentHTML('beforebegin', `<br />${toolbox}<hr />`)
@@ -208,7 +208,7 @@ style.innerHTML += `
 #tbox_header{color:#fff;cursor:move;z-index:10;}
 #toolbox{-moz-column-width:160px;column-width:160px;font-weight:400 0;margin:1em;text-align:left;}
 .efdvJumpLink{position:fixed;z-index:8;border:1px solid #000;background-color:#ddeef4;border-radius:5px;box-shadow: 5px 5px #ccc;left:3em;width:150px}
-.uploads{overflow-x:hidden;overflow-y:auto;max-height:600px;scrollbar-width: thin;}
+.uploads{overflow-x:hidden;overflow-y:auto;max-height:300px;scrollbar-width: thin;}
 /* .uploads li:nth-child(even){background-color:#F5F7F9;} */
 /* .uploads li:nth-child(odd){background-color:#D4DCE7;} */
 .efdvJumpLinkTitle{font-weight:bold;text-align:center;color:#00f;width:100%;}
@@ -231,8 +231,7 @@ hr {border: 0; height: 1px; background-image: linear-gradient(to right, rgba(0, 
 .fa-phone {color: #000 !important;}
 .fa-history {color: #f00 !important;}
 .fa-folder-open {color: #33beff !important;}
-
-#top, #end{float:right;}
+#top, #end{float:right;margin-left:0.3em;}
 @keyframes urgent{
   0%{color:#f00;}
  49%{color:transparent;}
@@ -244,7 +243,7 @@ hr {border: 0; height: 1px; background-image: linear-gradient(to right, rgba(0, 
 // Add the injected stylesheet to the bottom of the page's <head> tag
 document.head.appendChild(style);
 
-// Create the collapsable 'Uploaded files...' dialog actions
+// Create the collapsible 'Uploaded files...' dialog actions
 var coll = document.getElementsByClassName("collapsible");
 var i;
 
