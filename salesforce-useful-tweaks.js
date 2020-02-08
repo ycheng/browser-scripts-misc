@@ -8,8 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @require        https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/js/all.min.js
-// @version        2.45
+// @version        2.46
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -51,12 +50,13 @@ function create_link_list(title, array, slice) {
     array.forEach((link, index) => {
         var raw = ''
         var icon = `<i class="far fa-folder-open"></i>`
-        var counter = String(index).padStart(3, '0')
+        var counter = String(index+1).padStart(3, '0')
         if (link.match(/pastebin/)) {
             raw = `[<a href="${link}plain/" target="_blank">raw</a>]&nbsp;`
             icon = `<i class="far fa-clipboard"></i>`
         }
-        html_string += `<li>${icon} ${counter}] ${raw}<a href="${link}" title="${link}" target="_blank">${link.split('/').slice(slice)[0]} </a></li>`;
+        html_string += `<li>${icon} #${counter} ${raw}<a href="${link}" title="${link}"
+                            target="_blank">${link.split('/').slice(slice)[0]} </a></li>`;
         index++
         if(array[array.length-1] === link) { html_string += `</div>` }
     });
@@ -203,12 +203,14 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
 }
 
 style.innerHTML += `
+@import url("https://use.fontawesome.com/releases/v5.12.1/css/all.css");
 #private{background-color:#fff2e6;}
 #tools{background-color:#f1f1f1;border:1px solid #d3d3d3;border-radius:0 0 10px 10px;position:fixed;text-align:center;z-index:9;}
 #tbox_header{color:#fff;cursor:move;z-index:10;}
 #toolbox{-moz-column-width:160px;column-width:160px;font-weight:400 0;margin:1em;text-align:left;}
 .efdvJumpLink{position:fixed;z-index:8;border:1px solid #000;background-color:#ddeef4;border-radius:5px;box-shadow: 5px 5px #ccc;left:3em;width:150px}
 .uploads{overflow-x:hidden;overflow-y:auto;max-height:300px;scrollbar-width: thin;}
+.content uploads {margin-left:3em;}
 /* .uploads li:nth-child(even){background-color:#F5F7F9;} */
 /* .uploads li:nth-child(odd){background-color:#D4DCE7;} */
 .efdvJumpLinkTitle{font-weight:bold;text-align:center;color:#00f;width:100%;}
