@@ -8,7 +8,8 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.43
+// @require        https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/js/all.min.js
+// @version        2.44
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -49,11 +50,13 @@ function create_link_list(title, array, slice) {
 
     array.forEach((link, index) => {
         var raw = ''
+        var icon = `<i class="far fa-folder-open"></i>`
         var counter = String(index).padStart(3, '0')
         if (link.match(/pastebin/)) {
             raw = `[<a href="${link}plain/" target="_blank">raw</a>]&nbsp;`
+            icon = `<i class="far fa-clipboard"></i>`
         }
-        html_string += `<li>&#128193; [${counter}] ${raw}<a href="${link}" title="${link}" target="_blank">${link.split('/').slice(slice)[0]} </a></li>`;
+        html_string += `<li>${icon} ${counter}] ${raw}<a href="${link}" title="${link}" target="_blank">${link.split('/').slice(slice)[0]} </a></li>`;
         index++
         if(array[array.length-1] === link) { html_string += `</div>` }
     });
@@ -185,9 +188,9 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
     var sidebar_html = ''
 
     sidebar_html += `<hr />
-                <li><a class="tbox_call" title="All calls must be logged separately from time cards"
-                   href="https://${log_call_msg}" target="_blank">Log a Call</a></li>
-                <li><a title="Add a new time card. Must be done by EOD!"
+                <li>&nbsp;<i class="fas fa-phone"></i>&nbsp;<a class="tbox_call" title="All calls must be logged separately from time cards"
+                   href="https://${log_call_msg}" target="_blank">Log a Customer Call</a></li>
+                <li>&nbsp;<i class="fas fa-history"></i>&nbsp;<a title="Add a new time card. Must be done by EOD!"
                   class="tbox_time" href="https://${new_timecard_msg}" target="_blank">New time card</a></li>`;
 
     sidebar_html += create_link_list('Uploaded files', case_attachments, -1)
@@ -224,9 +227,11 @@ hr {border: 0; height: 1px; background-image: linear-gradient(to right, rgba(0, 
 .efdvJumpLinkBody a {all:unset;margin:0;padding:0em;}
 .efdvJumpLinkBody ul {margin:0em;padding:0em;}
 .efdvJumpLinkBody li {overflow-wrap:break-word;font-size:0.9em;padding:0.3em;}
-.tbox_call, .tbox_time{margin:0;text-align: left;}
-.tbox_call::before{margin-left:.5em;content:"\uD83D\uDCDE ";}
-.tbox_time::before{margin-left:.5em;content:"\u23F0 ";}
+.tbox_call, .tbox_time{margin:0;padding:0;text-align: left;}
+.fa-phone {color: #000 !important;}
+.fa-history {color: #f00 !important;}
+.fa-folder-open {color: #33beff !important;}
+
 #top, #end{float:right;}
 @keyframes urgent{
   0%{color:#f00;}
