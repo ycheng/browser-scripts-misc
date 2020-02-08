@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.42
+// @version        2.43
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -27,56 +27,12 @@ var new_timecard_msg = document.domain + new_timecard_match[2];
 
 var toolbox = ''
 var tbox_header = ''
-var sev_level = getElementByXpath("//*[contains(text(),'Severity Level')]/following::div[1]").replace(/.*L(\d+).*/, 'L$1')
-
-var customer = getElementByXpath("//*[contains(text(),'Customer')]/following::a[2]")
-if (customer) {
-	toolbox += `Customer: <strong>${customer.trim()}</strong><br />`
-}
-
-var case_owner = getElementByXpath("//*[contains(text(),'Case Owner')]/following::td[1]")
-if (case_owner) {
-	toolbox += `Case owner: <strong>${case_owner.trim()}</strong><br />`
-}
-
-var acct_tam = getElementByXpath("//*[contains(text(),'Technical Account Manager')]/preceding::th[1]").replace(/User:(.*?)/, '$1')
-if (acct_tam) {
-	toolbox += `TAM: <strong>${acct_tam.trim()}</strong><br />`
-}
-
-var acct_dse = getElementByXpath("//*[contains(text(),'Dedicated')]/preceding::th[1]").replace(/User:(.*?)/, '$1')
-if (acct_dse) {
-	toolbox += `DSE: <strong>${acct_dse.trim()}</strong><br />`
-}
 
 // Query selectors by XPath
 function getElementByXpath(path) {
 	var xpath_fragment = document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 	if (xpath_fragment) return xpath_fragment.textContent;
 	else return "";
-}
-
-// Hacky, but checks for CVE references in the case summary, re-links them as below
-document.querySelectorAll('#cas15_ileinner').forEach(node => {
-	node.innerHTML = node.innerHTML.replace(/(?:[^\/])(cve-\d{4}-\d{4,7})/gim,
-		'<span title="Search for $1">&nbsp;<a style="color:blue;" href="' + u_cvesearch + '$1.html" target="_blank">$1</a></span>')
-});
-
-// Pull various URL links out of the case comments as we iterate through them
-var links_array = []
-function push_links(node, uri, links_array) {
-    var re = new RegExp(uri, 'gim');
-    if (node.innerHTML.match(re)) {
-        var results = node.innerHTML.match(re);
-        results.forEach(url => {
-            if(url.match(/https?:\/\/([-a-zA-Z0-9()@:%_\+.~#?&\;//=]*)?/gim)) {
-                links_array.push(url);
-            }
-        }
-                       )
-    }
-    // console.log(links_array)
-    return links_array
 }
 
 // Build the <li>${link}</li> list for the sidebar from array items
@@ -102,6 +58,71 @@ function create_link_list(title, array, slice) {
         if(array[array.length-1] === link) { html_string += `</div>` }
     });
     return html_string
+}
+
+var cols = document.evaluate("//th[contains(text(),'Member Role')]", document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
+let map = {};
+let roles = [];
+let role_node = null;
+
+do {
+    role_node = cols.iterateNext();
+    if (role_node) {
+        roles.push(role_node);
+    }
+} while (role_node);
+
+roles.forEach((thisHeading) => {
+    let cellIndex = thisHeading.cellIndex;
+    let table = thisHeading.parentNode.parentNode.parentNode;
+
+    table.querySelectorAll('tr td:nth-child(' + (cellIndex + 1) + ')').forEach(function(td) {
+        let category = td.innerText.trim();
+        let th = td.previousElementSibling;
+        let name = th.innerText.trim().replace(/^User: /, '');
+
+        if (!map.hasOwnProperty(category)) {
+            map[category] = [];
+        }
+        map[category].push(name);
+    });
+});
+
+// console.log('DEBUG', map)
+
+var sev_level = getElementByXpath("//*[contains(text(),'Severity Level')]/following::div[1]").replace(/.*L(\d+).*/, 'L$1')
+
+var customer = getElementByXpath("//*[contains(text(),'Customer')]/following::a[2]")
+if (customer) { toolbox += `Customer: <strong>${customer.trim()}</strong><br />`}
+
+var case_owner = getElementByXpath("//*[contains(text(),'Case Owner')]/following::td[1]")
+if (case_owner) { toolbox += `Case owner: <strong>${case_owner.trim()}</strong><br />`}
+
+var acct_dse = map["Dedicated Services Engineer"]
+var acct_tam = map["Technical Account Manager"]
+toolbox += (acct_dse||[]).map( value => `DSE: <strong>${value}</strong><br />`).join('')
+toolbox += (acct_tam||[]).map( value => `TAM: <strong>${value}</strong><br />`).join('')
+
+// Hacky, but checks for CVE references in the case summary, re-links them as below
+document.querySelectorAll('#cas15_ileinner').forEach(node => {
+	node.innerHTML = node.innerHTML.replace(/(?:[^\/])(cve-\d{4}-\d{4,7})/gim,
+		'<span title="Search for $1">&nbsp;<a style="color:blue;" href="' + u_cvesearch + '$1.html" target="_blank">$1</a></span>')
+});
+
+// Pull various URL links out of the case comments as we iterate through them
+var links_array = []
+function push_links(node, uri, links_array) {
+    var re = new RegExp(uri, 'gim');
+    if (node.innerHTML.match(re)) {
+        var results = node.innerHTML.match(re);
+        results.forEach(url => {
+            if(url.match(/https?:\/\/([-a-zA-Z0-9()@:%_\+.~#?&\;//=]*)?/gim)) {
+                links_array.push(url);
+            }
+        }
+                       )
+    }
+    return links_array
 }
 
 document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
@@ -206,6 +227,7 @@ hr {border: 0; height: 1px; background-image: linear-gradient(to right, rgba(0, 
 .tbox_call, .tbox_time{margin:0;text-align: left;}
 .tbox_call::before{margin-left:.5em;content:"\uD83D\uDCDE ";}
 .tbox_time::before{margin-left:.5em;content:"\u23F0 ";}
+#top, #end{float:right;}
 @keyframes urgent{
   0%{color:#f00;}
  49%{color:transparent;}
