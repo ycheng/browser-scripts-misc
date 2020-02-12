@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.46
+// @version        2.47
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -164,11 +164,50 @@ document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
 
 });
 
+style.innerHTML += `
+@import url("https://use.fontawesome.com/releases/v5.12.1/css/all.css");
+#private{background-color:#fff2e6;}
+#tools{background-color:#f1f1f1;border:1px solid #d3d3d3;border-radius:0 0 10px 10px;position:fixed;text-align:center;z-index:9;}
+/* #toolbox{-moz-column-width:160px;column-width:160px;font-weight:400 0;margin:1em;text-align:left;} */
+.efdvJumpLink{position:fixed;z-index:8;border:1px solid #000;background-color:#ddeef4;border-radius:5px;box-shadow: 5px 5px #ccc;left:3em;width:150px}
+.uploads{overflow-x:hidden;overflow-y:auto;max-height:300px;scrollbar-width: thin;}
+.content uploads {margin-left:3em;}
+/* .uploads li:nth-child(even){background-color:#F5F7F9;} */
+/* .uploads li:nth-child(odd){background-color:#D4DCE7;} */
+.efdvJumpLinkTitle{font-weight:bold;text-align:center;color:#00f;width:100%;}
+.efdvJumpLinkTitle a{all:unset;color:gray;float:right;text-decoration:none;}
+.close{cursor:pointer;position:absolute;right:1%;top:4px;transform:translate(0%,-50%);}
+.noStandardTab td.dataCell{font:8pt monospace!important;word-wrap:break-word;}
+.noStandardTab tr.dataRow.even td.dataCell:nth-of-type(2){background:#f0f0f5;border:1px solid #cecece;}
+div.listRelatedObject.caseBlock div.bPageBlock.brandSecondaryBrd.secondaryPalette table.list tr.even {background: #f0f0f0;}
+.portaluser{background-color:#ff0;display:block;margin:-.5em;padding-left:.5em;}
+.techops{background-color:#90ee90;display:block;margin:-.5em;padding-left:.5em;}
+.urgent{animation:urgent 1.0s infinite;}
+.urgent::before{content:"\uD83D\uDD25";}
+.watermark{color:red;font-size:1em;left:1.2em;opacity:0.5;position:absolute;vertical-align:bottom;z-index:1000;}
+div #cas15_ileinner{background-color:#90ee90;border:1px solid #cecece;color:#000;font:8pt monospace !important;padding:1em;}
+hr {border: 0; height: 1px; background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));}
+.efdvJumpLinkBody a {all:unset;margin:0;padding:0em;}
+.efdvJumpLinkBody ul {margin:0em;padding:0em;}
+.efdvJumpLinkBody li {overflow-wrap:break-word;font-size:0.9em;padding:0.3em;}
+.tbox_call, .tbox_time{margin:0;padding:0;text-align: left;}
+.fa-phone {color: #000 !important;}
+.fa-history {color: #f00 !important;}
+.fa-folder-open {color: #33beff !important;}
+#top, #end{float:right;margin-left:0.3em;}
+@keyframes urgent{
+  0%{color:#f00;}
+ 49%{color:#dc143c;}
+ 50%{color:#dc143c;}
+ 99%{color:transparent;}
+ 100%{color:#000;}
+`;
+
 if (sev_level) {
 	// Add some urgency to the L1 level cases
 	sev_level.includes('L1') ? sev_level = `<span class="urgent">${sev_level}</span>` : sev_level
-	sev_level.includes('L1') ? tbox_header = '#f00' : tbox_header = '#4287f5'
-    sev_level.includes('L1') ? style.innerHTML += '.efdvJumpLink{border:2px solid #f00;border-radius:10px;}' : ''
+    // This is not currently working as intended, will fix later
+    sev_level.includes('L1') ? style.innerHTML += '.efdvJumpLink{background:#f00;border:2px solid #f00 !important;border-radius:10px !important;}' : ''
 	toolbox += `Severity: <strong>${sev_level.trim()}</strong><br />`
 }
 
@@ -201,46 +240,6 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
 } else { // Non-case-related page rendering
     style.innerHTML += `#tools{border:1px solid #ccc;}#toolbox{-moz-column-width:200px;column-width:200px;}`
 }
-
-style.innerHTML += `
-@import url("https://use.fontawesome.com/releases/v5.12.1/css/all.css");
-#private{background-color:#fff2e6;}
-#tools{background-color:#f1f1f1;border:1px solid #d3d3d3;border-radius:0 0 10px 10px;position:fixed;text-align:center;z-index:9;}
-#tbox_header{color:#fff;cursor:move;z-index:10;}
-#toolbox{-moz-column-width:160px;column-width:160px;font-weight:400 0;margin:1em;text-align:left;}
-.efdvJumpLink{position:fixed;z-index:8;border:1px solid #000;background-color:#ddeef4;border-radius:5px;box-shadow: 5px 5px #ccc;left:3em;width:150px}
-.uploads{overflow-x:hidden;overflow-y:auto;max-height:300px;scrollbar-width: thin;}
-.content uploads {margin-left:3em;}
-/* .uploads li:nth-child(even){background-color:#F5F7F9;} */
-/* .uploads li:nth-child(odd){background-color:#D4DCE7;} */
-.efdvJumpLinkTitle{font-weight:bold;text-align:center;color:#00f;width:100%;}
-.efdvJumpLinkTitle a{all:unset;color:gray;float:right;text-decoration:none;}
-.close{cursor:pointer;position:absolute;right:1%;top:4px;transform:translate(0%,-50%);}
-.noStandardTab td.dataCell{font:8pt monospace!important;word-wrap:break-word;}
-.noStandardTab tr.dataRow.even td.dataCell:nth-of-type(2){background:#f0f0f5;border:1px solid #cecece;}
-div.listRelatedObject.caseBlock div.bPageBlock.brandSecondaryBrd.secondaryPalette table.list tr.even {background: #f0f0f0;}
-.portaluser{background-color:#ff0;display:block;margin:-.5em;padding-left:.5em;}
-.techops{background-color:#90ee90;display:block;margin:-.5em;padding-left:.5em;}
-.urgent{animation:urgent .7s infinite;}
-.urgent::before{content:"\uD83D\uDD25";}
-.watermark{color:red;font-size:1em;left:1.2em;opacity:0.5;position:absolute;vertical-align:bottom;z-index:1000;}
-div #cas15_ileinner{background-color:#90ee90;border:1px solid #cecece;color:#000;font:8pt monospace !important;padding:1em;}
-hr {border: 0; height: 1px; background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));}
-.efdvJumpLinkBody a {all:unset;margin:0;padding:0em;}
-.efdvJumpLinkBody ul {margin:0em;padding:0em;}
-.efdvJumpLinkBody li {overflow-wrap:break-word;font-size:0.9em;padding:0.3em;}
-.tbox_call, .tbox_time{margin:0;padding:0;text-align: left;}
-.fa-phone {color: #000 !important;}
-.fa-history {color: #f00 !important;}
-.fa-folder-open {color: #33beff !important;}
-#top, #end{float:right;margin-left:0.3em;}
-@keyframes urgent{
-  0%{color:#f00;}
- 49%{color:transparent;}
- 50%{color:transparent;}
- 99%{color:transparent;}
- 100%{color:#000;}
-`;
 
 // Add the injected stylesheet to the bottom of the page's <head> tag
 document.head.appendChild(style);
