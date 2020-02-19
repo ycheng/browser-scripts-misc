@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.47
+// @version        2.48
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -232,7 +232,7 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
                 <li>&nbsp;<i class="fas fa-history"></i>&nbsp;<a title="Add a new time card. Must be done by EOD!"
                   class="tbox_time" href="https://${new_timecard_msg}" target="_blank">New time card</a></li>`;
 
-    sidebar_html += create_link_list('Uploaded files', case_attachments, -1)
+    sidebar_html += create_link_list('&nbsp;&nbsp;sFTP uploads...', case_attachments, -1)
     sidebar_html += create_link_list('Pastebin pastes', pastebin_links, -2)
 
     related_list_items[0].insertAdjacentHTML('beforeend', sidebar_html)
@@ -244,7 +244,7 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
 // Add the injected stylesheet to the bottom of the page's <head> tag
 document.head.appendChild(style);
 
-// Create the collapsible 'Uploaded files...' dialog actions
+// Create the collapsible 'sFTP uploads...' dialog actions
 var coll = document.getElementsByClassName("collapsible");
 var i;
 
