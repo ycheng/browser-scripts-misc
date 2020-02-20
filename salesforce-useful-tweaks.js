@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.48
+// @version        2.49
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -55,7 +55,7 @@ function create_link_list(title, array, slice) {
             raw = `[<a href="${link}plain/" target="_blank">raw</a>]&nbsp;`
             icon = `<i class="far fa-clipboard"></i>`
         }
-        html_string += `<li>${icon} #${counter} ${raw}<a href="${link}" title="${link}"
+        html_string += `<li>${icon} [${counter}] ${raw}<a href="${link}" title="${link}"
                             target="_blank">${link.split('/').slice(slice)[0]} </a></li>`;
         index++
         if(array[array.length-1] === link) { html_string += `</div>` }
