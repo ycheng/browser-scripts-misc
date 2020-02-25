@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.49
+// @version        2.50
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -27,6 +27,16 @@ var new_timecard_msg = document.domain + new_timecard_match[2];
 
 var toolbox = ''
 var tbox_header = ''
+
+window.addEventListener("load",
+                        ()=> document.querySelector("[btn]")
+                        .addEventListener("click", toggle, false),
+                        false);
+
+function toggle() {
+    let x = document.querySelectorAll("[id=\"private\"]");
+    x.forEach( v => { v.style.display = v.style.display = ["","none"][+!(v.style.display === "none")]})
+}
 
 // Query selectors by XPath
 function getElementByXpath(path) {
@@ -227,15 +237,17 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
     var sidebar_html = ''
 
     sidebar_html += `<hr />
-                <li>&nbsp;<i class="fas fa-phone"></i>&nbsp;<a class="tbox_call" title="All calls must be logged separately from time cards"
+                <li>&nbsp;<i class="fas fa-eye"></i>&nbsp;&nbsp;<a btn>Toggle private comments</a></li>
+                <li>&nbsp;<i class="fas fa-phone"></i>&nbsp;&nbsp;<a class="tbox_call" title="All calls must be logged separately from time cards"
                    href="https://${log_call_msg}" target="_blank">Log a Customer Call</a></li>
-                <li>&nbsp;<i class="fas fa-history"></i>&nbsp;<a title="Add a new time card. Must be done by EOD!"
+                <li>&nbsp;<i class="fas fa-history"></i>&nbsp;&nbsp;<a title="Add a new time card. Must be done by EOD!"
                   class="tbox_time" href="https://${new_timecard_msg}" target="_blank">New time card</a></li>`;
 
     sidebar_html += create_link_list('&nbsp;&nbsp;sFTP uploads...', case_attachments, -1)
     sidebar_html += create_link_list('Pastebin pastes', pastebin_links, -2)
 
     related_list_items[0].insertAdjacentHTML('beforeend', sidebar_html)
+
 
 } else { // Non-case-related page rendering
     style.innerHTML += `#tools{border:1px solid #ccc;}#toolbox{-moz-column-width:200px;column-width:200px;}`
