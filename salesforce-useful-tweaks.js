@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.50
+// @version        2.51
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -199,7 +199,7 @@ div #cas15_ileinner{background-color:#90ee90;border:1px solid #cecece;color:#000
 hr {border: 0; height: 1px; background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));}
 .efdvJumpLinkBody a {all:unset;margin:0;padding:0em;}
 .efdvJumpLinkBody ul {margin:0em;padding:0em;}
-.efdvJumpLinkBody li {overflow-wrap:break-word;font-size:0.9em;padding:0.3em;}
+.efdvJumpLinkBody li {overflow-wrap:break-word;font-size:0.9em;padding:0.3em;cursor:pointer;}
 .tbox_call, .tbox_time{margin:0;padding:0;text-align: left;}
 .fa-phone {color: #000 !important;}
 .fa-history {color: #f00 !important;}
