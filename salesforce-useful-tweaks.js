@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.52
+// @version        2.53
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -28,14 +28,18 @@ var new_timecard_msg = document.domain + new_timecard_match[2];
 var toolbox = ''
 var tbox_header = ''
 
+// Keycodes interrogated here: https://keycode.info/
 // Add handler for keyboard events (press 'h' key to hide/show private comments)
-window.addEventListener('keydown', function(e){ if( e.keyCode == '72' ){ toggle(); } }, false);
+window.addEventListener('keydown', function(h){ if( h.keyCode == '72' ){ toggle(); } }, false);
+
+// Add handler for logging a new call by pressing the 'L' key
+window.addEventListener('keydown', function(l){ if( l.keyCode == '76' ){ document.getElementById("log_call").click(); } }, false);
+
+// Add handler for creating a new timecard by pressing the 'T' key
+window.addEventListener('keydown', function(t){ if( t.keyCode == '84' ){ document.getElementById("new_timecard").click(); } }, false);
 
 // Add a handler for the 'click' event on the hide/show private comments button
-window.addEventListener("load",
-                        ()=> document.querySelector("[btn]")
-                        .addEventListener("click", toggle, false),
-                        false);
+window.addEventListener("load", ()=> document.querySelector("[btn]") .addEventListener("click", toggle, false), false);
 
 // Toggle the display of private comments, off/on
 function toggle() {
@@ -235,7 +239,6 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
     var related_list_items = document.querySelectorAll('.efdvJumpLinkBody > ul');
 
     document.querySelectorAll('.efdvJumpLinkTitle')[0].insertAdjacentHTML('afterbegin', '<a id="top" title="Jump to top" href="#"><i class="fas fa-arrow-up"></i></a><a id="end" title="Jump to bottom" href="#footer"><i class="fas fa-arrow-down"></i></a>')
-    document.getElementsByClassName('sfdcBody')[0].insertAdjacentHTML('beforeend', '<footer id="footer">testing</footer>')
 
     related_list_items[0].insertAdjacentHTML('beforebegin', `<br />${toolbox}<hr />`)
 
@@ -243,10 +246,10 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
 
     sidebar_html += `<hr />
                 <li>&nbsp;<i class="fas fa-eye"></i>&nbsp;&nbsp;<a btn>Toggle private comments</a></li>
-                <li>&nbsp;<i class="fas fa-phone"></i>&nbsp;&nbsp;<a class="tbox_call" title="All calls must be logged separately from time cards"
-                   href="https://${log_call_msg}" target="_blank">Log a Customer Call</a></li>
-                <li>&nbsp;<i class="fas fa-history"></i>&nbsp;&nbsp;<a title="Add a new time card. Must be done by EOD!"
-                  class="tbox_time" href="https://${new_timecard_msg}" target="_blank">New time card</a></li>`;
+                <li>&nbsp;<i class="fas fa-phone"></i>&nbsp;&nbsp;<a id="log_call" class="tbox_call" title="All calls must be logged separately from time cards"
+                    href="https://${log_call_msg}" target="_blank">Log a Customer Call</a></li>
+                <li>&nbsp;<i class="fas fa-history"></i>&nbsp;&nbsp;<a id="new_timecard" class="tbox_time" title="Add a new time card. Must be done by EOD!"
+                    href="https://${new_timecard_msg}" target="_blank">New time card</a></li>`;
 
     sidebar_html += create_link_list('&nbsp;&nbsp;sFTP uploads...', case_attachments, -1)
     sidebar_html += create_link_list('Pastebin pastes', pastebin_links, -2)
