@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.51
+// @version        2.52
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -28,11 +28,16 @@ var new_timecard_msg = document.domain + new_timecard_match[2];
 var toolbox = ''
 var tbox_header = ''
 
+// Add handler for keyboard events (press 'h' key to hide/show private comments)
+window.addEventListener('keydown', function(e){ if( e.keyCode == '72' ){ toggle(); } }, false);
+
+// Add a handler for the 'click' event on the hide/show private comments button
 window.addEventListener("load",
                         ()=> document.querySelector("[btn]")
                         .addEventListener("click", toggle, false),
                         false);
 
+// Toggle the display of private comments, off/on
 function toggle() {
     let x = document.querySelectorAll("[id=\"private\"]");
     x.forEach( v => { v.style.display = v.style.display = ["","none"][+!(v.style.display === "none")]})
