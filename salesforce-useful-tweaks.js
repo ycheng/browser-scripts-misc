@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.59
+// @version        2.60
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -289,11 +289,11 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
     var sidebar_html = ''
 
     sidebar_html += `<hr />
-                <li>&nbsp;<i class="fas fa-eye"></i>&nbsp;&nbsp;<a btn>(H) Show/Hide private comments</a></li>
+                <li>&nbsp;<i class="fas fa-eye"></i>&nbsp;&nbsp;<a btn>Show/Hide private comments</a></li>
                 <li>&nbsp;<i class="fas fa-phone"></i>&nbsp;&nbsp;<a id="log_call" class="tbox_call" title="All calls must be logged separately from time cards"
-                    href="https://${log_call_msg}" target="_blank">(L) Log a Customer Call</a></li>
+                    href="https://${log_call_msg}" target="_blank">Log a Customer Call</a></li>
                 <li>&nbsp;<i class="fas fa-history"></i>&nbsp;&nbsp;<a id="new_timecard" class="tbox_time" title="Add a new time card. Must be done by EOD!"
-                    href="https://${new_timecard_msg}" target="_blank">(T) New time card</a></li>`;
+                    href="https://${new_timecard_msg}" target="_blank">New time card</a></li>`;
 
     sidebar_html += create_link_list('&nbsp;&nbsp;sFTP uploads...', case_attachments, -1)
     sidebar_html += create_link_list('Pastebin pastes', pastebin_links, -2)
