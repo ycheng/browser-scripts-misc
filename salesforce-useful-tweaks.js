@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.58
+// @version        2.59
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -29,58 +29,58 @@ var toolbox = ''
 var tbox_header = ''
 
 // Keycodes interrogated here: https://keycode.info/
-const KEY_A = 65; // Add to case team
-const KEY_E = 69; // Edit case
-const KEY_H = 72; // Show/Hide private comments
-const KEY_L = 76; // Log a call
-const KEY_T = 84; // Create a new Time Card
+// const KEY_A = 65; // Add to case team
+// const KEY_E = 69; // Edit case
+// const KEY_H = 72; // Show/Hide private comments
+// const KEY_L = 76; // Log a call
+// const KEY_T = 84; // Create a new Time Card
 
-function match_keypress(selector) {
-  if (document.activeElement) {
-    return document.activeElement.matches(selector);
-  } else {
-    return false;
-  }
-}
+// function match_keypress(selector) {
+//   if (document.activeElement) {
+//     return document.activeElement.matches(selector);
+//   } else {
+//     return false;
+//   }
+// }
 
-function listen_keypress(keyCode, handler) {
-  window.addEventListener('keydown', function(event) {
-    if (event.keyCode !== keyCode) {
-      return;
-    }
-    handler(event);
-  });
-}
+// function listen_keypress(keyCode, handler) {
+//   window.addEventListener('keydown', function(event) {
+//     if (event.keyCode !== keyCode) {
+//       return;
+//     }
+//     handler(event);
+//   });
+// }
 
-listen_keypress(KEY_A, function(event) {
- if (!match_keypress('textarea')) {
-  document.querySelector('input[value="Add Me to Case Team"]').click();
- }
-})
+// listen_keypress(KEY_A, function(event) {
+//  if (!match_keypress('textarea')) {
+//   document.querySelector('input[value="Add Me to Case Team"]').click();
+//  }
+// })
 
-listen_keypress(KEY_E, function(event) {
- if (!match_keypress('textarea')) {
-  document.querySelector('input[value=" Edit "]').click();
- }
-})
+// listen_keypress(KEY_E, function(event) {
+//  if (!match_keypress('textarea')) {
+//   document.querySelector('input[value=" Edit "]').click();
+//  }
+// })
 
-listen_keypress(KEY_H, function(event) {
- if (!match_keypress('textarea')) {
-  toggle();
- }
-})
+// listen_keypress(KEY_H, function(event) {
+//  if (!match_keypress('textarea')) {
+//   toggle();
+//  }
+// })
 
-listen_keypress(KEY_L, function(event) {
- if (!match_keypress('textarea')) {
-  document.getElementById("log_call").click();
- }
-})
+// listen_keypress(KEY_L, function(event) {
+//  if (!match_keypress('textarea')) {
+//   document.getElementById("log_call").click();
+//  }
+// })
 
-listen_keypress(KEY_T, function(event) {
- if (!match_keypress('textarea')) {
-  document.getElementById("new_timecard").click();
- }
-})
+// listen_keypress(KEY_T, function(event) {
+//  if (!match_keypress('textarea')) {
+//   document.getElementById("new_timecard").click();
+//  }
+// })
 
 // Add a handler for the 'click' event on the hide/show private comments button
 window.addEventListener("load", ()=> document.querySelector("[btn]") .addEventListener("click", toggle, false), false);
