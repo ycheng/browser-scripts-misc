@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.56
+// @version        2.57
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -29,15 +29,45 @@ var toolbox = ''
 var tbox_header = ''
 
 // Keycodes interrogated here: https://keycode.info/
-// This will get a helper function soon, as these keycodes will grow over time
-// Add handler for keyboard events (press 'h' key to hide/show private comments)
-window.addEventListener('keydown', function(h){ if (h.keyCode === '72' && !(document.activeElement && document.activeElement.matches('textarea'))){ toggle(); } }, false);
+const KEY_E = 69;
+const KEY_H = 72;
+const KEY_L = 76;
+const KEY_T = 84;
 
-// Add handler for logging a new call by pressing the 'L' key
-window.addEventListener('keydown', function(l){ if (l.keyCode === '76' && !(document.activeElement && document.activeElement.matches('textarea'))) { document.getElementById("log_call").click(); } }, false);
+function match_keypress(selector) {
+  if (document.activeElement) {
+    return document.activeElement.matches(selector);
+  } else {
+    return false;
+  }
+}
 
-// Add handler for creating a new timecard by pressing the 'T' key
-window.addEventListener('keydown', function(t){ if (t.keyCode === '84' && !(document.activeElement && document.activeElement.matches('textarea'))) { document.getElementById("new_timecard").click(); } }, false);
+function listen_keypress(keyCode, handler) {
+  window.addEventListener('keydown', function(event) {
+    if (event.keyCode !== keyCode) {
+      return;
+    }
+    handler(event);
+  });
+}
+
+listen_keypress(KEY_H, function(event) {
+ if (!match_keypress('textarea')) {
+  toggle();
+ }
+})
+
+listen_keypress(KEY_L, function(event) {
+ if (!match_keypress('textarea')) {
+  document.getElementById("log_call").click();
+ }
+})
+
+listen_keypress(KEY_T, function(event) {
+ if (!match_keypress('textarea')) {
+  document.getElementById("new_timecard").click();
+ }
+})
 
 // Add a handler for the 'click' event on the hide/show private comments button
 window.addEventListener("load", ()=> document.querySelector("[btn]") .addEventListener("click", toggle, false), false);
