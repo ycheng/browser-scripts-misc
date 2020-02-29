@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.60
+// @version        2.61
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -179,9 +179,11 @@ document.querySelectorAll('#cas15_ileinner').forEach(node => {
 var links_array = []
 function push_links(node, uri, links_array) {
     var re = new RegExp(uri, 'gim');
-    if (node.innerHTML.match(re)) {
-        var results = node.innerHTML.match(re);
+    var results = node.innerHTML.match(re);
+    // console.log('RESULTS', results)
+    if(results !== null) {
         results.forEach(url => {
+            // console.log('DEBUG', url)
             if(url.match(/https?:\/\/([-a-zA-Z0-9()@:%_\+.~#?&\;//=]*)?/gim)) {
                 links_array.push(url);
             }
@@ -193,7 +195,8 @@ function push_links(node, uri, links_array) {
 
 document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
     // Build an array of all attachments linked in the case comments
-    case_attachments = push_links(node, 'https?:\/\/files.support.*\/files\/[^\\s<]*', case_attachments)
+    // console.log('NODE', node)
+    case_attachments = push_links(node, 'https?:\/\/files\.support[^\/\s]+\/files\/[^<\\s]+', case_attachments)
     pastebin_links = push_links(node, 'https?:\/\/pastebin.*\/p\/[^\\s<]*', pastebin_links)
 
     // Sort the file attachments by name, vs. default sort by newest -> oldest
