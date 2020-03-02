@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.64
+// @version        2.65
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -23,14 +23,19 @@ var profile_details = document.querySelectorAll('.efhpLabeledFieldValue > a');
 
 var case_asset = getElementByXpath(".//*[@id='Asset_ileinner']")
 
-console.log('DEBUG: testing')
-
 // Keycodes interrogated here: https://keycode.info/
 // const KEY_A = 65; // Add to case team
 const KEY_E = 69; // (e) to Edit case
 const KEY_H = 72; // (h) to Show/Hide private comments
 const KEY_L = 76; // (l) to Log a call
 const KEY_T = 84; // (t) Create a new Time Card
+
+// Remove duplicate entries from the arrays we populate with links
+Array.prototype.unique = function() {
+  return this.filter(function (value, index, self) {
+    return self.indexOf(value) === index;
+  });
+}
 
 function match_keypress(selector) {
   if (document.activeElement) {
@@ -74,6 +79,9 @@ function getElementByXpath(path) {
 // Build the <li>${link}</li> list for the sidebar from array items
 function create_link_list(title, array, slice) {
     var html_string = ''
+    array = array.unique();
+    // console.log('DEBUG', array)
+
     if (array.length > 0) {
         html_string += `<hr /><div class="collapsible">${title}... (${array.length})</div>`
         if (array.length > 5) {
@@ -87,6 +95,7 @@ function create_link_list(title, array, slice) {
         var raw = ''
         var icon = `<i class="far fa-folder-open"></i>`
         var counter = String(index+1).padStart(3, '0')
+
         if (link.match(/pastebin/)) {
             raw = `[<a href="${link}plain/" target="_blank">raw</a>]&nbsp;`
             icon = `<i class="far fa-clipboard"></i>`
@@ -152,7 +161,6 @@ var links_array = []
 function push_links(node, uri, links_array) {
     var re = new RegExp(uri, 'gim');
     var results = node.innerHTML.match(re);
-    // console.log('RESULTS', results)
     if(results !== null) {
         results.forEach(url => {
             // console.log('DEBUG', url)
@@ -168,13 +176,12 @@ function push_links(node, uri, links_array) {
 document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
     // Build an array of all attachments linked in the case comments
     case_attachments = push_links(node, 'https?:\/\/files\.support[^\/\s]+\/files\/[^<\\s]+', case_attachments)
-    pastebin_links = push_links(node, 'https?:\/\/pastebin.*\/p\/[^\\s<]*', pastebin_links)
+    pastebin_links = push_links(node, 'https?:\/\/pastebin[^\/\s]+[^<\\s\.]+', pastebin_links)
 
-    // Sort the file attachments by name, vs. default sort by newest -> oldest
-    // case_attachments.sort()
+  // Sort the file attachments by name, vs. default sort by newest -> oldest
+  // case_attachments.sort()
 
-    // alert(node.innerHTML)
-    node.innerHTML = node.innerHTML.replace(/(Created By:.*)/,
+  node.innerHTML = node.innerHTML.replace(/(Created By:.*)/,
 		'<span class="techops">$1</span>')
 
 	node.innerHTML = node.innerHTML.replace(/(Created By: .+ \(portal\).*<\/b>)/gi,
