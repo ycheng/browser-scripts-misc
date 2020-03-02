@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.63
+// @version        2.64
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -22,6 +22,8 @@ var style = document.createElement('style');
 var profile_details = document.querySelectorAll('.efhpLabeledFieldValue > a');
 
 var case_asset = getElementByXpath(".//*[@id='Asset_ileinner']")
+
+console.log('DEBUG: testing')
 
 // Keycodes interrogated here: https://keycode.info/
 // const KEY_A = 65; // Add to case team
@@ -202,16 +204,15 @@ document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
 style.innerHTML += `
 @import url("https://use.fontawesome.com/releases/v5.12.1/css/all.css");
 #private{background-color:#fff2e6;}
-#tools{background-color:#f1f1f1;border:1px solid #d3d3d3;border-radius:0 0 10px 10px;position:fixed;text-align:center;z-index:9;}
+#tools{background-color:#f1f1f1;border:1px solid #d3d3d3;border-radius:0 0 10px 10px;text-align:center;z-index:9;}
 /* #toolbox{-moz-column-width:160px;column-width:160px;font-weight:400 0;margin:1em;text-align:left;} */
-.efdvJumpLink{position:fixed;z-index:8;border:1px solid #000;background-color:#ddeef4;border-radius:5px;box-shadow: 5px 5px #ccc;left:3em;width:150px;}
+.efdvJumpLink{position:fixed;z-index:8;border:1px solid #000;background-color:#ddeef4;border-radius:5px;box-shadow: 5px 5px #ccc;left:1.8em;width:165px;}
 .uploads{overflow-x:hidden;overflow-y:auto;max-height:300px;scrollbar-width: thin;}
 .content uploads {margin-left:3em;}
 /* .uploads li:nth-child(even){background-color:#F5F7F9;} */
 /* .uploads li:nth-child(odd){background-color:#D4DCE7;} */
-.efdvJumpLinkTitle{font-weight:bold;text-align:center;color:#00f;width:100%;}
+.efdvJumpLinkTitle{font-weight:bold;text-align:center;color:#916363;width:100%;}
 .efdvJumpLinkTitle a{all:unset;color:gray;float:right;text-decoration:none;}
-.close{cursor:pointer;position:absolute;right:1%;top:4px;transform:translate(0%,-50%);}
 .noStandardTab td.dataCell{font:8pt monospace!important;word-wrap:break-word;}
 .noStandardTab tr.dataRow.even td.dataCell:nth-of-type(2){background:#f0f0f5;border:1px solid #cecece;}
 div.listRelatedObject.caseBlock div.bPageBlock.brandSecondaryBrd.secondaryPalette table.list tr.even {background: #f0f0f0;}
@@ -240,8 +241,8 @@ hr {border: 0; height: 1px; background-image: linear-gradient(to right, rgba(0, 
 
 var is_weekend = ([0,6].indexOf(new Date().getDay()) != -1);
 if (is_weekend === true && case_asset.includes("Essential")) {
-    toolbox += `Weekend: <strong>Only work case 8x5</strong><br />`
-    document.getElementsByClassName("efdvJumpLink")[0].style = "border: 2px solid #ff8c00; background: repeating-linear-gradient( 45deg,transparent,transparent 10px,#eee 10px,#eee 20px)"
+    toolbox += `Weekend: <strong style="color:#f00;">8x5 support</strong><br />`
+    document.getElementsByClassName("efdvJumpLink")[0].style = "border: 2px solid #ff9494; background: repeating-linear-gradient(45deg,#f7f7f7,#f7f7f7 10px,#fff 10px, #fff 20px);"
 }
 
 if (sev_level) {
@@ -267,7 +268,7 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
 
     var new_timecard_link = document.querySelector('input[value="New time card"]').getAttribute('onClick').match(/this.form.action = (.*?['"]([^'"]*)['"])/);
     if (new_timecard_link) {
-        var new_timecard_msg = 'https://' + document.domain + new_timecard_link[2];
+        var new_timecard_msg = document.domain + new_timecard_link[2];
         console.log('DEBUG:', new_timecard_msg)
     }
 
@@ -275,7 +276,7 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
                 <li>&nbsp;<i class="fas fa-eye"></i>&nbsp;&nbsp;(H) <a btn>Show/Hide comments</a></li>
                 <li>&nbsp;<i class="fas fa-phone"></i>&nbsp;&nbsp;(L) <a id="log_call" class="tbox_call" title="All calls must be logged separately from time cards"
                     href="https://${log_call_msg}" target="_blank">Log a Customer Call</a></li>
-                <li>&nbsp;<i class="fas fa-history"></i>&nbsp;&nbsp;(N) <a id="new_timecard" class="tbox_time" title="Add a new time card. Must be done by EOD!"
+                <li>&nbsp;<i class="fas fa-history"></i>&nbsp;&nbsp;(T) <a id="new_timecard" class="tbox_time" title="Add a new time card. Must be done by EOD!"
                     href="https://${new_timecard_msg}" target="_blank">New time card</a></li>`;
 
     sidebar_html += create_link_list('&nbsp;&nbsp;sFTP uploads...', case_attachments, -1)
