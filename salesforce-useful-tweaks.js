@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.62
+// @version        2.63
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -21,19 +21,14 @@ var pastebin_links = []
 var style = document.createElement('style');
 var profile_details = document.querySelectorAll('.efhpLabeledFieldValue > a');
 
-var new_timecard = document.querySelector('input[value="New time card"]').getAttribute('onclick');
-var new_timecard_match = new_timecard.match(/this.form.action = (.*?['"]([^'"]*)['"])/);
-var new_timecard_msg = document.domain + new_timecard_match[2];
-
-var toolbox = ''
-var tbox_header = ''
+var case_asset = getElementByXpath(".//*[@id='Asset_ileinner']")
 
 // Keycodes interrogated here: https://keycode.info/
-const KEY_A = 65; // Add to case team
-const KEY_E = 69; // Edit case
-const KEY_H = 72; // Show/Hide private comments
-const KEY_L = 76; // Log a call
-const KEY_T = 84; // Create a new Time Card
+// const KEY_A = 65; // Add to case team
+const KEY_E = 69; // (e) to Edit case
+const KEY_H = 72; // (h) to Show/Hide private comments
+const KEY_L = 76; // (l) to Log a call
+const KEY_T = 84; // (t) Create a new Time Card
 
 function match_keypress(selector) {
   if (document.activeElement) {
@@ -52,35 +47,11 @@ function listen_keypress(keyCode, handler) {
   });
 }
 
-// listen_keypress(KEY_A, function(event) {
-//  if (!match_keypress('textarea')) {
-//   document.querySelector('input[value="Add Me to Case Team"]').click();
-//  }
-// })
-
-// listen_keypress(KEY_E, function(event) {
-//  if (!match_keypress('textarea')) {
-//   document.querySelector('input[value=" Edit "]').click();
-//  }
-// })
-
-listen_keypress(KEY_H, function(event) {
- if (!match_keypress('textarea')) {
-  toggle();
- }
-})
-
-// listen_keypress(KEY_L, function(event) {
-//  if (!match_keypress('textarea')) {
-//   document.getElementById("log_call").click();
-//  }
-// })
-
-// listen_keypress(KEY_T, function(event) {
-//  if (!match_keypress('textarea')) {
-//   document.getElementById("new_timecard").click();
-//  }
-// })
+// listen_keypress(KEY_A,function(event){if(!match_keypress('textarea')){document.querySelector('input[value="Add Me to Case Team"]').click();}})
+listen_keypress(KEY_E,function(event){if(!match_keypress('textarea')){document.querySelector('input[value=" Edit "]').click();}})
+listen_keypress(KEY_H,function(event){if(!match_keypress('textarea')){toggle();}})
+listen_keypress(KEY_L,function(event){if(!match_keypress('textarea')){document.getElementById("log_call").click();}})
+listen_keypress(KEY_T,function(event){if(!match_keypress('textarea')){document.getElementById("new_timecard").click();}})
 
 // Add a handler for the 'click' event on the hide/show private comments button
 window.addEventListener("load", ()=> document.querySelector("[btn]") .addEventListener("click", toggle, false), false);
@@ -103,7 +74,7 @@ function create_link_list(title, array, slice) {
     var html_string = ''
     if (array.length > 0) {
         html_string += `<hr /><div class="collapsible">${title}... (${array.length})</div>`
-        if (array.length > 10) {
+        if (array.length > 5) {
             html_string += `<div class="content uploads" style="display:none;">`;
         } else {
             html_string += `<div class="content uploads">`
@@ -154,10 +125,9 @@ roles.forEach((thisHeading) => {
     });
 });
 
-// console.log('DEBUG', map)
-
 var sev_level = getElementByXpath("//*[contains(text(),'Severity Level')]/following::div[1]").replace(/.*L(\d+).*/, 'L$1')
 
+var toolbox = ''
 var customer = getElementByXpath("//*[contains(text(),'Customer')]/following::a[2]")
 if (customer) { toolbox += `Customer: <strong>${customer.trim()}</strong><br />`}
 
@@ -195,7 +165,6 @@ function push_links(node, uri, links_array) {
 
 document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
     // Build an array of all attachments linked in the case comments
-    // console.log('NODE', node)
     case_attachments = push_links(node, 'https?:\/\/files\.support[^\/\s]+\/files\/[^<\\s]+', case_attachments)
     pastebin_links = push_links(node, 'https?:\/\/pastebin.*\/p\/[^\\s<]*', pastebin_links)
 
@@ -235,7 +204,7 @@ style.innerHTML += `
 #private{background-color:#fff2e6;}
 #tools{background-color:#f1f1f1;border:1px solid #d3d3d3;border-radius:0 0 10px 10px;position:fixed;text-align:center;z-index:9;}
 /* #toolbox{-moz-column-width:160px;column-width:160px;font-weight:400 0;margin:1em;text-align:left;} */
-.efdvJumpLink{position:fixed;z-index:8;border:1px solid #000;background-color:#ddeef4;border-radius:5px;box-shadow: 5px 5px #ccc;left:3em;width:150px}
+.efdvJumpLink{position:fixed;z-index:8;border:1px solid #000;background-color:#ddeef4;border-radius:5px;box-shadow: 5px 5px #ccc;left:3em;width:150px;}
 .uploads{overflow-x:hidden;overflow-y:auto;max-height:300px;scrollbar-width: thin;}
 .content uploads {margin-left:3em;}
 /* .uploads li:nth-child(even){background-color:#F5F7F9;} */
@@ -269,12 +238,19 @@ hr {border: 0; height: 1px; background-image: linear-gradient(to right, rgba(0, 
  100%{color:#000;}
 `;
 
+var is_weekend = ([0,6].indexOf(new Date().getDay()) != -1);
+if (is_weekend === true && case_asset.includes("Essential")) {
+    toolbox += `Weekend: <strong>Only work case 8x5</strong><br />`
+    document.getElementsByClassName("efdvJumpLink")[0].style = "border: 2px solid #ff8c00; background: repeating-linear-gradient( 45deg,transparent,transparent 10px,#eee 10px,#eee 20px)"
+}
+
 if (sev_level) {
 	// Add some urgency to the L1 level cases
 	sev_level.includes('L1') ? sev_level = `<span class="urgent">${sev_level}</span>` : sev_level
     // This is not currently working as intended, will fix later
     sev_level.includes('L1') ? style.innerHTML += '.efdvJumpLink{background:#f00;border:2px solid #f00 !important;border-radius:10px !important;}' : ''
 	toolbox += `Severity: <strong>${sev_level.trim()}</strong><br />`
+
 }
 
 if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
@@ -289,21 +265,23 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
 
     related_list_items[0].insertAdjacentHTML('beforebegin', `<br />${toolbox}<hr />`)
 
-    var sidebar_html = ''
+    var new_timecard_link = document.querySelector('input[value="New time card"]').getAttribute('onClick').match(/this.form.action = (.*?['"]([^'"]*)['"])/);
+    if (new_timecard_link) {
+        var new_timecard_msg = 'https://' + document.domain + new_timecard_link[2];
+        console.log('DEBUG:', new_timecard_msg)
+    }
 
-    sidebar_html += `<hr />
-                <li>&nbsp;<i class="fas fa-eye"></i>&nbsp;&nbsp;<a btn>Show/Hide private comments</a></li>
-                <li>&nbsp;<i class="fas fa-phone"></i>&nbsp;&nbsp;<a id="log_call" class="tbox_call" title="All calls must be logged separately from time cards"
+    var sidebar_html = `<hr />
+                <li>&nbsp;<i class="fas fa-eye"></i>&nbsp;&nbsp;(H) <a btn>Show/Hide comments</a></li>
+                <li>&nbsp;<i class="fas fa-phone"></i>&nbsp;&nbsp;(L) <a id="log_call" class="tbox_call" title="All calls must be logged separately from time cards"
                     href="https://${log_call_msg}" target="_blank">Log a Customer Call</a></li>
-                <li>&nbsp;<i class="fas fa-history"></i>&nbsp;&nbsp;<a id="new_timecard" class="tbox_time" title="Add a new time card. Must be done by EOD!"
+                <li>&nbsp;<i class="fas fa-history"></i>&nbsp;&nbsp;(N) <a id="new_timecard" class="tbox_time" title="Add a new time card. Must be done by EOD!"
                     href="https://${new_timecard_msg}" target="_blank">New time card</a></li>`;
 
     sidebar_html += create_link_list('&nbsp;&nbsp;sFTP uploads...', case_attachments, -1)
-    sidebar_html += create_link_list('Pastebin pastes', pastebin_links, -2)
+    sidebar_html += create_link_list('&nbsp;&nbsp;Pastebin pastes', pastebin_links, -2)
 
     related_list_items[0].insertAdjacentHTML('beforeend', sidebar_html)
-
-
 } else { // Non-case-related page rendering
     style.innerHTML += `#tools{border:1px solid #ccc;}#toolbox{-moz-column-width:200px;column-width:200px;}`
 }
@@ -331,8 +309,7 @@ for (i = 0; i < coll.length; i++) {
 const qsa = (selector, parent = document) => parent.querySelectorAll(selector)
 qsa('[id^="efJumpLink"]').forEach(element => { dragElement(document.getElementById(element.id)); })
 
-function dragElement(n){var t=0,o=0,u=0,l=0;
-function e(e){if(e.button!==0){return} (e=e||window.event).preventDefault();u=e.clientX;l=e.clientY;document.onmouseup=m;document.onmousemove=d}
+function dragElement(n){var t=0,o=0,u=0,l=0;function e(e){(e=e||window.event).preventDefault();u=e.clientX;l=e.clientY;document.onmouseup=m;document.onmousemove=d}
 function d(e){(e=e||window.event).preventDefault();t=u-e.clientX;o=l-e.clientY;u=e.clientX;l=e.clientY;n.style.top=n.offsetTop-o+"px";n.style.left=n.offsetLeft-t+"px"}
 function m(){document.onmouseup=null;document.onmousemove=null}
 document.getElementById(n.id+"header")?document.getElementById(n.id+"header").onmousedown=e:n.onmousedown=e}
