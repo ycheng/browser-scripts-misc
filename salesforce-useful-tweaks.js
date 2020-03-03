@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.65
+// @version        2.66
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -54,11 +54,32 @@ function listen_keypress(keyCode, handler) {
   });
 }
 
-// listen_keypress(KEY_A,function(event){if(!match_keypress('textarea')){document.querySelector('input[value="Add Me to Case Team"]').click();}})
-listen_keypress(KEY_E,function(event){if(!match_keypress('textarea')){document.querySelector('input[value=" Edit "]').click();}})
-listen_keypress(KEY_H,function(event){if(!match_keypress('textarea')){toggle();}})
-listen_keypress(KEY_L,function(event){if(!match_keypress('textarea')){document.getElementById("log_call").click();}})
-listen_keypress(KEY_T,function(event){if(!match_keypress('textarea')){document.getElementById("new_timecard").click();}})
+// listen_keypress(KEY_A, function(event) {
+//  if (!match_keypress('textarea')) {
+//   document.querySelector('input[value="Add Me to Case Team"]').click();
+//  }
+// })
+
+listen_keypress(KEY_E, function(event) {
+ if (!match_keypress('textarea') && !match_keypress('input')) {
+  document.querySelector('input[value=" Edit "]').click();
+ }
+})
+listen_keypress(KEY_H, function(event) {
+ if (!match_keypress('textarea') && !match_keypress('input')) {
+  toggle();
+ }
+})
+listen_keypress(KEY_L, function(event) {
+ if (!match_keypress('textarea') && !match_keypress('input')) {
+  document.getElementById("log_call").click();
+ }
+})
+listen_keypress(KEY_T, function(event) {
+ if (!match_keypress('textarea') && !match_keypress('input')) {
+  document.getElementById("new_timecard").click();
+ }
+})
 
 // Add a handler for the 'click' event on the hide/show private comments button
 window.addEventListener("load", ()=> document.querySelector("[btn]") .addEventListener("click", toggle, false), false);
@@ -173,6 +194,8 @@ function push_links(node, uri, links_array) {
     return links_array
 }
 
+[...document.querySelectorAll('.dataCell')].filter(el => el.innerText === 'Expired').forEach(el => el.parentElement.classList.add('expired'))
+
 document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
     // Build an array of all attachments linked in the case comments
     case_attachments = push_links(node, 'https?:\/\/files\.support[^\/\s]+\/files\/[^<\\s]+', case_attachments)
@@ -216,8 +239,7 @@ style.innerHTML += `
 .efdvJumpLink{position:fixed;z-index:8;border:1px solid #000;background-color:#ddeef4;border-radius:5px;box-shadow: 5px 5px #ccc;left:1.8em;width:165px;}
 .uploads{overflow-x:hidden;overflow-y:auto;max-height:300px;scrollbar-width: thin;}
 .content uploads {margin-left:3em;}
-/* .uploads li:nth-child(even){background-color:#F5F7F9;} */
-/* .uploads li:nth-child(odd){background-color:#D4DCE7;} */
+.expired{background-color:#ffc9c9;}
 .efdvJumpLinkTitle{font-weight:bold;text-align:center;color:#916363;width:100%;}
 .efdvJumpLinkTitle a{all:unset;color:gray;float:right;text-decoration:none;}
 .noStandardTab td.dataCell{font:8pt monospace!important;word-wrap:break-word;}
@@ -270,6 +292,7 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
     var related_list_items = document.querySelectorAll('.efdvJumpLinkBody > ul');
 
     document.querySelectorAll('.efdvJumpLinkTitle')[0].insertAdjacentHTML('afterbegin', '<a id="top" title="Jump to top" href="#"><i class="fas fa-arrow-up"></i></a><a id="end" title="Jump to bottom" href="#footer"><i class="fas fa-arrow-down"></i></a>')
+    document.getElementsByClassName('sfdcBody')[0].insertAdjacentHTML('beforeend', '<footer id="footer"></footer>')
 
     related_list_items[0].insertAdjacentHTML('beforebegin', `<br />${toolbox}<hr />`)
 
