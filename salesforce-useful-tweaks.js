@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.71
+// @version        2.72
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -164,7 +164,7 @@ var customer = getElementByXpath("//*[contains(text(),'Customer')]/following::a[
 if (customer) { toolbox += `Customer: <strong>${customer.trim()}</strong><br />`}
 
 var case_owner = getElementByXpath("//*[contains(text(),'Case Owner')]/following::td[1]");
-var case_comments = getElementByXpath("//*[contains(text(),'Case Comments')]").replace(/.*(\d+).*/, '$1');
+var case_comments = getElementByXpath("//*[contains(text(),'Case Comments')]").replace(/.*\((\d+)\).*/, '$1');
 
 if (case_owner) { toolbox += `Case owner: <strong>${case_owner.trim()}</strong><br />`}
 
@@ -196,9 +196,18 @@ function push_links(node, uri, links_array) {
     return links_array
 }
 
+// Will combine these later, tactical for now
 [...document.querySelectorAll('.dataCell img[alt="green"]')].forEach(el => el.closest("tr").classList.add('aa'));
 [...document.querySelectorAll('.dataCell img[alt="yellow"]')].forEach(el => el.closest("tr").classList.add('ane'));
 [...document.querySelectorAll('.dataCell')].filter(el => el.innerText === 'Expired').forEach(el => el.closest("tr").classList.add('ae'));
+
+document.querySelectorAll('.dataCell b').forEach((el) => {
+    if(el.innerText.includes('portal')) {
+        el.classList.add('external')
+    } else {
+        el.classList.add('internal')
+    }
+});
 
 var comment_count = case_comments;
 document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
@@ -208,15 +217,10 @@ document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
 
     // Sort the file attachments by name, vs. default sort by newest -> oldest
     // case_attachments.sort()
-//     node.innerHTML = node.innerHTML.replace(/(Created By:.*)/,
-//                                             `<span class="techops" id="${comment_count}"><a title="Right-click to link to comment #${comment_count}"
-//                                             name="#${comment_count}" href="${window.location.href.split('?')[0]}#${comment_count}">
-//                                             <i class="fas fa-link"></i></a>(${comment_count})&nbsp;$1</span>`)
 
-    node.innerHTML = node.innerHTML.replace(/(Created By:.*)/,
-                                            `<span class="techops">$1</span>`)
-
-    node.innerHTML = node.innerHTML.replace(/(Created By: .+ \(portal\).*<\/b>)/gi, `<div class="portaluser">$1</div><\/b>`)
+    node.innerHTML = node.innerHTML.replace(/(Created By:.*)/, `<span id="${comment_count}"><a title="Right-click to link to comment #${comment_count}"
+                                            name="#${comment_count}" href="${window.location.href.split('?')[0]}#${comment_count}">
+                                            <i class="fas fa-link"></i></a>(${comment_count})&nbsp;$1</span>`)
 
     // Special handling for attachments in case comments
     node.innerHTML = node.innerHTML.replace(/\-New Attachment added: ([^()]+)/gi,
@@ -258,8 +262,8 @@ style.innerHTML += `
 .noStandardTab td.dataCell{font:8pt monospace!important;word-wrap:break-word;}
 .noStandardTab tr.dataRow.even td.dataCell:nth-of-type(2){background:#f0f0f5;border:1px solid #cecece;}
 div.listRelatedObject.caseBlock div.bPageBlock.brandSecondaryBrd.secondaryPalette table.list tr.even {background: #f0f0f0;}
-.portaluser{background-color:#ff0;display:block;margin:-.5em;padding-left:.5em;}
-.techops{background-color:#90ee90;display:block;margin:-.5em;padding-left:.5em;}
+.external{background-color:#ff0;display:block;margin:-.5em;padding-left:.5em;}
+.internal{background-color:#90ee90;display:block;margin:-.5em;padding-left:.5em;}
 .urgent{animation:urgent 1.0s infinite;}
 .urgent::before{content:"\uD83D\uDD25";}
 .watermark{color:red;font-size:1em;left:1.2em;opacity:0.5;position:absolute;vertical-align:bottom;z-index:1000;}
@@ -312,7 +316,6 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
     var new_timecard_link = document.querySelector('input[value="New time card"]').getAttribute('onClick').match(/this.form.action = (.*?['"]([^'"]*)['"])/);
     if (new_timecard_link) {
         var new_timecard_msg = document.domain + new_timecard_link[2];
-        console.log('DEBUG:', new_timecard_msg)
     }
 
     var sidebar_html = `<hr />
