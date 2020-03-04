@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.69
+// @version        2.70
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -157,13 +157,15 @@ roles.forEach((thisHeading) => {
     });
 });
 
-var sev_level = getElementByXpath("//*[contains(text(),'Severity Level')]/following::div[1]").replace(/.*L(\d+).*/, 'L$1')
+var sev_level = getElementByXpath("//*[contains(text(),'Severity Level')]/following::div[1]").replace(/.*L(\d+).*/, 'L$1');
 
 var toolbox = ''
-var customer = getElementByXpath("//*[contains(text(),'Customer')]/following::a[2]")
+var customer = getElementByXpath("//*[contains(text(),'Customer')]/following::a[2]");
 if (customer) { toolbox += `Customer: <strong>${customer.trim()}</strong><br />`}
 
-var case_owner = getElementByXpath("//*[contains(text(),'Case Owner')]/following::td[1]")
+var case_owner = getElementByXpath("//*[contains(text(),'Case Owner')]/following::td[1]");
+var case_comments = getElementByXpath("//*[contains(text(),'Case Comments')]").replace(/.*(\d+).*/, '$1');
+
 if (case_owner) { toolbox += `Case owner: <strong>${case_owner.trim()}</strong><br />`}
 
 var acct_dse = map["Dedicated Services Engineer"]
@@ -198,7 +200,7 @@ function push_links(node, uri, links_array) {
 [...document.querySelectorAll('.dataCell img[alt="yellow"]')].forEach(el => el.closest("tr").classList.add('ane'));
 [...document.querySelectorAll('.dataCell')].filter(el => el.innerText === 'Expired').forEach(el => el.closest("tr").classList.add('ae'));
 
-var comment_count = 1;
+var comment_count = case_comments;
 document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
     // Build an array of all attachments linked in the case comments
     case_attachments = push_links(node, 'https?:\/\/files\.support[^\/\s]+\/files\/[^<\\s]+', case_attachments)
@@ -232,7 +234,7 @@ document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
 	// I don't like it, I'll fix it later.
 	node.innerHTML = node.innerHTML.replace(/<a href(.*) title="Make Public(.*?)<td class="\s+dataCell\s+">(.*)/gi,
 		'<a href $1 title="Make Public $2<td class="dataCell" id="private"><span class="watermark">private comment</span>$3')
-    comment_count++
+    comment_count--
 });
 
 style.innerHTML += `
