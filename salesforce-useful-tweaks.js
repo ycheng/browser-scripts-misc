@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.70
+// @version        2.71
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -206,34 +206,36 @@ document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
     case_attachments = push_links(node, 'https?:\/\/files\.support[^\/\s]+\/files\/[^<\\s]+', case_attachments)
     pastebin_links = push_links(node, 'https?:\/\/pastebin[^\/\s]+[^<\\s\.]+', pastebin_links)
 
-  // Sort the file attachments by name, vs. default sort by newest -> oldest
-  // case_attachments.sort()
-  node.innerHTML = node.innerHTML.replace(/(Created By:.*)/,
-		`<span class="techops" id="${comment_count}"><a title="Right-click to link to comment #${comment_count}"
-         name="#${comment_count}"
-         href="${window.location.href.split('?')[0]}#${comment_count}"><i class="fas fa-link"></i></a>(${comment_count})&nbsp;$1</span>`)
+    // Sort the file attachments by name, vs. default sort by newest -> oldest
+    // case_attachments.sort()
+//     node.innerHTML = node.innerHTML.replace(/(Created By:.*)/,
+//                                             `<span class="techops" id="${comment_count}"><a title="Right-click to link to comment #${comment_count}"
+//                                             name="#${comment_count}" href="${window.location.href.split('?')[0]}#${comment_count}">
+//                                             <i class="fas fa-link"></i></a>(${comment_count})&nbsp;$1</span>`)
 
-	node.innerHTML = node.innerHTML.replace(/(Created By: .+ \(portal\).*<\/b>)/gi,
-		`<div class="portaluser">$1</div><\/b>`)
+    node.innerHTML = node.innerHTML.replace(/(Created By:.*)/,
+                                            `<span class="techops">$1</span>`)
+
+    node.innerHTML = node.innerHTML.replace(/(Created By: .+ \(portal\).*<\/b>)/gi, `<div class="portaluser">$1</div><\/b>`)
 
     // Special handling for attachments in case comments
-	node.innerHTML = node.innerHTML.replace(/\-New Attachment added: ([^()]+)/gi,
-		`&#128206; <span style="color:red;">IMPORTANT New Attachment added</span>: <a href="${attachments}">$1</a>`)
+    node.innerHTML = node.innerHTML.replace(/\-New Attachment added: ([^()]+)/gi,
+                                            `&#128206; <span style="color:red;">IMPORTANT New Attachment added</span>: <a href="${attachments}">$1</a>`)
 
     // Attempt to turn anything that looks like a URL in a case comment, into a clickable link
     node.innerHTML = node.innerHTML.replace(/(?=(https?:\/{2}[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\;//=]*)?))\1(?!['"]|<\/a>)+/gim,
-		`<a style="color:blue;" href="$&">$&</a>`)
+                                            `<a style="color:blue;" href="$&">$&</a>`)
 
     // These will dynamically link in any references to CVEs to their requisite search URLs
-	node.innerHTML = node.innerHTML.replace(/(?:[^\/])(cve-\d{4}-\d{4,7})/gim,
-		'<span title="Search for $1">&nbsp;<a style="color:blue;" href="' +
-		u_cvesearch +
-		'$1.html" target="_blank">$1</a></span>')
+    node.innerHTML = node.innerHTML.replace(/(?:[^\/])(cve-\d{4}-\d{4,7})/gim,
+                                            '<span title="Search for $1">&nbsp;<a style="color:blue;" href="' +
+                                            u_cvesearch +
+                                            '$1.html" target="_blank">$1</a></span>')
 
-	// This is brittle, it should be: getElementByXpath("//*[contains(text(),'Make Public')]/following::td[1]")
-	// I don't like it, I'll fix it later.
-	node.innerHTML = node.innerHTML.replace(/<a href(.*) title="Make Public(.*?)<td class="\s+dataCell\s+">(.*)/gi,
-		'<a href $1 title="Make Public $2<td class="dataCell" id="private"><span class="watermark">private comment</span>$3')
+    // This is brittle, it should be: getElementByXpath("//*[contains(text(),'Make Public')]/following::td[1]")
+    // I don't like it, I'll fix it later.
+    node.innerHTML = node.innerHTML.replace(/<a href(.*) title="Make Public(.*?)<td class="\s+dataCell\s+">(.*)/gi,
+                                            '<a href $1 title="Make Public $2<td class="dataCell" id="private"><span class="watermark">private comment</span>$3')
     comment_count--
 });
 
