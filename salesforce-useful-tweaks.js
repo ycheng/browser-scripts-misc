@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.66
+// @version        2.67
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -194,7 +194,9 @@ function push_links(node, uri, links_array) {
     return links_array
 }
 
-[...document.querySelectorAll('.dataCell')].filter(el => el.innerText === 'Expired').forEach(el => el.parentElement.classList.add('expired'))
+[...document.querySelectorAll('.dataCell img[alt="green"]')].forEach(el => el.closest("tr").classList.add('aa'));
+[...document.querySelectorAll('.dataCell img[alt="yellow"]')].forEach(el => el.closest("tr").classList.add('ane'));
+[...document.querySelectorAll('.dataCell')].filter(el => el.innerText === 'Expired').forEach(el => el.closest("tr").classList.add('ae'));
 
 document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
     // Build an array of all attachments linked in the case comments
@@ -239,7 +241,12 @@ style.innerHTML += `
 .efdvJumpLink{position:fixed;z-index:8;border:1px solid #000;background-color:#ddeef4;border-radius:5px;box-shadow: 5px 5px #ccc;left:1.8em;width:165px;}
 .uploads{overflow-x:hidden;overflow-y:auto;max-height:300px;scrollbar-width: thin;}
 .content uploads {margin-left:3em;}
-.expired{background-color:#ffc9c9;}
+/* Active asset */
+.aa{background-color:#b3ffb3;}
+/* Asset nearing expiry */
+.ane{background-color:#ffffb3;}
+/* Expired asset */
+.ae{background-color:#ffc9c9;}
 .efdvJumpLinkTitle{font-weight:bold;text-align:center;color:#916363;width:100%;}
 .efdvJumpLinkTitle a{all:unset;color:gray;float:right;text-decoration:none;}
 .noStandardTab td.dataCell{font:8pt monospace!important;word-wrap:break-word;}
