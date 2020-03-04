@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.68
+// @version        2.69
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -207,7 +207,9 @@ document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
   // Sort the file attachments by name, vs. default sort by newest -> oldest
   // case_attachments.sort()
   node.innerHTML = node.innerHTML.replace(/(Created By:.*)/,
-		`<span class="techops" id="${comment_count}">$1</span>`)
+		`<span class="techops" id="${comment_count}"><a title="Right-click to link to comment #${comment_count}"
+         name="#${comment_count}"
+         href="${window.location.href.split('?')[0]}#${comment_count}"><i class="fas fa-link"></i></a>(${comment_count})&nbsp;$1</span>`)
 
 	node.innerHTML = node.innerHTML.replace(/(Created By: .+ \(portal\).*<\/b>)/gi,
 		`<div class="portaluser">$1</div><\/b>`)
