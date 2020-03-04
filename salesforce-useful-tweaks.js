@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.73
+// @version        2.74
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -162,7 +162,7 @@ var sev_level = getElementByXpath("//*[contains(text(),'Severity Level')]/follow
 var toolbox = ''
 var customer_name = getElementByXpath("//*[contains(text(),'Customer')]/following::a[1]");
 var customer_contact = getElementByXpath("//*[contains(text(),'Customer')]/following::a[2]");
-if (customer_name) { toolbox += `Customer: <strong>${customer_name.trim()}</strong><br />Contact: <strong>${customer_contact.trim()}</strong><br />`}
+if (customer_name) { toolbox += `Customer: <strong>${customer_name.trim()}</strong><br />Contact: <strong>${customer_contact.trim()}</strong><hr />`}
 
 var case_owner = getElementByXpath("//*[contains(text(),'Case Owner')]/following::td[1]");
 var case_comments = getElementByXpath("//*[contains(text(),'Case Comments')]").replace(/.*\((\d+)\).*/, '$1');
