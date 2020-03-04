@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.67
+// @version        2.68
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -19,7 +19,7 @@ var case_attachments = []
 var pastebin_links = []
 
 var style = document.createElement('style');
-var profile_details = document.querySelectorAll('.efhpLabeledFieldValue > a');
+// var profile_details = document.querySelectorAll('.efhpLabeledFieldValue > a');
 
 var case_asset = getElementByXpath(".//*[@id='Asset_ileinner']")
 
@@ -198,6 +198,7 @@ function push_links(node, uri, links_array) {
 [...document.querySelectorAll('.dataCell img[alt="yellow"]')].forEach(el => el.closest("tr").classList.add('ane'));
 [...document.querySelectorAll('.dataCell')].filter(el => el.innerText === 'Expired').forEach(el => el.closest("tr").classList.add('ae'));
 
+var comment_count = 1;
 document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
     // Build an array of all attachments linked in the case comments
     case_attachments = push_links(node, 'https?:\/\/files\.support[^\/\s]+\/files\/[^<\\s]+', case_attachments)
@@ -205,12 +206,11 @@ document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
 
   // Sort the file attachments by name, vs. default sort by newest -> oldest
   // case_attachments.sort()
-
   node.innerHTML = node.innerHTML.replace(/(Created By:.*)/,
-		'<span class="techops">$1</span>')
+		`<span class="techops" id="${comment_count}">$1</span>`)
 
 	node.innerHTML = node.innerHTML.replace(/(Created By: .+ \(portal\).*<\/b>)/gi,
-		'<div class="portaluser">$1</div><\/b>')
+		`<div class="portaluser">$1</div><\/b>`)
 
     // Special handling for attachments in case comments
 	node.innerHTML = node.innerHTML.replace(/\-New Attachment added: ([^()]+)/gi,
@@ -218,7 +218,7 @@ document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
 
     // Attempt to turn anything that looks like a URL in a case comment, into a clickable link
     node.innerHTML = node.innerHTML.replace(/(?=(https?:\/{2}[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\;//=]*)?))\1(?!['"]|<\/a>)+/gim,
-		'<a style="color:blue;" href="$&">$&</a>')
+		`<a style="color:blue;" href="$&">$&</a>`)
 
     // These will dynamically link in any references to CVEs to their requisite search URLs
 	node.innerHTML = node.innerHTML.replace(/(?:[^\/])(cve-\d{4}-\d{4,7})/gim,
@@ -230,7 +230,7 @@ document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
 	// I don't like it, I'll fix it later.
 	node.innerHTML = node.innerHTML.replace(/<a href(.*) title="Make Public(.*?)<td class="\s+dataCell\s+">(.*)/gi,
 		'<a href $1 title="Make Public $2<td class="dataCell" id="private"><span class="watermark">private comment</span>$3')
-
+    comment_count++
 });
 
 style.innerHTML += `
@@ -320,8 +320,6 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
     sidebar_html += create_link_list('&nbsp;&nbsp;Pastebin pastes', pastebin_links, -2)
 
     related_list_items[0].insertAdjacentHTML('beforeend', sidebar_html)
-} else { // Non-case-related page rendering
-    style.innerHTML += `#tools{border:1px solid #ccc;}#toolbox{-moz-column-width:200px;column-width:200px;}`
 }
 
 // Add the injected stylesheet to the bottom of the page's <head> tag
