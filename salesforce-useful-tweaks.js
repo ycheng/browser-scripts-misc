@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.75
+// @version        2.76
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -29,6 +29,7 @@ const KEY_E = 69; // (e) to Edit case
 const KEY_H = 72; // (h) to Show/Hide private comments
 const KEY_L = 76; // (l) to Log a call
 const KEY_T = 84; // (t) Create a new Time Card
+const KEY_U = 85; // (u) Upload a file to the case
 
 // Remove duplicate entries from the arrays we populate with links
 Array.prototype.unique = function() {
@@ -80,6 +81,11 @@ listen_keypress(KEY_T, function(event) {
   document.getElementById("new_timecard").click();
  }
 })
+listen_keypress(KEY_U, function(event) {
+  if (!match_keypress('textarea') && !match_keypress('input')) {
+   document.querySelector('input[value="Upload Files"]').click();
+  }
+ })
 
 // Add a handler for the 'click' event on the hide/show private comments button
 window.addEventListener("load", ()=> document.querySelector("[btn]") .addEventListener("click", toggle, false), false);
