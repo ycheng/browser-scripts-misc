@@ -211,6 +211,7 @@ function push_links(node, uri, links_array) {
 document.querySelectorAll('.dataCell b').forEach((el) => {
     if(el.innerText.includes('portal')) {
         el.classList.add('external')
+        el.closest("td").classList.add('formatted')
     } else {
         el.classList.add('internal')
     }
@@ -271,6 +272,8 @@ style.innerHTML += `
 div.listRelatedObject.caseBlock div.bPageBlock.brandSecondaryBrd.secondaryPalette table.list tr.even {background: #f0f0f0;}
 .external{background-color:#ff0;display:block;margin:-.5em;padding-left:.5em;}
 .internal{background-color:#90ee90;display:block;margin:-.5em;padding-left:.5em;}
+.formatted {white-space: pre-wrap;}
+b:not(.formatted) {white-space:normal;}
 .urgent{animation:urgent 1.0s infinite;}
 .urgent::before{content:"\uD83D\uDD25";}
 .watermark{color:red;font-size:1em;left:1.2em;opacity:0.5;position:absolute;vertical-align:bottom;z-index:1000;}
