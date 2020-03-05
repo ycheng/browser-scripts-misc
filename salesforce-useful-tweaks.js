@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.76
+// @version        2.77
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -95,6 +95,21 @@ function toggle() {
     let x = document.querySelectorAll("[id=\"private\"]");
     x.forEach( v => { v.style.display = v.style.display = ["","none"][+!(v.style.display === "none")]})
 }
+
+// Add column sorting to table cells
+const get_cell_val = (tr, idx) => tr.children[idx].innerText || tr.children[idx].textContent;
+
+const compare_cell = (idx, asc) => (a, b) => ((v1, v2) =>
+ v1 !== '' && v2 !== '' && !isNaN(v1) && !isNaN(v2) ? v1 - v2 : v1.toString().localeCompare(v2)
+)(get_cell_val(asc ? a : b, idx), get_cell_val(asc ? b : a, idx));
+
+document.querySelectorAll('th').forEach(th => th.addEventListener('click', (() => {
+    const table = th.closest('table');
+    const tbody = table.querySelector('tbody');
+    Array.from(table.querySelectorAll('tr:nth-child(n+2)'))
+        .sort(compare_cell(Array.from(th.parentNode.children).indexOf(th), this.asc = !this.asc))
+        .forEach(tr => table.appendChild(tr));
+})));
 
 // Query selectors by XPath
 function getElementByXpath(path) {
