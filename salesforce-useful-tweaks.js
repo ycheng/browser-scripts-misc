@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.77
+// @version        2.78
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -106,9 +106,9 @@ const compare_cell = (idx, asc) => (a, b) => ((v1, v2) =>
 document.querySelectorAll('th').forEach(th => th.addEventListener('click', (() => {
     const table = th.closest('table');
     const tbody = table.querySelector('tbody');
-    Array.from(table.querySelectorAll('tr:nth-child(n+2)'))
+    Array.from(tbody.querySelectorAll('tr:nth-child(n+2)'))
         .sort(compare_cell(Array.from(th.parentNode.children).indexOf(th), this.asc = !this.asc))
-        .forEach(tr => table.appendChild(tr));
+        .forEach(tr => tbody.appendChild(tr) );
 })));
 
 // Query selectors by XPath
