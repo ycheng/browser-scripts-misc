@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.80
+// @version        2.81
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -50,8 +50,9 @@ function listen_keypress(keyCode, handler) {
   window.addEventListener('keydown', function(event) {
     if (event.keyCode !== keyCode) {
       return;
+    } else if (event.keyCode !== '17') {
+        handler(event);
     }
-    handler(event);
   });
 }
 
@@ -62,30 +63,30 @@ function listen_keypress(keyCode, handler) {
 // })
 
 listen_keypress(KEY_E, function(event) {
- if (!match_keypress('textarea') && !match_keypress('input')) {
-  document.querySelector('input[value=" Edit "]').click();
- }
+    if (!match_keypress('textarea') && !match_keypress('input')) {
+        document.querySelector('input[value=" Edit "]').click();
+    }
 })
 listen_keypress(KEY_H, function(event) {
- if (!match_keypress('textarea') && !match_keypress('input')) {
-  toggle();
- }
+    if (!match_keypress('textarea') && !match_keypress('input')) {
+        toggle();
+    }
 })
 listen_keypress(KEY_L, function(event) {
- if (!match_keypress('textarea') && !match_keypress('input')) {
-  document.getElementById("log_call").click();
- }
+    if (!match_keypress('textarea') && !match_keypress('input')) {
+        document.getElementById("log_call").click();
+    }
 })
 listen_keypress(KEY_T, function(event) {
- if (!match_keypress('textarea') && !match_keypress('input')) {
-  document.getElementById("new_timecard").click();
- }
+    if (!match_keypress('textarea') && !match_keypress('input')) {
+        document.getElementById("new_timecard").click();
+    }
 })
 listen_keypress(KEY_U, function(event) {
-  if (!match_keypress('textarea') && !match_keypress('input')) {
-   document.querySelector('input[value="Upload Files"]').click();
-  }
- })
+    if (!match_keypress('textarea') && !match_keypress('input')) {
+        document.querySelector('input[value="Upload Files"]').click();
+    }
+})
 
 // Add a handler for the 'click' event on the hide/show private comments button
 window.addEventListener("load", ()=> document.querySelector("[btn]") .addEventListener("click", toggle, false), false);
@@ -218,10 +219,26 @@ function push_links(node, uri, links_array) {
     return links_array
 }
 
-// Will combine these later, tactical for now
-[...document.querySelectorAll('.dataCell img[alt="green"]')].forEach(el => el.closest("tr").classList.add('aa'));
-[...document.querySelectorAll('.dataCell img[alt="yellow"]')].forEach(el => el.closest("tr").classList.add('ane'));
-[...document.querySelectorAll('.dataCell')].filter(el => el.innerText === 'Expired').forEach(el => el.closest("tr").classList.add('ae'));
+// Search the table for active, nearing and expired rows
+const check_table_rows = Array.from(
+    document.querySelectorAll(`div.assetBlock > div > div > table tbody tr,
+                               div.contractBlock > div > div > table tbody tr,
+                               div.taskBlock  > div > div > table tbody tr`), (row) => {
+    const dates = row.querySelectorAll('td.DateElement')
+    return dates[dates.length - 1] || null;
+}).filter(Boolean);
+check_table_rows.forEach(el => check_date(el, el.innerText));
+
+function check_date(el, date) {
+  var now = new Date();
+  if (Date.parse(date) < Date.parse(now)) {
+      return el.closest("tr").classList.add('ae')
+  } else if (Math.round(Math.abs((Date.parse(date) - Date.parse(now)) / 86400000)) < 30) {
+      return el.closest("tr").classList.add('ane')
+  } else {
+      return el.closest("tr").classList.add('aa')
+  }
+}
 
 document.querySelectorAll('.dataCell b').forEach((el) => {
     if(el.innerText.includes('portal')) {
