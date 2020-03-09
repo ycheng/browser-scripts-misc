@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.78
+// @version        2.79
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -186,7 +186,7 @@ var customer_contact = getElementByXpath("//*[contains(text(),'Customer')]/follo
 if (customer_name) { toolbox += `Customer: <strong>${customer_name.trim()}</strong><br />Contact: <strong>${customer_contact.trim()}</strong><hr />`}
 
 var case_owner = getElementByXpath("//*[contains(text(),'Case Owner')]/following::td[1]");
-var case_comments = getElementByXpath("//*[contains(text(),'Case Comments')]").replace(/.*\((\d+)\).*/, '$1');
+var case_comments = getElementByXpath("//*[contains(text(),'Case Comments')]").replace(/.*[\[\(](\d+)[\)\]].*/g, '$1');
 
 if (case_owner) { toolbox += `Case owner: <strong>${case_owner.trim()}</strong><br />`}
 
