@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.79
+// @version        2.80
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -319,8 +319,7 @@ if (is_weekend === true && case_asset.includes("Essential")) {
 if (sev_level) {
 	// Add some urgency to the L1 level cases
 	sev_level.includes('L1') ? sev_level = `<span class="urgent">${sev_level}</span>` : sev_level
-    // This is not currently working as intended, will fix later
-    sev_level.includes('L1') ? style.innerHTML += '.efdvJumpLink{background:#f00;border:2px solid #f00 !important;border-radius:10px !important;}' : ''
+  sev_level.includes('L1') ? document.getElementsByClassName("efdvJumpLink")[0].style = "border:2px solid #f00 !important;border-radius:10px !important;" : ''
 	toolbox += `Severity: <strong>${sev_level.trim()}</strong><br />`
 
 }
