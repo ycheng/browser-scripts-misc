@@ -8,9 +8,11 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.84
+// @version        2.85
 // @grant          GM_addStyle
 // ==/UserScript==
+
+'use strict';
 
 var u_cvesearch = "https://people.canonical.com/~ubuntu-security/cve/";
 
@@ -91,13 +93,16 @@ listen_keypress(KEY_U, function(event) {
 })
 
 // Get the selected text so we can do fun things with it
-function get_highlighted_text() {
-    highlight = window.getSelection().toString()
+function get_highlighted_text(e) {
+    var t = ''
+    t = (document.all) ? document.selection.createRange().text : document.getSelection();
+    highlight = t.toString();
+    return false;
 }
 
-document.onmouseup = document.onkeyup = function() {
-    document.querySelectorAll('.dataCell').value = get_highlighted_text();
-};
+document.onmouseup = get_highlighted_text;
+
+if (!document.all) document.captureEvents(Event.MOUSEUP);
 
 // Translate highighted text on the page
 function translate_text(highlight) {
@@ -124,10 +129,11 @@ function search_highlight(highlight, loc) {
 }
 
 // Add a handler for the 'click' event on the hide/show private comments button
-window.addEventListener("load", ()=> document.querySelector("[btn]") .addEventListener("click", toggle, false), false);
-window.addEventListener("load", ()=> document.querySelector("[translate]") .addEventListener("click", () => translate_text(highlight), false));
-window.addEventListener("load", ()=> document.querySelector("[launchpad]") .addEventListener("click", () => search_highlight(highlight, 'lp'), false));
-window.addEventListener("load", ()=> document.querySelector("[google]") .addEventListener("click", () => search_highlight(highlight, 'google'), false));
+window.addEventListener("load", ()=> document.querySelector("[btn]").addEventListener("click", toggle, false), false);
+window.addEventListener("load", ()=> document.querySelector("[translate]").addEventListener("click", () => translate_text(highlight), false));
+window.addEventListener("load", ()=> document.querySelector("[launchpad]").addEventListener("click", () => search_highlight(highlight, 'lp'), false));
+window.addEventListener("load", ()=> document.querySelector("[google]").addEventListener("click", () => search_highlight(highlight, 'google'), false));
+
 
 // Toggle the display of private comments, off/on
 function toggle() {
