@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.81
+// @version        2.82
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -17,6 +17,7 @@ var u_cvesearch = "https://people.canonical.com/~ubuntu-security/cve/";
 var attachments = getElementByXpath("/html/body//a[contains(text(),'Files')]/@href");
 var case_attachments = []
 var pastebin_links = []
+var highlight = ''
 
 var style = document.createElement('style');
 // var profile_details = document.querySelectorAll('.efhpLabeledFieldValue > a');
@@ -88,8 +89,30 @@ listen_keypress(KEY_U, function(event) {
     }
 })
 
+// Get the selected text so we can do fun things with it
+function get_highlighted_text() {
+    highlight = window.getSelection().toString()
+}
+
+document.onmouseup = document.onkeyup = function() {
+    document.querySelectorAll('.dataCell').value = get_highlighted_text();
+};
+
+// Translate highighted text on the page
+function translate_text(highlight) {
+ var w = window,
+  o = w.open('http://translate.google.com/translate_t#auto|en|' + highlight, '', 'left=' +
+   ((w.screenX || w.screenLeft) + 10) + ',top=' +
+   ((w.screenY || w.screenTop) + 10) +
+   ',height=620px,width=950px,resizable=1,alwaysRaised=1');
+ w.setTimeout(function() {
+  o.focus()
+ }, 300)
+}
+
 // Add a handler for the 'click' event on the hide/show private comments button
 window.addEventListener("load", ()=> document.querySelector("[btn]") .addEventListener("click", toggle, false), false);
+window.addEventListener("load", ()=> document.querySelector("[translate]") .addEventListener("click", () => translate_text(highlight), false));
 
 // Toggle the display of private comments, off/on
 function toggle() {
@@ -364,7 +387,9 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
                 <li>&nbsp;<i class="fas fa-phone"></i>&nbsp;&nbsp;(L) <a id="log_call" class="tbox_call" title="All calls must be logged separately from time cards"
                     href="https://${log_call_msg}" target="_blank">Log a Customer Call</a></li>
                 <li>&nbsp;<i class="fas fa-history"></i>&nbsp;&nbsp;(T) <a id="new_timecard" class="tbox_time" title="Add a new time card. Must be done by EOD!"
-                    href="https://${new_timecard_msg}" target="_blank">New time card</a></li>`;
+                    href="https://${new_timecard_msg}" target="_blank">New time card</a></li>
+                <li>&nbsp;<i class="fa fa-globe-europe"></i>&nbsp;&nbsp; <a translate class="tbox_time" title="Translate highlighted text"
+                    target="_blank">Translate selection</a></li>`;
 
     sidebar_html += create_link_list('&nbsp;&nbsp;sFTP uploads...', case_attachments, -1)
     sidebar_html += create_link_list('&nbsp;&nbsp;Pastebin pastes', pastebin_links, -2)
