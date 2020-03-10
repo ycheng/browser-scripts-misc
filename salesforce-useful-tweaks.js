@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.83
+// @version        2.84
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -18,6 +18,7 @@ var attachments = getElementByXpath("/html/body//a[contains(text(),'Files')]/@hr
 var case_attachments = []
 var pastebin_links = []
 var highlight = ''
+var url = ''
 
 var style = document.createElement('style');
 // var profile_details = document.querySelectorAll('.efhpLabeledFieldValue > a');
@@ -110,15 +111,23 @@ function translate_text(highlight) {
  }, 300)
 }
 
-function search_lp(highlight) {
-    window.open(
-              `https://bugs.launchpad.net/bugs/+bugs?field.searchtext=${highlight}&search=Search+Bug+Reports`, "_blank");
+function search_highlight(highlight, loc) {
+    if (loc === 'lp') {
+        url = `https://bugs.launchpad.net/bugs/+bugs?field.searchtext=${highlight}&search=Search+Bug+Reports`;
+    }
+
+    if (loc === 'google') {
+        url = `https://www.google.com/search?source=hp&q=${highlight}`;
+    }
+
+    window.open(url, "_blank");
 }
 
 // Add a handler for the 'click' event on the hide/show private comments button
 window.addEventListener("load", ()=> document.querySelector("[btn]") .addEventListener("click", toggle, false), false);
 window.addEventListener("load", ()=> document.querySelector("[translate]") .addEventListener("click", () => translate_text(highlight), false));
-window.addEventListener("load", ()=> document.querySelector("[launchpad]") .addEventListener("click", () => search_lp(highlight), false));
+window.addEventListener("load", ()=> document.querySelector("[launchpad]") .addEventListener("click", () => search_highlight(highlight, 'lp'), false));
+window.addEventListener("load", ()=> document.querySelector("[google]") .addEventListener("click", () => search_highlight(highlight, 'google'), false));
 
 // Toggle the display of private comments, off/on
 function toggle() {
@@ -389,15 +398,16 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
     }
 
     var sidebar_html = `<hr />
-                <li>&nbsp;<i class="fa fa-globe-europe"></i>&nbsp;&nbsp; <a translate class="translate" title="Translate highlighted text"
-                    target="_blank">Translate selection</a></li>
-                <li>&nbsp;<i class="fa fa-bug"></i>&nbsp;&nbsp; <a launchpad class="launchpad" title="Search Launchpad"
-                    target="_blank">Search Launchpad</a></li><hr />
-                <li>&nbsp;<i class="fas fa-eye"></i>&nbsp;&nbsp;(H) <a btn>Show/Hide comments</a></li>
-                <li>&nbsp;<i class="fas fa-phone"></i>&nbsp;&nbsp;(L) <a id="log_call" class="tbox_call" title="All calls must be logged separately from time cards"
-                    href="https://${log_call_msg}" target="_blank">Log a Customer Call</a></li>
-                <li>&nbsp;<i class="fas fa-history"></i>&nbsp;&nbsp;(T) <a id="new_timecard" class="tbox_time" title="Add a new time card. Must be done by EOD!"
-                    href="https://${new_timecard_msg}" target="_blank">New time card</a></li>`;
+    <li>&nbsp;<i class="fas fa-eye"></i>&nbsp;&nbsp;(H) <a btn>Show/Hide comments</a></li>
+    <li>&nbsp;<i class="fas fa-phone"></i>&nbsp;&nbsp;(L) <a id="log_call" class="tbox_call" title="All calls must be logged separately from time cards"
+       href="https://${log_call_msg}" target="_blank">Log a Customer Call</a></li>
+    <li>&nbsp;<i class="fas fa-history"></i>&nbsp;&nbsp;(T) <a id="new_timecard" class="tbox_time" title="Add a new time card. Must be done by EOD!"
+       href="https://${new_timecard_msg}" target="_blank">New time card</a></li>
+    <li style="text-align: center;"><br />&nbsp;
+       <a translate title="Translate highlighted text" target="_blank"><i class="fa fa-globe-europe fa-lg"></i></a>&nbsp;&nbsp;&nbsp;
+       <a launchpad title="Search Launchpad" target="_blank"><i class="fa fa-bug fa-lg"></i></a>&nbsp;&nbsp;&nbsp;
+       <a google title="Search Google" target="_blank"><i class="fab fa-google fa-lg"></i></a>&nbsp;&nbsp;&nbsp;
+    </li>`;
 
     sidebar_html += create_link_list('&nbsp;&nbsp;sFTP uploads...', case_attachments, -1)
     sidebar_html += create_link_list('&nbsp;&nbsp;Pastebin pastes', pastebin_links, -2)
