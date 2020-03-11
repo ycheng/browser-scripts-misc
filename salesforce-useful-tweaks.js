@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.85
+// @version        2.86
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -125,7 +125,12 @@ function search_highlight(highlight, loc) {
         url = `https://www.google.com/search?source=hp&q=${highlight}`;
     }
 
-    window.open(url, "_blank");
+    var do_search = confirm(`Proceed to send "${highlight}" text to the public Internet?`)
+    if (do_search == true) {
+        window.open(url, "_blank");
+    } else {
+        return false;
+    }
 }
 
 // Add a handler for the 'click' event on the hide/show private comments button
