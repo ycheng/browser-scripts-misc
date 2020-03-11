@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.86
+// @version        2.87
 // @grant          GM_addStyle
 // ==/UserScript==
 
@@ -19,6 +19,7 @@ var u_cvesearch = "https://people.canonical.com/~ubuntu-security/cve/";
 var attachments = getElementByXpath("/html/body//a[contains(text(),'Files')]/@href");
 var case_attachments = []
 var pastebin_links = []
+var do_search = 0
 var highlight = ''
 var url = ''
 
@@ -103,30 +104,39 @@ function get_highlighted_text(e) {
 document.onmouseup = get_highlighted_text;
 
 if (!document.all) document.captureEvents(Event.MOUSEUP);
+function do_search_msg(highlight, engine) {
+    return confirm(`WARNING: about to send the text "${highlight}" to ${engine} on the public Internet. Proceed?`)
+}
 
 // Translate highighted text on the page
 function translate_text(highlight) {
- var w = window,
-  o = w.open('http://translate.google.com/translate_t#auto|en|' + highlight, '', 'left=' +
-   ((w.screenX || w.screenLeft) + 10) + ',top=' +
-   ((w.screenY || w.screenTop) + 10) +
-   ',height=620px,width=950px,resizable=1,alwaysRaised=1');
- w.setTimeout(function() {
-  o.focus()
- }, 300)
+    do_search = do_search_msg(highlight, 'Google Translate');
+    if (do_search === true) {
+        var w = window,
+            o = w.open('http://translate.google.com/translate_t#auto|en|' + highlight, '', 'left=' +
+                       ((w.screenX || w.screenLeft) + 10) + ',top=' +
+                       ((w.screenY || w.screenTop) + 10) +
+                       ',height=620px,width=950px,resizable=1,alwaysRaised=1');
+        w.setTimeout(function() {
+            o.focus()
+        }, 300)
+    } else {
+        return false;
+    }
 }
 
 function search_highlight(highlight, loc) {
     if (loc === 'lp') {
+        do_search = do_search_msg(highlight, 'Launchpad');
         url = `https://bugs.launchpad.net/bugs/+bugs?field.searchtext=${highlight}&search=Search+Bug+Reports`;
     }
 
     if (loc === 'google') {
+        do_search = do_search_msg(highlight, 'Google Search');
         url = `https://www.google.com/search?source=hp&q=${highlight}`;
     }
 
-    var do_search = confirm(`Proceed to send "${highlight}" text to the public Internet?`)
-    if (do_search == true) {
+    if (do_search === true) {
         window.open(url, "_blank");
     } else {
         return false;
