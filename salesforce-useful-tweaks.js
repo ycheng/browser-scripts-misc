@@ -8,8 +8,85 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.87
+// @version        2.88
 // @grant          GM_addStyle
+//
+// ==========================================================================
+// Key Features:
+//
+// - The left-side menu now floats with the page. You can also drag and move
+//   this box to anywhere on the page you might want to place it. This is being
+//   referred to as the 'floating toolbox'
+//
+// - The floating menu now has 'Go to Top' and 'Go to Bottom' of page accels,
+//   accessible by clicking the up and down arrows on the top-right of the
+//   toolbox.
+//
+// - New items have been added to the "Related Items" menu, for convenience,
+//   these are:
+//
+//   * Case Header
+//     - The new Case Header includes Customer, Customer Contact, internal
+//       owner(s), and Severity.
+//
+//     - If the case severity is an L1, the floating menu will be highlighted in
+//       a red border and the header will indicate an urgenty status, until it
+//       has been downgraded below L1.
+//
+//     - If the current date happens to be on a weekend, and the customer's a
+//       ssets/account does not merit weekend support, the floating menu will be
+//       'hashed out' with gray bars, and the status will indicate that the case
+//       should not be worked at that time.
+//
+//   * Case accelerator 'hotkeys'
+//     - You can now press keyboard keys to activate new options on the page (h)
+//       will show/hide any private comments in each new case (t) will launch a
+//       new tab to create a new time card for the case (l) [ell] will launch a
+//       new tab to log a new customer call for the case
+//     - You can also access these options by their links on the floating
+//       toolbox
+//
+//   * Any text highlighted on the page can be sent to the services below by
+//     clickinng on their relevant icons on the bottom portion of the floating
+//     toolbox:
+//     - Google Translate
+//     - Search Launchpad
+//     - Search Google
+//
+// - Case comment headers are colorized depending on whether they come from an
+//   internal or external author.
+//
+// - Case comments are also numbered, with clickable links next to each one so
+//   they can be directly linked to in other comments or discussions by named
+//   anchors.
+//
+// - Any files that are uploaded to the support portal, will be linked into the
+//   floating toolbox. If the number of files exceeds (5), the list will
+//   collapse, and you'll have to click the 'uploads' link to expand and scroll
+//   the menu.
+//
+// - Any pastebin links found in case comments will also be linked in the
+//   floating toolbox. The normal and raw versions will have separate links, so
+//   you can visit either of them directly.
+//
+// - Any case mentioning a CVE, by referring to its CVE number directly (for
+//   example, CVE-2017-8365), will have that CVE text hyperlinked directly to
+//   the CVE tracker.
+//
+// - If a case's accounts, assets or other table data shows as either Active,
+//   Expiring soon or Expired, the rows of the tabular data will be indicated in
+//   Green, Yellow or Red accordingly. This will help guide support staff to
+//   know if a customer has active support, expired support or support nearing
+//   expiration, so they can take appropriate action.
+//
+// - Any table on a page can be sorted by clicking its header label. This is
+//   true for any and all tables on any pages.
+//
+// - Any case comment that has what appears to be formatted text included in it,
+//   will retain that formatting, so viewing pasted tables or output, is not
+//   illegibly reflowed
+//
+// ==========================================================================
 // ==/UserScript==
 
 'use strict';
