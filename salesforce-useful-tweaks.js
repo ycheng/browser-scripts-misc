@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.90
+// @version        2.91
 // @grant          GM_addStyle
 //
 // ==========================================================================
@@ -60,10 +60,10 @@
 //   they can be directly linked to in other comments or discussions by named
 //   anchors.
 //
-// - Any files that are uploaded to the support portal, will be linked into the
-//   floating toolbox. If the number of files exceeds (5), the list will
-//   collapse, and you'll have to click the 'uploads' link to expand and scroll
-//   the menu.
+// - Any files that are uploaded to the case or support portal, will be linked
+//   into the floating toolbox. If the number of files exceeds (5), the list
+//   will collapse, and you'll have to click the 'uploads' link to expand and
+//   scroll the menu.
 //
 // - Any pastebin links found in case comments will also be linked in the
 //   floating toolbox. The normal and raw versions will have separate links, so
@@ -95,6 +95,8 @@ var public_url = `https://support.canonical.com/ua/s/case/${window.location.path
 var u_cvesearch = "https://people.canonical.com/~ubuntu-security/cve/";
 
 var attachments = getElementByXpath("/html/body//a[contains(text(),'Files')]/@href");
+
+var uploaded_files = []
 var case_attachments = []
 var pastebin_links = []
 var do_search = 0
@@ -261,7 +263,6 @@ function getElementByXpath(path) {
 function create_link_list(title, array, slice) {
     var html_string = ''
     array = array.unique();
-    // console.log('DEBUG', array)
 
     if (array.length > 0) {
         html_string += `<hr /><div class="collapsible">${title}... (${array.length})</div>`
@@ -421,6 +422,11 @@ document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
     comment_count--
 });
 
+document.querySelectorAll(`[id*="RelatedFileList_body"] a[title*="Download"`).forEach(node => {
+    // This is a bit of cheating, so I can reuse my create_link_list() function
+    uploaded_files.push(`${node.href}/${node.title.match(/Download - Record \d - (.*)/)[1]}`);
+});
+
 style.innerHTML += `
 @import url("https://use.fontawesome.com/releases/v5.12.1/css/all.css");
 #private{background-color:#fff2e6;}
@@ -512,6 +518,7 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
 
     sidebar_html += create_link_list('&nbsp;&nbsp;sFTP uploads...', case_attachments, -1)
     sidebar_html += create_link_list('&nbsp;&nbsp;Pastebin pastes', pastebin_links, -2)
+    sidebar_html += create_link_list("Uploaded files", uploaded_files, -1);
 
     related_list_items[0].insertAdjacentHTML('beforeend', sidebar_html)
 }
