@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.89
+// @version        2.90
 // @grant          GM_addStyle
 //
 // ==========================================================================
@@ -497,11 +497,6 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
         var new_timecard_msg = document.domain + new_timecard_link[2];
     }
 
-    var public_url_link = ''
-    if (customer_name.match(/ staff/)) {
-        public_url_link = `<a title="Public URL to case" target="_blank" href="${public_url}"><i class="fas fa-link"></i></a>&nbsp;&nbsp;&nbsp;`
-    }
-
     var sidebar_html = `<hr />
     <li>&nbsp;<i class="fas fa-eye"></i>&nbsp;&nbsp;(H) <a btn>Show/Hide comments</a></li>
     <li>&nbsp;<i class="fas fa-phone"></i>&nbsp;&nbsp;(L) <a id="log_call" class="tbox_call" title="All calls must be logged separately from time cards"
@@ -509,7 +504,7 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
     <li>&nbsp;<i class="fas fa-history"></i>&nbsp;&nbsp;(T) <a id="new_timecard" class="tbox_time" title="Add a new time card. Must be done by EOD!"
        href="https://${new_timecard_msg}" target="_blank">New time card</a></li>
     <li style="text-align: center;"><br />
-       ${public_url_link}
+       <a title="Public URL to case" target="_blank" href="${public_url}"><i class="fas fa-link"></i></a>&nbsp;&nbsp;&nbsp;
        <a translate title="Translate highlighted text" target="_blank"><i class="fa fa-globe-europe fa-lg"></i></a>&nbsp;&nbsp;&nbsp;
        <a launchpad title="Search Launchpad" target="_blank"><i class="fa fa-bug fa-lg"></i></a>&nbsp;&nbsp;&nbsp;
        <a google title="Search Google" target="_blank"><i class="fab fa-google fa-lg"></i></a>&nbsp;&nbsp;&nbsp;
