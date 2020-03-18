@@ -2,13 +2,13 @@
 // @name           Salesforce Useful UI Tweaks
 // @namespace      http://salesforce.com/
 // @description    Style and tweak Salesforce to be more productive for Engineers and Support
-// @include        /^https?://.*.salesforce\.com/.*$/
+// @include        /^https?://.*my.salesforce\.com/.*$/
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.88
+// @version        2.89
 // @grant          GM_addStyle
 //
 // ==========================================================================
@@ -91,6 +91,7 @@
 
 'use strict';
 
+var public_url = `https://support.canonical.com/ua/s/case/${window.location.pathname.split('/')[1]}`
 var u_cvesearch = "https://people.canonical.com/~ubuntu-security/cve/";
 
 var attachments = getElementByXpath("/html/body//a[contains(text(),'Files')]/@href");
@@ -202,6 +203,7 @@ function translate_text(highlight) {
     }
 }
 
+// Search helpers for various upstream services
 function search_highlight(highlight, loc) {
     if (loc === 'lp') {
         do_search = do_search_msg(highlight, 'Launchpad');
@@ -233,7 +235,7 @@ function toggle() {
     x.forEach( v => { v.style.display = v.style.display = ["","none"][+!(v.style.display === "none")]})
 }
 
-// Add column sorting to table cells
+// Add column sorting to all table cells
 const get_cell_val = (tr, idx) => tr.children[idx].innerText || tr.children[idx].textContent;
 
 const compare_cell = (idx, asc) => (a, b) => ((v1, v2) =>
@@ -495,13 +497,19 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
         var new_timecard_msg = document.domain + new_timecard_link[2];
     }
 
+    var public_url_link = ''
+    if (customer_name.match(/ staff/)) {
+        public_url_link = `<a title="Public URL to case" target="_blank" href="${public_url}"><i class="fas fa-link"></i></a>&nbsp;&nbsp;&nbsp;`
+    }
+
     var sidebar_html = `<hr />
     <li>&nbsp;<i class="fas fa-eye"></i>&nbsp;&nbsp;(H) <a btn>Show/Hide comments</a></li>
     <li>&nbsp;<i class="fas fa-phone"></i>&nbsp;&nbsp;(L) <a id="log_call" class="tbox_call" title="All calls must be logged separately from time cards"
        href="https://${log_call_msg}" target="_blank">Log a Customer Call</a></li>
     <li>&nbsp;<i class="fas fa-history"></i>&nbsp;&nbsp;(T) <a id="new_timecard" class="tbox_time" title="Add a new time card. Must be done by EOD!"
        href="https://${new_timecard_msg}" target="_blank">New time card</a></li>
-    <li style="text-align: center;"><br />&nbsp;
+    <li style="text-align: center;"><br />
+       ${public_url_link}
        <a translate title="Translate highlighted text" target="_blank"><i class="fa fa-globe-europe fa-lg"></i></a>&nbsp;&nbsp;&nbsp;
        <a launchpad title="Search Launchpad" target="_blank"><i class="fa fa-bug fa-lg"></i></a>&nbsp;&nbsp;&nbsp;
        <a google title="Search Google" target="_blank"><i class="fab fa-google fa-lg"></i></a>&nbsp;&nbsp;&nbsp;
