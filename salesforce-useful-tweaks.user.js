@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.user.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.92
+// @version        2.93
 // @grant          GM_addStyle
 //
 // ==========================================================================
@@ -20,7 +20,8 @@
 //
 // - The floating menu now has 'Go to Top' and 'Go to Bottom' of page accels,
 //   accessible by clicking the up and down arrows on the top-right of the
-//   toolbox.
+//   toolbox. There is also a 'refresh' icon there, to reload the page from the
+//   remote server and display any new content.
 //
 // - New items have been added to the "Related Items" menu, for convenience,
 //   these are:
@@ -462,7 +463,7 @@ hr {border: 0; height: 1px; background-image: linear-gradient(to right, rgba(0, 
 .fa-phone {color: #000 !important;}
 .fa-history {color: #f00 !important;}
 .fa-folder-open {color: #33beff !important;}
-#top, #end{float:right;margin-left:0.3em;}
+#top, #end, #refresh{float:right;margin-left:0.5em;margin-top:0.1em;}
 @keyframes urgent{
   0%{color:#f00;}
  49%{color:#dc143c;}
@@ -493,7 +494,14 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
     var related_list_box = document.querySelectorAll('.efdvJumpLinkBody');
     var related_list_items = document.querySelectorAll('.efdvJumpLinkBody > ul');
 
-    document.querySelectorAll('.efdvJumpLinkTitle')[0].insertAdjacentHTML('afterbegin', '<a id="top" title="Jump to top" href="#"><i class="fas fa-arrow-up"></i></a><a id="end" title="Jump to bottom" href="#footer"><i class="fas fa-arrow-down"></i></a>')
+    // Reload page
+    document.querySelectorAll('.efdvJumpLinkTitle')[0].insertAdjacentHTML('afterbegin', '<a id="refresh" onclick="document.location.reload(true);"><i class="fas fa-sync-alt"></i></a>');
+
+    // Jump to top of the page
+    document.querySelectorAll('.efdvJumpLinkTitle')[0].insertAdjacentHTML('afterbegin', '<a id="top" title="Jump to top" href="#"><i class="fas fa-arrow-up"></i></a>');
+
+    // Jump to bottom of the page
+    document.querySelectorAll('.efdvJumpLinkTitle')[0].insertAdjacentHTML('afterbegin', '<a id="end" title="Jump to bottom" href="#footer"><i class="fas fa-arrow-down"></i></a>');
     document.getElementsByClassName('sfdcBody')[0].insertAdjacentHTML('beforeend', '<footer id="footer"></footer>')
 
     related_list_items[0].insertAdjacentHTML('beforebegin', `<br />${toolbox}<hr />`)
