@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.user.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.94
+// @version        2.95
 // @grant          GM_addStyle
 //
 // ==========================================================================
@@ -53,6 +53,10 @@
 //     - Search Launchpad
 //     - Search Google
 //
+// - The title of Case pages is now changed to reflect the case number, severity
+//   and case subject, so it can be easily found in each tab of a browser with
+//   many cases open. 
+// 
 // - Case comment headers are colorized depending on whether they come from an
 //   internal or external author.
 //
@@ -106,7 +110,7 @@ var url = ''
 var style = document.createElement('style');
 // var profile_details = document.querySelectorAll('.efhpLabeledFieldValue > a');
 
-var case_asset = getElementByXpath(".//*[@id='Asset_ileinner']")
+
 
 // Keycodes interrogated here: https://keycode.info/
 // const KEY_A = 65; // Add to case team
@@ -326,9 +330,14 @@ var customer_contact = getElementByXpath("//*[contains(text(),'Customer')]/follo
 if (customer_name) { toolbox += `Customer: <strong>${customer_name.trim()}</strong><br />Contact: <strong>${customer_contact.trim()}</strong><hr />`}
 
 var case_owner = getElementByXpath("//*[contains(text(),'Case Owner')]/following::td[1]");
-var case_comments = getElementByXpath("//*[contains(text(),'Case Comments')]").replace(/.*[\[\(](\d+)[\)\]].*/g, '$1');
-
 if (case_owner) { toolbox += `Case owner: <strong>${case_owner.trim()}</strong><br />`}
+
+var case_comments = getElementByXpath("//*[contains(text(),'Case Comments')]").replace(/.*[\[\(](\d+)[\)\]].*/g, '$1');
+var case_asset = getElementByXpath(".//*[@id='Asset_ileinner']")
+var case_subject = getElementByXpath("//*[contains(text(),'Subject')]/following::td[1]");
+if (document.title.includes('Case:')) {
+    document.title = document.title.replace(/.*(Case: \d+).*/, `$1 - ${sev_level} - ${case_subject}`);
+}
 
 var acct_dse = map["Dedicated Services Engineer"]
 var acct_tam = map["Technical Account Manager"]
