@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.user.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.93
+// @version        2.94
 // @grant          GM_addStyle
 //
 // ==========================================================================
@@ -20,8 +20,7 @@
 //
 // - The floating menu now has 'Go to Top' and 'Go to Bottom' of page accels,
 //   accessible by clicking the up and down arrows on the top-right of the
-//   toolbox. There is also a 'refresh' icon there, to reload the page from the
-//   remote server and display any new content.
+//   toolbox.
 //
 // - New items have been added to the "Related Items" menu, for convenience,
 //   these are:
@@ -425,7 +424,7 @@ document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
 
 document.querySelectorAll(`[id*="RelatedFileList_body"] a[title*="Download"`).forEach(node => {
     // This is a bit of cheating, so I can reuse my create_link_list() function
-    uploaded_files.push(`${node.href}/${node.title.match(/Download - Record \d - (.*)/)[1]}`);
+    uploaded_files.push(`${node.href}/${node.title.match(/Download - Record \d+ - (.*)/)[1]}`);
 });
 
 style.innerHTML += `
