@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.user.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.95
+// @version        2.96
 // @grant          GM_addStyle
 //
 // ==========================================================================
@@ -55,8 +55,8 @@
 //
 // - The title of Case pages is now changed to reflect the case number, severity
 //   and case subject, so it can be easily found in each tab of a browser with
-//   many cases open. 
-// 
+//   many cases open.
+//
 // - Case comment headers are colorized depending on whether they come from an
 //   internal or external author.
 //
@@ -95,6 +95,13 @@
 
 'use strict';
 
+// Try to extract the Community URL to KB articles, link in the Properties box
+if ( window.location.href.match(/articles\/.*\/Knowledge\//gi) ) {
+    var community_url = getElementByXpath("//*[contains(text(),'Community URL')]/following::span[1]");
+    document.getElementsByClassName('panelTitle')[0].insertAdjacentHTML('afterend',
+                                    `<hr><span>Community URL: <a href="${community_url}">${community_url.substring(0,50)}...</a></span>`)
+};
+
 var public_url = `https://support.canonical.com/ua/s/case/${window.location.pathname.split('/')[1]}`
 var u_cvesearch = "https://people.canonical.com/~ubuntu-security/cve/";
 
@@ -109,8 +116,6 @@ var url = ''
 
 var style = document.createElement('style');
 // var profile_details = document.querySelectorAll('.efhpLabeledFieldValue > a');
-
-
 
 // Keycodes interrogated here: https://keycode.info/
 // const KEY_A = 65; // Add to case team
@@ -431,8 +436,9 @@ document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
     comment_count--
 });
 
+// Build a list of files uploaded to the case, deploy them into the sidebar
 document.querySelectorAll(`[id*="RelatedFileList_body"] a[title*="Download"`).forEach(node => {
-    // This is a bit of cheating, so I can reuse my create_link_list() function
+    // Small feature gap here, only the first 10 attached files are visible, unless AJAX function is run
     uploaded_files.push(`${node.href}/${node.title.match(/Download - Record \d+ - (.*)/)[1]}`);
 });
 
@@ -487,10 +493,10 @@ if (is_weekend === true && case_asset.includes("Essential")) {
 }
 
 if (sev_level) {
-	// Add some urgency to the L1 level cases
-	sev_level.includes('L1') ? sev_level = `<span class="urgent">${sev_level}</span>` : sev_level
-  sev_level.includes('L1') ? document.getElementsByClassName("efdvJumpLink")[0].style = "border:2px solid #f00 !important;border-radius:10px !important;" : ''
-	toolbox += `Severity: <strong>${sev_level.trim()}</strong><br />`
+    // Add some urgency to the L1 level cases
+    sev_level.includes('L1') ? sev_level = `<span class="urgent">${sev_level}</span>` : sev_level
+    sev_level.includes('L1') ? document.getElementsByClassName("efdvJumpLink")[0].style = "border:2px solid #f00 !important;border-radius:10px !important;" : ''
+    toolbox += `Severity: <strong>${sev_level.trim()}</strong><br />`
 
 }
 
