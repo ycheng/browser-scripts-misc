@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.user.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.96
+// @version        2.97
 // @grant          GM_addStyle
 //
 // ==========================================================================
@@ -98,9 +98,12 @@
 // Try to extract the Community URL to KB articles, link in the Properties box
 if ( window.location.href.match(/articles\/.*\/Knowledge\//gi) ) {
     var community_url = getElementByXpath("//*[contains(text(),'Community URL')]/following::span[1]");
+    var ss_url = community_url.replace(/\/ua\//, '/selfservice/')
     document.getElementsByClassName('panelTitle')[0].insertAdjacentHTML('afterend',
-                                    `<hr><span>Community URL: <a href="${community_url}">${community_url.substring(0,50)}...</a></span>`)
-};
+                                    `<hr /><span>
+                                     Community URL: <a class="longurl" title="${community_url}" href="${community_url}">${community_url}...</a><br />
+                                     Self-service URL: <a class="longurl" title="${ss_url}" href="${ss_url}">${ss_url}...</a>
+                                     </span>`)};
 
 var public_url = `https://support.canonical.com/ua/s/case/${window.location.pathname.split('/')[1]}`
 var u_cvesearch = "https://people.canonical.com/~ubuntu-security/cve/";
@@ -443,6 +446,7 @@ document.querySelectorAll(`[id*="RelatedFileList_body"] a[title*="Download"`).fo
 });
 
 style.innerHTML += `
+.longurl{overflow-wrap:break-word;}
 @import url("https://use.fontawesome.com/releases/v5.12.1/css/all.css");
 #private{background-color:#fff2e6;}
 #tools{background-color:#f1f1f1;border:1px solid #d3d3d3;border-radius:0 0 10px 10px;text-align:center;z-index:9;}
