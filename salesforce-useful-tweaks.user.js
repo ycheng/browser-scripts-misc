@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.user.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.97
+// @version        2.98
 // @grant          GM_addStyle
 //
 // ==========================================================================
@@ -90,6 +90,9 @@
 //   will retain that formatting, so viewing pasted tables or output, is not
 //   illegibly reflowed
 //
+// - KB pages will now have their Community URL displayed depending on public
+//   URL schemas, on the Properties panel
+//
 // ==========================================================================
 // ==/UserScript==
 
@@ -101,8 +104,8 @@ if ( window.location.href.match(/articles\/.*\/Knowledge\//gi) ) {
     var ss_url = community_url.replace(/\/ua\//, '/selfservice/')
     document.getElementsByClassName('panelTitle')[0].insertAdjacentHTML('afterend',
                                     `<hr /><span>
-                                     Community URL: <a class="longurl" title="${community_url}" href="${community_url}">${community_url}...</a><br />
-                                     Self-service URL: <a class="longurl" title="${ss_url}" href="${ss_url}">${ss_url}...</a>
+                                     Community URL: <a title="${community_url}" href="${community_url}">${community_url.slice(0,20)}...</a><br />
+                                     Self-service URL: <a title="${ss_url}" href="${ss_url}">${ss_url.slice(0,20)}...</a>
                                      </span>`)};
 
 var public_url = `https://support.canonical.com/ua/s/case/${window.location.pathname.split('/')[1]}`
@@ -446,7 +449,6 @@ document.querySelectorAll(`[id*="RelatedFileList_body"] a[title*="Download"`).fo
 });
 
 style.innerHTML += `
-.longurl{overflow-wrap:break-word;}
 @import url("https://use.fontawesome.com/releases/v5.12.1/css/all.css");
 #private{background-color:#fff2e6;}
 #tools{background-color:#f1f1f1;border:1px solid #d3d3d3;border-radius:0 0 10px 10px;text-align:center;z-index:9;}
