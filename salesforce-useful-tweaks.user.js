@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.user.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.98
+// @version        2.99
 // @grant          GM_addStyle
 //
 // ==========================================================================
@@ -90,8 +90,8 @@
 //   will retain that formatting, so viewing pasted tables or output, is not
 //   illegibly reflowed
 //
-// - KB pages will now have their Community URL displayed depending on public
-//   URL schemas, on the Properties panel
+// - Overall case list will now be colorized based on the case Status (nicked
+//   from Roy's version, rewritten for faster rendering)
 //
 // ==========================================================================
 // ==/UserScript==
@@ -121,6 +121,8 @@ var highlight = ''
 var url = ''
 
 var style = document.createElement('style');
+style.innerHTML += `@import url("https://use.fontawesome.com/releases/v5.12.1/css/all.css");`;
+
 // var profile_details = document.querySelectorAll('.efhpLabeledFieldValue > a');
 
 // Keycodes interrogated here: https://keycode.info/
@@ -305,6 +307,32 @@ function create_link_list(title, array, slice) {
     return html_string
 }
 
+// Wait for the AJAX case list to fully load before processing (race condition)
+setTimeout(colorize_cases_list, 2000);
+const case_status_classes = {
+    Customer:   'cus',
+    Support:    'sup',
+    Engineering:'eng',
+    Upstream:   'ups',
+    Operations: 'ops',
+    CPC:        'cpc',
+    SRU:        'sru',
+    New:        'new',
+};
+
+// Colorize the cases by status
+function colorize_cases_list() {
+    console.log('DEBUG: Inside loop...');
+    document.querySelectorAll('[class*="col-CASES_STATUS"]').forEach(node => {
+        for (const [status, cls] of Object.entries(case_status_classes)) {
+            if (node.innerHTML.includes(status)) {
+                node.classList.add(`status-wo${cls}`);
+                break;
+            }
+        }
+    });
+}
+
 var cols = document.evaluate("//th[contains(text(),'Member Role')]", document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
 let map = {};
 let roles = [];
@@ -344,7 +372,7 @@ var case_owner = getElementByXpath("//*[contains(text(),'Case Owner')]/following
 if (case_owner) { toolbox += `Case owner: <strong>${case_owner.trim()}</strong><br />`}
 
 var case_comments = getElementByXpath("//*[contains(text(),'Case Comments')]").replace(/.*[\[\(](\d+)[\)\]].*/g, '$1');
-var case_asset = getElementByXpath(".//*[@id='Asset_ileinner']")
+var case_asset = getElementByXpath("//*[contains(text(),'Product Service SLA')]/following::td[1]");
 var case_subject = getElementByXpath("//*[contains(text(),'Subject')]/following::td[1]");
 if (document.title.includes('Case:')) {
     document.title = document.title.replace(/.*(Case: \d+).*/, `$1 - ${sev_level} - ${case_subject}`);
@@ -449,7 +477,14 @@ document.querySelectorAll(`[id*="RelatedFileList_body"] a[title*="Download"`).fo
 });
 
 style.innerHTML += `
-@import url("https://use.fontawesome.com/releases/v5.12.1/css/all.css");
+.status-wocus{background-color:#9eebcf;}
+.status-wosup{background-color:#ff725c;}
+.status-woeng{background-color:#fbf1a9;}
+.status-woups{background-color:#96ccff;}
+.status-woops{background-color:#cdecff;}
+.status-wocpc{background-color:#ad99ff;}
+.status-wosru{background-color:#ff99e0;}
+.status-wonew{background-color:#ff725c;}
 #private{background-color:#fff2e6;}
 #tools{background-color:#f1f1f1;border:1px solid #d3d3d3;border-radius:0 0 10px 10px;text-align:center;z-index:9;}
 /* #toolbox{-moz-column-width:160px;column-width:160px;font-weight:400 0;margin:1em;text-align:left;} */
