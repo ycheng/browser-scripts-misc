@@ -8,8 +8,10 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.user.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.101
+// @resource       customCSS https://gist.githubusercontent.com/desrod/6c018a76e687b6d64321d9a0fd65c8b1/raw/ff5b17cface287d4a5420dfa0d5be1209b101039/sfui.css
+// @version        2.102
 // @grant          GM_addStyle
+// @grant          GM_getResourceText
 //
 // ==========================================================================
 // Key Features:
@@ -91,12 +93,17 @@
 //   illegibly reflowed
 //
 // - Overall case list will now be colorized based on the case Status (nicked
-//   from Roy's version, rewritten for faster rendering)
+//   from Roy's version, rewritten for faster page rendering)
+//
+// - CSS is now served remotely which keeps the script lean, and css styles 
+//   can be modified without a new script update to all consumers
 //
 // ==========================================================================
 // ==/UserScript==
 
 'use strict';
+var sfuicss = GM_getResourceText ("customCSS");
+GM_addStyle (sfuicss);
 
 // Try to extract the Community URL to KB articles, link in the Properties box
 if ( window.location.href.match(/articles\/.*\/Knowledge\//gi) ) {
@@ -119,9 +126,6 @@ var pastebin_links = []
 var do_search = 0
 var highlight = ''
 var url = ''
-
-var style = document.createElement('style');
-style.innerHTML += `@import url("https://use.fontawesome.com/releases/v5.12.1/css/all.css");`;
 
 // var profile_details = document.querySelectorAll('.efhpLabeledFieldValue > a');
 
@@ -270,9 +274,9 @@ document.querySelectorAll('th').forEach(th => th.addEventListener('click', (() =
 
 // Query selectors by XPath
 function getElementByXpath(path) {
-	var xpath_fragment = document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-	if (xpath_fragment) return xpath_fragment.textContent;
-	else return "";
+    var xpath_fragment = document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+    if (xpath_fragment) return xpath_fragment.textContent;
+    else return "";
 }
 
 // Build the <li>${link}</li> list for the sidebar from array items
@@ -306,31 +310,37 @@ function create_link_list(title, array, slice) {
     return html_string
 }
 
-// Set an interval to check for AJAX page load completion, loop for a small
-// interval, then stop
-const set_interval_x = (fn, delay, times) => {
+let mutation_target = document.body;
+let mutation_observer_list = mutation_target,
+    options = {
+        childList: true,
+        attributes: true,
+        characterData: true,
+        subtree: true
+    },
+    observer = new MutationObserver(mutation_callback);
+
+function mutation_callback(mutations) {
+    for (let mutation of mutations) {
+        // Check if the table was sorted or dropdown used, then recolor
+        if (mutation.target.className == 'listBody') { colorize_case_list(); };
+    }
+}
+
+observer.observe(mutation_observer_list, options);
+
+// Set an interval to check for page load completion, loop for a small interval, then stop
+const setIntervalX = (fn, delay, times) => {
     if(!times) return
     setTimeout(() => {
         fn()
-        set_interval_x(fn, delay, times-1)
+        setIntervalX(fn, delay, times-1)
     }, delay)
 }
 
-set_interval_x(function () {
+setIntervalX(function () {
     colorize_case_list()
-}, 1000, 3);
-
-// Detect when the dropdown onchange event has fired, re-color cases
-document.addEventListener('input', function (event) {
-    if (event.target.id.includes('_listSelect')) {
-        set_interval_x(function () {
-            colorize_case_list()
-        }, 1000, 3);
-    } else {
-        return;
-    }
-
-}, false);
+}, 300, 10);
 
 const case_status_classes = {
     Customer:   'cus',
@@ -341,19 +351,28 @@ const case_status_classes = {
     CPC:        'cpc',
     SRU:        'sru',
     New:        'new',
+    Resolved:   'res',
+    Expired:    'exp'
 };
 
 // Colorize the cases by status
 function colorize_case_list() {
-    var now = Date();
+    var now = new Date();
     document.querySelectorAll('[class*="col-CASES_STATUS"], [class*="col-CASES_LAST_UPDATE"]').forEach(node => {
+        var nval = node.innerHTML;
         for (const [status, cls] of Object.entries(case_status_classes)) {
-            if (node.innerHTML.includes(status)) {
+            if (nval.includes(status)) {
                 node.classList.add(`status-wo${cls}`);
                 break;
+            } else if (nval.includes('/')) {
+                if (now - Date.parse(nval) > 7 * 24 * 60 * 60 * 1000) {
+                    node.classList.add('update-now');
+                } else if (now - Date.parse(nval) > 3 * 24 * 60 * 60 * 1000) {
+                    node.classList.add('update-soon');
+                }
             }
         }
- });
+    });
 }
 
 var cols = document.evaluate("//th[contains(text(),'Member Role')]", document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
@@ -408,8 +427,8 @@ toolbox += (acct_tam||[]).map( value => `TAM: <strong>${value}</strong><br />`).
 
 // Hacky, but checks for CVE references in the case summary, re-links them as below
 document.querySelectorAll('#cas15_ileinner').forEach(node => {
-	node.innerHTML = node.innerHTML.replace(/(?:[^\/])(cve-\d{4}-\d{4,7})/gim,
-		'<span title="Search for $1">&nbsp;<a style="color:blue;" href="' + u_cvesearch + '$1.html" target="_blank">$1</a></span>')
+    node.innerHTML = node.innerHTML.replace(/(?:[^\/])(cve-\d{4}-\d{4,7})/gim,
+        '<span title="Search for $1">&nbsp;<a style="color:blue;" href="' + u_cvesearch + '$1.html" target="_blank">$1</a></span>')
 });
 
 // Pull various URL links out of the case comments as we iterate through them
@@ -499,57 +518,6 @@ document.querySelectorAll(`[id*="RelatedFileList_body"] a[title*="Download"`).fo
     uploaded_files.push(`${node.href}/${node.title.match(/Download - Record \d+ - (.*)/)[1]}`);
 });
 
-style.innerHTML += `
-.status-wocus{background-color:#9eebcf;}
-.status-wosup{background-color:#ff725c;}
-.status-woeng{background-color:#fbf1a9;}
-.status-woups{background-color:#96ccff;}
-.status-woops{background-color:#cdecff;}
-.status-wocpc{background-color:#ad99ff;}
-.status-wosru{background-color:#ff99e0;}
-.status-wonew{background-color:#debe66;}
-#private{background-color:#fff2e6;}
-#tools{background-color:#f1f1f1;border:1px solid #d3d3d3;border-radius:0 0 10px 10px;text-align:center;z-index:9;}
-/* #toolbox{-moz-column-width:160px;column-width:160px;font-weight:400 0;margin:1em;text-align:left;} */
-.efdvJumpLink{position:fixed;z-index:8;border:1px solid #000;background-color:#ddeef4;border-radius:5px;box-shadow: 5px 5px #ccc;left:1.8em;width:165px;}
-.uploads{overflow-x:hidden;overflow-y:auto;max-height:300px;scrollbar-width: thin;}
-.content uploads {margin-left:3em;}
-/* Active asset */
-.aa{background-color:#b3ffb3;}
-/* Asset nearing expiry */
-.ane{background-color:#ffffb3;}
-/* Expired asset */
-.ae{background-color:#ffc9c9;}
-.efdvJumpLinkTitle{font-weight:bold;text-align:center;color:#916363;width:100%;}
-.efdvJumpLinkTitle a{all:unset;color:gray;float:right;text-decoration:none;}
-.noStandardTab td.dataCell{font:8pt monospace!important;word-wrap:break-word;}
-.noStandardTab tr.dataRow.even td.dataCell:nth-of-type(2){background:#f0f0f5;border:1px solid #cecece;}
-div.listRelatedObject.caseBlock div.bPageBlock.brandSecondaryBrd.secondaryPalette table.list tr.even {background: #f0f0f0;}
-.external{background-color:#ff0;display:block;margin:-.5em;padding-left:.5em;}
-.internal{background-color:#90ee90;display:block;margin:-.5em;padding-left:.5em;}
-.formatted {white-space: pre-wrap;}
-b:not(.formatted) {white-space:normal;}
-.urgent{animation:urgent 1.0s infinite;}
-.urgent::before{content:"\uD83D\uDD25";}
-.watermark{color:red;font-size:1em;left:1.2em;opacity:0.5;position:absolute;vertical-align:bottom;z-index:1000;}
-div #cas15_ileinner{background-color:#90ee90;border:1px solid #cecece;color:#000;font:8pt monospace !important;padding:1em;}
-hr {border: 0; height: 1px; background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));}
-.efdvJumpLinkBody a {all:unset;margin:0;padding:0em;}
-.efdvJumpLinkBody ul {margin:0em;padding:0em;}
-.efdvJumpLinkBody li {overflow-wrap:break-word;font-size:0.9em;padding:0.3em;cursor:pointer;}
-.tbox_call, .tbox_time{margin:0;padding:0;text-align: left;}
-.fa-phone {color: #000 !important;}
-.fa-history {color: #f00 !important;}
-.fa-folder-open {color: #33beff !important;}
-#top, #end, #refresh{float:right;margin-left:0.5em;margin-top:0.1em;}
-@keyframes urgent{
-  0%{color:#f00;}
- 49%{color:#dc143c;}
- 50%{color:#dc143c;}
- 99%{color:transparent;}
- 100%{color:#000;}
-`;
-
 var is_weekend = ([0,6].indexOf(new Date().getDay()) != -1);
 if (is_weekend === true && case_asset.includes("Essential")) {
     toolbox += `Weekend: <strong style="color:#f00;">8x5 support</strong><br />`
@@ -608,9 +576,6 @@ if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
 
     related_list_items[0].insertAdjacentHTML('beforeend', sidebar_html)
 }
-
-// Add the injected stylesheet to the bottom of the page's <head> tag
-document.head.appendChild(style);
 
 // Create the collapsible 'sFTP uploads...' dialog actions
 var coll = document.getElementsByClassName("collapsible");
