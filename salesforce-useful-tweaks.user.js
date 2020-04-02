@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.user.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.99
+// @version        2.100
 // @grant          GM_addStyle
 //
 // ==========================================================================
@@ -247,7 +247,6 @@ window.addEventListener("load", ()=> document.querySelector("[translate]").addEv
 window.addEventListener("load", ()=> document.querySelector("[launchpad]").addEventListener("click", () => search_highlight(highlight, 'lp'), false));
 window.addEventListener("load", ()=> document.querySelector("[google]").addEventListener("click", () => search_highlight(highlight, 'google'), false));
 
-
 // Toggle the display of private comments, off/on
 function toggle() {
     let x = document.querySelectorAll("[id=\"private\"]");
@@ -307,8 +306,32 @@ function create_link_list(title, array, slice) {
     return html_string
 }
 
-// Wait for the AJAX case list to fully load before processing (race condition)
-setTimeout(colorize_cases_list, 2000);
+// Set an interval to check for AJAX page load completion, loop for a small
+// interval, then stop
+const set_interval_x = (fn, delay, times) => {
+    if(!times) return
+    setTimeout(() => {
+        fn()
+        set_interval_x(fn, delay, times-1)
+    }, delay)
+}
+
+set_interval_x(function () {
+    colorize_case_list()
+}, 1000, 3);
+
+// Detect when the dropdown onchange event has fired, re-color cases
+document.addEventListener('input', function (event) {
+    if (event.target.id.includes('_listSelect')) {
+        set_interval_x(function () {
+            colorize_case_list()
+        }, 1000, 3);
+    } else {
+        return;
+    }
+
+}, false);
+
 const case_status_classes = {
     Customer:   'cus',
     Support:    'sup',
@@ -321,16 +344,17 @@ const case_status_classes = {
 };
 
 // Colorize the cases by status
-function colorize_cases_list() {
-    console.log('DEBUG: Inside loop...');
-    document.querySelectorAll('[class*="col-CASES_STATUS"]').forEach(node => {
+function colorize_case_list() {
+    var now = Date();
+    document.querySelectorAll('[class*="col-CASES_STATUS"], [class*="col-CASES_LAST_UPDATE"]').forEach(node => {
+        console.log('DEBUG:', now);
         for (const [status, cls] of Object.entries(case_status_classes)) {
             if (node.innerHTML.includes(status)) {
                 node.classList.add(`status-wo${cls}`);
                 break;
             }
         }
-    });
+ });
 }
 
 var cols = document.evaluate("//th[contains(text(),'Member Role')]", document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
@@ -484,7 +508,7 @@ style.innerHTML += `
 .status-woops{background-color:#cdecff;}
 .status-wocpc{background-color:#ad99ff;}
 .status-wosru{background-color:#ff99e0;}
-.status-wonew{background-color:#ff725c;}
+.status-wonew{background-color:#debe66;}
 #private{background-color:#fff2e6;}
 #tools{background-color:#f1f1f1;border:1px solid #d3d3d3;border-radius:0 0 10px 10px;text-align:center;z-index:9;}
 /* #toolbox{-moz-column-width:160px;column-width:160px;font-weight:400 0;margin:1em;text-align:left;} */
@@ -613,3 +637,4 @@ function dragElement(n){var t=0,o=0,u=0,l=0;function e(e){(e=e||window.event).pr
 function d(e){(e=e||window.event).preventDefault();t=u-e.clientX;o=l-e.clientY;u=e.clientX;l=e.clientY;n.style.top=n.offsetTop-o+"px";n.style.left=n.offsetLeft-t+"px"}
 function m(){document.onmouseup=null;document.onmousemove=null}
 document.getElementById(n.id+"header")?document.getElementById(n.id+"header").onmousedown=e:n.onmousedown=e}
+
