@@ -8,7 +8,7 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.user.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @version        2.100
+// @version        2.101
 // @grant          GM_addStyle
 //
 // ==========================================================================
@@ -347,7 +347,6 @@ const case_status_classes = {
 function colorize_case_list() {
     var now = Date();
     document.querySelectorAll('[class*="col-CASES_STATUS"], [class*="col-CASES_LAST_UPDATE"]').forEach(node => {
-        console.log('DEBUG:', now);
         for (const [status, cls] of Object.entries(case_status_classes)) {
             if (node.innerHTML.includes(status)) {
                 node.classList.add(`status-wo${cls}`);
