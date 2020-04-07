@@ -9,7 +9,7 @@
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
 // @resource       customCSS https://gist.githubusercontent.com/desrod/6c018a76e687b6d64321d9a0fd65c8b1/raw/df377ee6c5d64ad389ad7d5c3771486913761a31/sfui.css
-// @version        2.102
+// @version        2.103
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 //
