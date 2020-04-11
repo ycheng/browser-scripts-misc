@@ -8,8 +8,8 @@
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.user.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
-// @resource       customCSS https://gist.githubusercontent.com/desrod/6c018a76e687b6d64321d9a0fd65c8b1/raw/df377ee6c5d64ad389ad7d5c3771486913761a31/sfui.css
-// @version        2.103
+// @resource       customCSS https://gist.githubusercontent.com/desrod/6c018a76e687b6d64321d9a0fd65c8b1/raw/sfui.css
+// @version        2.104
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 //
@@ -95,7 +95,7 @@
 // - Overall case list will now be colorized based on the case Status (nicked
 //   from Roy's version, rewritten for faster page rendering)
 //
-// - CSS is now served remotely which keeps the script lean, and css styles 
+// - CSS is now served remotely which keeps the script lean, and css styles
 //   can be modified without a new script update to all consumers
 //
 // ==========================================================================
