@@ -9,7 +9,7 @@
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
 // @resource       customCSS https://gist.githubusercontent.com/desrod/6c018a76e687b6d64321d9a0fd65c8b1/raw/sfui.css
-// @version        2.104
+// @version        2.105
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 //
@@ -451,8 +451,7 @@ function push_links(node, uri, links_array) {
 // Search the table for active, nearing and expired rows
 const check_table_rows = Array.from(
     document.querySelectorAll(`div.assetBlock > div > div > table tbody tr,
-                               div.contractBlock > div > div > table tbody tr,
-                               div.taskBlock  > div > div > table tbody tr`), (row) => {
+                               div.contractBlock > div > div > table tbody tr`), (row) => {
     const dates = row.querySelectorAll('td.DateElement')
     return dates[dates.length - 1] || null;
 }).filter(Boolean);
