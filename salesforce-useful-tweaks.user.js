@@ -9,7 +9,7 @@
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
 // @resource       customCSS https://gist.githubusercontent.com/desrod/6c018a76e687b6d64321d9a0fd65c8b1/raw/sfui.css
-// @version        2.105
+// @version        2.106
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 //
@@ -93,7 +93,11 @@
 //   illegibly reflowed
 //
 // - Overall case list will now be colorized based on the case Status (nicked
-//   from Roy's version, rewritten for faster page rendering)
+//   from Roy's version, rewritten for faster page rendering). If your view has
+//   the "Last Public Update" column visible, those rows will be colored,
+//   depending on whether the last public comment was > 3 days or > 7 days from
+//   now. If your view only has the Last Modified column visible, that row will
+//   be colored.
 //
 // - CSS is now served remotely which keeps the script lean, and css styles
 //   can be modified without a new script update to all consumers
@@ -323,7 +327,7 @@ let mutation_observer_list = mutation_target,
 function mutation_callback(mutations) {
     for (let mutation of mutations) {
         // Check if the table was sorted or dropdown used, then recolor
-        if (mutation.target.className == 'listBody') { colorize_case_list(); };
+        if (mutation.target.className == 'listBody') { check_lpu(); };
     }
 }
 
@@ -339,7 +343,7 @@ const setIntervalX = (fn, delay, times) => {
 }
 
 setIntervalX(function () {
-    colorize_case_list()
+    check_lpu()
 }, 300, 10);
 
 const case_status_classes = {
@@ -356,22 +360,35 @@ const case_status_classes = {
 };
 
 // Colorize the cases by status
-function colorize_case_list() {
+function colorize_case_list(node) {
     var now = new Date();
-    document.querySelectorAll('[class*="col-CASES_STATUS"], [class*="col-CASES_LAST_UPDATE"]').forEach(node => {
-        var nval = node.innerHTML;
-        for (const [status, cls] of Object.entries(case_status_classes)) {
-            if (nval.includes(status)) {
-                node.classList.add(`status-wo${cls}`);
-                break;
-            } else if (nval.includes('/')) {
-                if (now - Date.parse(nval) > 7 * 24 * 60 * 60 * 1000) {
-                    node.classList.add('update-now');
-                } else if (now - Date.parse(nval) > 3 * 24 * 60 * 60 * 1000) {
-                    node.classList.add('update-soon');
-                }
+    var nval = node.innerHTML;
+    for (const [status, cls] of Object.entries(case_status_classes)) {
+        if (nval.includes(status)) {
+            node.classList.add(`status-wo${cls}`);
+            break;
+        } else if (nval.includes('/')) {
+            if (now - Date.parse(nval) > 7 * 24 * 60 * 60 * 1000) {
+                node.classList.add('update-now');
+            } else if (now - Date.parse(nval) > 3 * 24 * 60 * 60 * 1000) {
+                node.classList.add('update-soon');
             }
         }
+    }
+}
+
+function check_lpu() {
+    var node_class = ''
+    var lpu = document.querySelectorAll('[class*="x-grid3-col-00ND00000068nKD"]');
+    // Check if Last Public Update (lpu) or Last Modified column is visible
+    if (lpu.length > 0) {
+        node_class = '[class*="x-grid3-col-00ND00000068nKD"]';
+    } else {
+        node_class = '[class*="col-CASES_STATUS"], [class*="col-CASES_LAST_UPDATE"]';
+    }
+
+    document.querySelectorAll(node_class).forEach(node => {
+        colorize_case_list(node);
     });
 }
 
