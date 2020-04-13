@@ -9,7 +9,7 @@
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
 // @resource       customCSS https://gist.githubusercontent.com/desrod/6c018a76e687b6d64321d9a0fd65c8b1/raw/sfui.css
-// @version        2.106
+// @version        2.107
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 //
@@ -378,13 +378,13 @@ function colorize_case_list(node) {
 }
 
 function check_lpu() {
-    var node_class = ''
+    var node_class = ['[class*="col-CASES_STATUS"]']
     var lpu = document.querySelectorAll('[class*="x-grid3-col-00ND00000068nKD"]');
     // Check if Last Public Update (lpu) or Last Modified column is visible
     if (lpu.length > 0) {
-        node_class = '[class*="x-grid3-col-00ND00000068nKD"]';
+        node_class.push('[class*="x-grid3-col-00ND00000068nKD"]');
     } else {
-        node_class = '[class*="col-CASES_STATUS"], [class*="col-CASES_LAST_UPDATE"]';
+        node_class.push('[class*="col-CASES_LAST_UPDATE"]');
     }
 
     document.querySelectorAll(node_class).forEach(node => {
