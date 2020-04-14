@@ -9,7 +9,7 @@
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
 // @resource       customCSS https://gist.githubusercontent.com/desrod/6c018a76e687b6d64321d9a0fd65c8b1/raw/sfui.css
-// @version        2.107
+// @version        2.108
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 //
@@ -101,6 +101,11 @@
 //
 // - CSS is now served remotely which keeps the script lean, and css styles
 //   can be modified without a new script update to all consumers
+// 
+// - When reviewing KB articles, clicking anywhere inside the article body, will
+//   trigger the browser's spellcheck engine to highlight any misspelled words.
+//   Note, this will also flag some common technology terms that aren't in the
+//   dictionary. 
 //
 // ==========================================================================
 // ==/UserScript==
@@ -118,6 +123,14 @@ if ( window.location.href.match(/articles\/.*\/Knowledge\//gi) ) {
                                      Community URL: <a title="${community_url}" href="${community_url}">${community_url.slice(0,20)}...</a><br />
                                      Self-service URL: <a title="${ss_url}" href="${ss_url}">${ss_url.slice(0,20)}...</a>
                                      </span>`)};
+
+// Added browser spellcheck support to Article review pages
+var selection = document.querySelector('.htmlDetailElementTable') !== null;
+if (selection) {
+    document.querySelector(".htmlDetailElementTable").setAttribute("contenteditable", "true");
+    document.querySelector(".htmlDetailElementTable").setAttribute("spellcheck", "true");
+}
+
 
 var public_url = `https://support.canonical.com/ua/s/case/${window.location.pathname.split('/')[1]}`
 var u_cvesearch = "https://people.canonical.com/~ubuntu-security/cve/";
