@@ -9,7 +9,7 @@
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
 // @resource       customCSS https://gist.githubusercontent.com/desrod/6c018a76e687b6d64321d9a0fd65c8b1/raw/sfui.css
-// @version        2.108
+// @version        2.109
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 //
@@ -101,11 +101,11 @@
 //
 // - CSS is now served remotely which keeps the script lean, and css styles
 //   can be modified without a new script update to all consumers
-// 
+//
 // - When reviewing KB articles, clicking anywhere inside the article body, will
 //   trigger the browser's spellcheck engine to highlight any misspelled words.
 //   Note, this will also flag some common technology terms that aren't in the
-//   dictionary. 
+//   dictionary.
 //
 // ==========================================================================
 // ==/UserScript==
@@ -130,7 +130,6 @@ if (selection) {
     document.querySelector(".htmlDetailElementTable").setAttribute("contenteditable", "true");
     document.querySelector(".htmlDetailElementTable").setAttribute("spellcheck", "true");
 }
-
 
 var public_url = `https://support.canonical.com/ua/s/case/${window.location.pathname.split('/')[1]}`
 var u_cvesearch = "https://people.canonical.com/~ubuntu-security/cve/";
@@ -210,6 +209,14 @@ listen_keypress(KEY_U, function(event) {
         document.querySelector('input[value="Upload Files"]').click();
     }
 })
+
+// For Call Log and Time Card forms, put focus on the 'minutes' input field for
+// easy entry
+if (document.querySelector('h2.mainTitle').textContent.includes(' Edit')) {
+    window.onload = function() {
+        document.querySelector('td.last > input').focus();
+    }
+}
 
 // Get the selected text so we can do fun things with it
 function get_highlighted_text(e) {
