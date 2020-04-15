@@ -9,7 +9,7 @@
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
 // @resource       customCSS https://gist.githubusercontent.com/desrod/6c018a76e687b6d64321d9a0fd65c8b1/raw/sfui.css
-// @version        2.109
+// @version        2.110
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 //
@@ -210,9 +210,9 @@ listen_keypress(KEY_U, function(event) {
     }
 })
 
-// For Call Log and Time Card forms, put focus on the 'minutes' input field for
-// easy entry
-if (document.querySelector('h2.mainTitle').textContent.includes(' Edit')) {
+// For Call Log and Time Card forms, put focus on the 'minutes' input field for easy entry
+if (["Log a Call", "Time Card Edit"].some(substring => document.title.includes(substring))) {
+// if (document.querySelector('h2.mainTitle').textContent.includes(' Edit')) {
     window.onload = function() {
         document.querySelector('td.last > input').focus();
     }
