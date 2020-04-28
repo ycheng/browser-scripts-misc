@@ -9,7 +9,7 @@
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
 // @resource       customCSS https://gist.githubusercontent.com/desrod/6c018a76e687b6d64321d9a0fd65c8b1/raw/sfui.css
-// @version        2.110
+// @version        2.111
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 //
@@ -288,7 +288,7 @@ const compare_cell = (idx, asc) => (a, b) => ((v1, v2) =>
  v1 !== '' && v2 !== '' && !isNaN(v1) && !isNaN(v2) ? v1 - v2 : v1.toString().localeCompare(v2)
 )(get_cell_val(asc ? a : b, idx), get_cell_val(asc ? b : a, idx));
 
-document.querySelectorAll('th').forEach(th => th.addEventListener('click', (() => {
+document.querySelectorAll('th[scope="col"]').forEach(th => th.addEventListener('click', (() => {
     const table = th.closest('table');
     const tbody = table.querySelector('tbody');
     Array.from(tbody.querySelectorAll('tr:nth-child(n+2)'))
@@ -495,14 +495,21 @@ const check_table_rows = Array.from(
 check_table_rows.forEach(el => check_date(el, el.innerText));
 
 function check_date(el, date) {
-  var now = new Date();
-  if (Date.parse(date) < Date.parse(now)) {
-      return el.closest("tr").classList.add('ae')
-  } else if (Math.round(Math.abs((Date.parse(date) - Date.parse(now)) / 86400000)) < 30) {
-      return el.closest("tr").classList.add('ane')
-  } else {
-      return el.closest("tr").classList.add('aa')
-  }
+    var now = Date.now()
+    var end_date = Date.parse(date)
+    var days_left = (end_date - now) / (24 * 60 * 60 * 1000)
+    var expiry = ''
+
+    if (end_date < now - 90) {
+        expiry = 'pe'; // past expiration > 90 days
+    } else if (end_date < now) {
+        expiry = 'ae'; // asset expired > 30 days < 90 days
+    } else if (days_left < 30) {
+        expiry = 'ane'; // asset near expiration < 30 days
+    } else {
+        expiry = 'aa'; // asset active > 30 days
+    }
+    return el.closest("tr").classList.add(expiry);
 }
 
 document.querySelectorAll('.dataCell b').forEach((el) => {
@@ -637,4 +644,3 @@ function dragElement(n){var t=0,o=0,u=0,l=0;function e(e){(e=e||window.event).pr
 function d(e){(e=e||window.event).preventDefault();t=u-e.clientX;o=l-e.clientY;u=e.clientX;l=e.clientY;n.style.top=n.offsetTop-o+"px";n.style.left=n.offsetLeft-t+"px"}
 function m(){document.onmouseup=null;document.onmousemove=null}
 document.getElementById(n.id+"header")?document.getElementById(n.id+"header").onmousedown=e:n.onmousedown=e}
-
