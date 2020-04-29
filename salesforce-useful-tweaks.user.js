@@ -9,7 +9,7 @@
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
 // @resource       customCSS https://gist.githubusercontent.com/desrod/6c018a76e687b6d64321d9a0fd65c8b1/raw/sfui.css
-// @version        2.111
+// @version        2.112
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 //
@@ -450,7 +450,7 @@ if (customer_name) { toolbox += `Customer: <strong>${customer_name.trim()}</stro
 var case_owner = getElementByXpath("//*[contains(text(),'Case Owner')]/following::td[1]");
 if (case_owner) { toolbox += `Case owner: <strong>${case_owner.trim()}</strong><br />`}
 
-var case_comments = getElementByXpath("//*[contains(text(),'Case Comments')]").replace(/.*[\[\(](\d+)[\)\]].*/g, '$1');
+var case_comments = getElementByXpath("//a[contains(text(),'Case Comments')]").replace(/.*[\[\(](\d+)[\)\]].*/g, '$1');
 var case_asset = getElementByXpath("//*[contains(text(),'Product Service SLA')]/following::td[1]");
 var case_subject = getElementByXpath("//*[contains(text(),'Subject')]/following::td[1]");
 if (document.title.includes('Case:')) {
