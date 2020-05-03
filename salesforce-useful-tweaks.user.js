@@ -9,7 +9,7 @@
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
 // @resource       customCSS https://gist.githubusercontent.com/desrod/6c018a76e687b6d64321d9a0fd65c8b1/raw/sfui.css
-// @version        2.112
+// @version        2.113
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 //
@@ -562,7 +562,7 @@ document.querySelectorAll(`[id*="RelatedFileList_body"] a[title*="Download"`).fo
 });
 
 var is_weekend = ([0,6].indexOf(new Date().getDay()) != -1);
-if (is_weekend === true && case_asset.includes("Essential")) {
+if (is_weekend === true && case_asset.includes("Standard")) {
     toolbox += `Weekend: <strong style="color:#f00;">8x5 support</strong><br />`
     document.getElementsByClassName("efdvJumpLink")[0].style = "border: 2px solid #ff9494; background: repeating-linear-gradient(45deg,#f7f7f7,#f7f7f7 10px,#fff 10px, #fff 20px);"
 }
