@@ -3,13 +3,14 @@
 // @namespace      http://salesforce.com/
 // @description    Style and tweak Salesforce to be more productive for Engineers and Support
 // @include        /^https?://.*my.salesforce\.com/.*$/
+// @include        /^https?://.*staging.lightning.force\.com/.*$/
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.user.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-useful-tweaks.user.js
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
 // @resource       customCSS https://gist.githubusercontent.com/desrod/6c018a76e687b6d64321d9a0fd65c8b1/raw/sfui.css
-// @version        2.113
+// @version        2.114
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 //
@@ -125,11 +126,11 @@ if ( window.location.href.match(/articles\/.*\/Knowledge\//gi) ) {
                                      </span>`)};
 
 // Added browser spellcheck support to Article review pages
-var selection = document.querySelector('.htmlDetailElementTable') !== null;
-if (selection) {
-    document.querySelector(".htmlDetailElementTable").setAttribute("contenteditable", "true");
-    document.querySelector(".htmlDetailElementTable").setAttribute("spellcheck", "true");
-}
+// var selection = document.querySelector('.htmlDetailElementTable') !== null;
+// if (selection) {
+//     document.querySelector(".htmlDetailElementTable:not(a)").setAttribute("contenteditable", "true");
+//     document.querySelector(".htmlDetailElementTable:not(a)").setAttribute("spellcheck", "true");
+// }
 
 var public_url = `https://support.canonical.com/ua/s/case/${window.location.pathname.split('/')[1]}`
 var u_cvesearch = "https://people.canonical.com/~ubuntu-security/cve/";
@@ -228,7 +229,7 @@ function get_highlighted_text(e) {
 
 document.onmouseup = get_highlighted_text;
 
-if (!document.all) document.captureEvents(Event.MOUSEUP);
+// if (!document.all) document.captureEvents(Event.MOUSEUP);
 function do_search_msg(highlight, engine) {
     return confirm(`WARNING: about to send the text "${highlight}" to ${engine} on the public Internet. Proceed?`)
 }
