@@ -10,7 +10,7 @@
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
 // @resource       customCSS https://gist.githubusercontent.com/desrod/6c018a76e687b6d64321d9a0fd65c8b1/raw/sfui.css
-// @version        2.114
+// @version        2.115
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 //
@@ -465,7 +465,7 @@ toolbox += (acct_tam||[]).map( value => `TAM: <strong>${value}</strong><br />`).
 
 // Hacky, but checks for CVE references in the case summary, re-links them as below
 document.querySelectorAll('#cas15_ileinner').forEach(node => {
-    node.innerHTML = node.innerHTML.replace(/(?:[^\/])(cve-\d{4}-\d{4,7})/gim,
+    node.innerHTML = node.innerHTML.replace(/(cve-\d{4}-\d{4,7})/gim,
         '<span title="Search for $1">&nbsp;<a style="color:blue;" href="' + u_cvesearch + '$1.html" target="_blank">$1</a></span>')
 });
 
@@ -530,7 +530,6 @@ document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
 
     // Sort the file attachments by name, vs. default sort by newest -> oldest
     // case_attachments.sort()
-
     node.innerHTML = node.innerHTML.replace(/(Created By:.*)/, `<span id="${comment_count}"><a title="Right-click to link to comment #${comment_count}"
                                             name="#${comment_count}" href="${window.location.href.split('?')[0]}#${comment_count}">
                                             <i class="fas fa-link"></i></a>(${comment_count})&nbsp;$1</span>`)
@@ -544,7 +543,7 @@ document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
                                             `<a style="color:blue;" href="$&">$&</a>`)
 
     // These will dynamically link in any references to CVEs to their requisite search URLs
-    node.innerHTML = node.innerHTML.replace(/(?:[^\/])(cve-\d{4}-\d{4,7})/gim,
+    node.innerHTML = node.innerHTML.replace(/(cve-\d{4}-\d{4,7})/gim,
                                             '<span title="Search for $1">&nbsp;<a style="color:blue;" href="' +
                                             u_cvesearch +
                                             '$1.html" target="_blank">$1</a></span>')
