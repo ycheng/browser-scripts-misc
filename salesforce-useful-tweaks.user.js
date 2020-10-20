@@ -10,7 +10,7 @@
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
 // @resource       customCSS https://gist.githubusercontent.com/desrod/6c018a76e687b6d64321d9a0fd65c8b1/raw/sfui.css
-// @version        2.115
+// @version        2.116
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 //
@@ -132,6 +132,7 @@ if ( window.location.href.match(/articles\/.*\/Knowledge\//gi) ) {
 //     document.querySelector(".htmlDetailElementTable:not(a)").setAttribute("spellcheck", "true");
 // }
 
+var style = document.createElement('style');
 var public_url = `https://support.canonical.com/ua/s/case/${window.location.pathname.split('/')[1]}`
 var u_cvesearch = "https://people.canonical.com/~ubuntu-security/cve/";
 
@@ -465,7 +466,7 @@ toolbox += (acct_tam||[]).map( value => `TAM: <strong>${value}</strong><br />`).
 
 // Hacky, but checks for CVE references in the case summary, re-links them as below
 document.querySelectorAll('#cas15_ileinner').forEach(node => {
-    node.innerHTML = node.innerHTML.replace(/(cve-\d{4}-\d{4,7})/gim,
+    node.innerHTML = node.innerHTML.replace(/[^\/](cve-\d{4}-\d{4,7})/gim,
         '<span title="Search for $1">&nbsp;<a style="color:blue;" href="' + u_cvesearch + '$1.html" target="_blank">$1</a></span>')
 });
 
@@ -543,7 +544,7 @@ document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
                                             `<a style="color:blue;" href="$&">$&</a>`)
 
     // These will dynamically link in any references to CVEs to their requisite search URLs
-    node.innerHTML = node.innerHTML.replace(/(cve-\d{4}-\d{4,7})/gim,
+    node.innerHTML = node.innerHTML.replace(/[^\/](cve-\d{4}-\d{4,7})/gim,
                                             '<span title="Search for $1">&nbsp;<a style="color:blue;" href="' +
                                             u_cvesearch +
                                             '$1.html" target="_blank">$1</a></span>')
@@ -575,13 +576,14 @@ if (sev_level) {
 
 }
 
-if (document.getElementsByClassName('efdvJumpLinkBody').length > 0) {
+if (document.getElementsByClassName('sidebarCell').length > 0) {
+    console.log("DEBUG: YOU ARE HERE!");
     var log_call = document.querySelector('input[value="Log a Call"]').getAttribute('onclick');
     var log_call_match = log_call.match(/navigateToUrl(.*?['"]([^'"]*)['"])/);
     var log_call_msg = document.domain + log_call_match[2]
 
-    var related_list_box = document.querySelectorAll('.efdvJumpLinkBody');
-    var related_list_items = document.querySelectorAll('.efdvJumpLinkBody > ul');
+    var related_list_box = document.querySelectorAll('.sidebarModuleBody');
+    var related_list_items = document.querySelectorAll('.sidebarModuleBody > ul');
 
     // Reload page
     document.querySelectorAll('.efdvJumpLinkTitle')[0].insertAdjacentHTML('afterbegin', '<a id="refresh" onclick="document.location.reload(true);"><i class="fas fa-sync-alt"></i></a>');
@@ -638,7 +640,7 @@ for (i = 0; i < coll.length; i++) {
 
 // This is needed to create the draggable toolbox around the page
 const qsa = (selector, parent = document) => parent.querySelectorAll(selector)
-qsa('[id^="efJumpLink"]').forEach(element => { dragElement(document.getElementById(element.id)); })
+qsa('[id^="toolboxModule"]').forEach(element => { dragElement(document.getElementById(element.id)); })
 
 function dragElement(n){var t=0,o=0,u=0,l=0;function e(e){(e=e||window.event).preventDefault();u=e.clientX;l=e.clientY;document.onmouseup=m;document.onmousemove=d}
 function d(e){(e=e||window.event).preventDefault();t=u-e.clientX;o=l-e.clientY;u=e.clientX;l=e.clientY;n.style.top=n.offsetTop-o+"px";n.style.left=n.offsetLeft-t+"px"}
