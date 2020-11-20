@@ -10,7 +10,7 @@
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
 // @resource       customCSS https://gist.githubusercontent.com/desrod/6c018a76e687b6d64321d9a0fd65c8b1/raw/
-// @version        2.118
+// @version        2.119
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 //
@@ -545,7 +545,7 @@ document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
 
     // These will dynamically link in any references to CVEs to their requisite search URLs
     node.innerHTML = node.innerHTML.replace(/[^\/](cve-\d{4}-\d{4,7})/gim,
-                                            '<span title="Search for $1">&nbsp;<a style="color:blue;" href="' +
+                                            '><span title="Search for $1">&nbsp;<a style="color:blue;" href="' +
                                             u_cvesearch +
                                             '$1.html" target="_blank">$1</a></span>')
 
