@@ -10,7 +10,7 @@
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
 // @resource       customCSS https://gist.githubusercontent.com/desrod/6c018a76e687b6d64321d9a0fd65c8b1/raw/
-// @version        2.117
+// @version        2.118
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 //
@@ -135,6 +135,7 @@ if ( window.location.href.match(/articles\/.*\/Knowledge\//gi) ) {
 var style = document.createElement('style');
 var public_url = `https://support.canonical.com/ua/s/case/${window.location.pathname.split('/')[1]}`
 var u_cvesearch = "https://people.canonical.com/~ubuntu-security/cve/";
+var u_usnsearch = "https://ubuntu.com/security/notices/";
 
 var attachments = getElementByXpath("/html/body//a[contains(text(),'Files')]/@href");
 
@@ -464,10 +465,13 @@ var acct_tam = map["Technical Account Manager"]
 toolbox += (acct_dse||[]).map( value => `DSE: <strong>${value}</strong><br />`).join('')
 toolbox += (acct_tam||[]).map( value => `TAM: <strong>${value}</strong><br />`).join('')
 
-// Hacky, but checks for CVE references in the case summary, re-links them as below
+// Hacky, but checks for CVE and USN references in the case summary, re-links them as below
 document.querySelectorAll('#cas15_ileinner').forEach(node => {
     node.innerHTML = node.innerHTML.replace(/[^\/](cve-\d{4}-\d{4,7})/gim,
         '<span title="Search for $1">&nbsp;<a style="color:blue;" href="' + u_cvesearch + '$1.html" target="_blank">$1</a></span>')
+
+    node.innerHTML = node.innerHTML.replace(/(https:\/\/.*?)(USN-\d{4}-\d{1})/gim,
+        '<span title="Search for $2">&nbsp;<a style="color:blue;" href="' + u_usnsearch + '$2" target="_blank">$2</a></span>')
 });
 
 // Pull various URL links out of the case comments as we iterate through them
@@ -539,15 +543,19 @@ document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
     node.innerHTML = node.innerHTML.replace(/\-New Attachment added: ([^()]+)/gi,
                                             `&#128206; <span style="color:red;">IMPORTANT New Attachment added</span>: <a href="${attachments}">$1</a>`)
 
-    // Attempt to turn anything that looks like a URL in a case comment, into a clickable link
-    node.innerHTML = node.innerHTML.replace(/(?=(https?:\/{2}[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\;//=]*)?))\1(?!['"]|<\/a>)+/gim,
-                                            `<a style="color:blue;" href="$&">$&</a>`)
-
     // These will dynamically link in any references to CVEs to their requisite search URLs
     node.innerHTML = node.innerHTML.replace(/[^\/](cve-\d{4}-\d{4,7})/gim,
                                             '<span title="Search for $1">&nbsp;<a style="color:blue;" href="' +
                                             u_cvesearch +
                                             '$1.html" target="_blank">$1</a></span>')
+
+    node.innerHTML = node.innerHTML.replace(/(https:\/\/.*?)(USN-\d{4}-\d{1})/gim,
+                                            '<span title="Search for $2">&nbsp;<a style="color:blue;" href="' +
+                                            u_usnsearch + '$2" target="_blank">$2</a></span>')
+
+    // Attempt to turn anything that looks like a URL in a case comment, into a clickable link
+    node.innerHTML = node.innerHTML.replace(/(?=(https?:\/{2}[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\;//=]*)?))\1(?!['"]|<\/a>)+/gim,
+                                            `<a style="color:blue;" href="$&">$&</a>`)
 
     // This is brittle, it should be: getElementByXpath("//*[contains(text(),'Make Public')]/following::td[1]")
     // I don't like it, I'll fix it later.
@@ -577,7 +585,6 @@ if (sev_level) {
 }
 
 if (document.getElementsByClassName('sidebarCell').length > 0) {
-    console.log("DEBUG: YOU ARE HERE!");
     var log_call = document.querySelector('input[value="Log a Call"]').getAttribute('onclick');
     var log_call_match = log_call.match(/navigateToUrl(.*?['"]([^'"]*)['"])/);
     var log_call_msg = document.domain + log_call_match[2]
