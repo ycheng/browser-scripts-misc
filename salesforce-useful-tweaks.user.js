@@ -10,105 +10,9 @@
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
 // @resource       customCSS https://gist.githubusercontent.com/desrod/6c018a76e687b6d64321d9a0fd65c8b1/raw/
-// @version        2.119
+// @version        2.120
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
-//
-// ==========================================================================
-// Key Features:
-//
-// - The left-side menu now floats with the page. You can also drag and move
-//   this box to anywhere on the page you might want to place it. This is being
-//   referred to as the 'floating toolbox'
-//
-// - The floating menu now has 'Go to Top' and 'Go to Bottom' of page accels,
-//   accessible by clicking the up and down arrows on the top-right of the
-//   toolbox.
-//
-// - New items have been added to the "Related Items" menu, for convenience,
-//   these are:
-//
-//   * Case Header
-//     - The new Case Header includes Customer, Customer Contact, internal
-//       owner(s), and Severity.
-//
-//     - If the case severity is an L1, the floating menu will be highlighted in
-//       a red border and the header will indicate an urgenty status, until it
-//       has been downgraded below L1.
-//
-//     - If the current date happens to be on a weekend, and the customer's a
-//       ssets/account does not merit weekend support, the floating menu will be
-//       'hashed out' with gray bars, and the status will indicate that the case
-//       should not be worked at that time.
-//
-//   * Case accelerator 'hotkeys'
-//     - You can now press keyboard keys to activate new options on the page (h)
-//       will show/hide any private comments in each new case (t) will launch a
-//       new tab to create a new time card for the case (l) [ell] will launch a
-//       new tab to log a new customer call for the case
-//     - You can also access these options by their links on the floating
-//       toolbox
-//
-//   * Any text highlighted on the page can be sent to the services below by
-//     clickinng on their relevant icons on the bottom portion of the floating
-//     toolbox:
-//     - Google Translate
-//     - Search Launchpad
-//     - Search Google
-//
-// - The title of Case pages is now changed to reflect the case number, severity
-//   and case subject, so it can be easily found in each tab of a browser with
-//   many cases open.
-//
-// - Case comment headers are colorized depending on whether they come from an
-//   internal or external author.
-//
-// - Case comments are also numbered, with clickable links next to each one so
-//   they can be directly linked to in other comments or discussions by named
-//   anchors.
-//
-// - Any files that are uploaded to the case or support portal, will be linked
-//   into the floating toolbox. If the number of files exceeds (5), the list
-//   will collapse, and you'll have to click the 'uploads' link to expand and
-//   scroll the menu.
-//
-// - Any pastebin links found in case comments will also be linked in the
-//   floating toolbox. The normal and raw versions will have separate links, so
-//   you can visit either of them directly.
-//
-// - Any case mentioning a CVE, by referring to its CVE number directly (for
-//   example, CVE-2017-8365), will have that CVE text hyperlinked directly to
-//   the CVE tracker.
-//
-// - If a case's accounts, assets or other table data shows as either Active,
-//   Expiring soon or Expired, the rows of the tabular data will be indicated in
-//   Green, Yellow or Red accordingly. This will help guide support staff to
-//   know if a customer has active support, expired support or support nearing
-//   expiration, so they can take appropriate action.
-//
-// - Any table on a page can be sorted by clicking its header label. This is
-//   true for any and all tables on any pages.
-//
-// - Any case comment that has what appears to be formatted text included in it,
-//   will retain that formatting, so viewing pasted tables or output, is not
-//   illegibly reflowed
-//
-// - Overall case list will now be colorized based on the case Status (nicked
-//   from Roy's version, rewritten for faster page rendering). If your view has
-//   the "Last Public Update" column visible, those rows will be colored,
-//   depending on whether the last public comment was > 3 days or > 7 days from
-//   now. If your view only has the Last Modified column visible, that row will
-//   be colored.
-//
-// - CSS is now served remotely which keeps the script lean, and css styles
-//   can be modified without a new script update to all consumers
-//
-// - When reviewing KB articles, clicking anywhere inside the article body, will
-//   trigger the browser's spellcheck engine to highlight any misspelled words.
-//   Note, this will also flag some common technology terms that aren't in the
-//   dictionary.
-//
-// ==========================================================================
 // ==/UserScript==
 
 'use strict';
@@ -116,7 +20,7 @@ var sfuicss = GM_getResourceText ("customCSS");
 GM_addStyle (sfuicss);
 
 // Try to extract the Community URL to KB articles, link in the Properties box
-if ( window.location.href.match(/articles\/.*\/Knowledge\//gi) ) {
+if ( window.location.href.match(/articles\/.*\/Knowledge\//i) ) {
     var community_url = getElementByXpath("//*[contains(text(),'Community URL')]/following::span[1]");
     var ss_url = community_url.replace(/\/ua\//, '/selfservice/')
     document.getElementsByClassName('panelTitle')[0].insertAdjacentHTML('afterend',
@@ -125,12 +29,23 @@ if ( window.location.href.match(/articles\/.*\/Knowledge\//gi) ) {
                                      Self-service URL: <a title="${ss_url}" href="${ss_url}">${ss_url.slice(0,20)}...</a>
                                      </span>`)};
 
+if ( window.location.href.match(/.*\/search\/ui\//i) ) {
+    const search_term = document.getElementById("secondSearchText").value;
+    const contentElement = document.getElementById('searchBody')
+    console.log("DEBUG: ", search_term);
+    if (search_term) {
+        const replaced = contentElement.innerHTML.replace(new RegExp(search_term, 'gi'), '<mark>$&</mark>');
+        contentElement.innerHTML = replaced
+    }
+};
+
 // Added browser spellcheck support to Article review pages
 // var selection = document.querySelector('.htmlDetailElementTable') !== null;
 // if (selection) {
 //     document.querySelector(".htmlDetailElementTable:not(a)").setAttribute("contenteditable", "true");
 //     document.querySelector(".htmlDetailElementTable:not(a)").setAttribute("spellcheck", "true");
 // }
+
 
 var style = document.createElement('style');
 var public_url = `https://support.canonical.com/ua/s/case/${window.location.pathname.split('/')[1]}`
@@ -151,6 +66,7 @@ var url = ''
 // Keycodes interrogated here: https://keycode.info/
 // const KEY_A = 65; // Add to case team
 const KEY_E = 69; // (e) to Edit case
+const KEY_F = 70; // (f) jump to Files section
 const KEY_H = 72; // (h) to Show/Hide private comments
 const KEY_L = 76; // (l) to Log a call
 const KEY_T = 84; // (t) Create a new Time Card
@@ -192,6 +108,12 @@ listen_keypress(KEY_E, function(event) {
         document.querySelector('input[value=" Edit "]').click();
     }
 })
+// listen_keypress(KEY_F, function(event) {
+//     console.log('DEBUG: Key pressed');
+//     if (!match_keypress('textarea') && !match_keypress('input')) {
+//         document.querySelector('[id$="_RelatedFileList_title"]').scrollIntoView();
+//     }
+// })
 listen_keypress(KEY_H, function(event) {
     if (!match_keypress('textarea') && !match_keypress('input')) {
         toggle();
@@ -273,10 +195,10 @@ function search_highlight(highlight, loc) {
 }
 
 // Add a handler for the 'click' event on the hide/show private comments button
-window.addEventListener("load", ()=> document.querySelector("[btn]").addEventListener("click", toggle, false), false);
-window.addEventListener("load", ()=> document.querySelector("[translate]").addEventListener("click", () => translate_text(highlight), false));
-window.addEventListener("load", ()=> document.querySelector("[launchpad]").addEventListener("click", () => search_highlight(highlight, 'lp'), false));
-window.addEventListener("load", ()=> document.querySelector("[google]").addEventListener("click", () => search_highlight(highlight, 'google'), false));
+// window.addEventListener("load", ()=> document.querySelector("[btn]").addEventListener("click", toggle, false), false);
+// window.addEventListener("load", ()=> document.querySelector("[translate]").addEventListener("click", () => translate_text(highlight), false));
+// window.addEventListener("load", ()=> document.querySelector("[launchpad]").addEventListener("click", () => search_highlight(highlight, 'lp'), false));
+// window.addEventListener("load", ()=> document.querySelector("[google]").addEventListener("click", () => search_highlight(highlight, 'google'), false));
 
 // Toggle the display of private comments, off/on
 function toggle() {
@@ -570,6 +492,12 @@ document.querySelectorAll(`[id*="RelatedFileList_body"] a[title*="Download"`).fo
     uploaded_files.push(`${node.href}/${node.title.match(/Download - Record \d+ - (.*)/)[1]}`);
 });
 
+// Insert a new class for the Files section
+document.querySelectorAll('.efodBody').forEach(node => {
+    var foo = ['[id*="RelatedFileList_title"]']
+    foo.push('[id*="files_section"]');
+});
+
 var is_weekend = ([0,6].indexOf(new Date().getDay()) != -1);
 if (is_weekend === true && case_asset.includes("Standard")) {
     toolbox += `Weekend: <strong style="color:#f00;">8x5 support</strong><br />`
@@ -589,67 +517,83 @@ if (document.getElementsByClassName('sidebarCell').length > 0) {
     var log_call_match = log_call.match(/navigateToUrl(.*?['"]([^'"]*)['"])/);
     var log_call_msg = document.domain + log_call_match[2]
 
-    var related_list_box = document.querySelectorAll('.sidebarModuleBody');
-    var related_list_items = document.querySelectorAll('.sidebarModuleBody > ul');
+//     var related_list_box = document.querySelectorAll('.sidebarModuleBody');
+//     var related_list_items = document.querySelectorAll('.sidebarModuleBody > ul');
 
-    // Reload page
-    document.querySelectorAll('.efdvJumpLinkTitle')[0].insertAdjacentHTML('afterbegin', '<a id="refresh" onclick="document.location.reload(true);"><i class="fas fa-sync-alt"></i></a>');
+    // Jump to files
+    // document.querySelectorAll('.openCTISoftphoneModule')[0].insertAdjacentHTML('afterend', '<a id="jumpto_files" onclick="#RelatedFileList_title"><i class="fas fa-file"></i></a>');
+//     ,
+//        '<li style="text-align: center;"><br />',
+//        '<a title="Public URL to case" target="_blank" href="${public_url}"><i class="fas fa-link"></i></a>&nbsp;&nbsp;&nbsp;',
+//        '<a translate title="Translate highlighted text" target="_blank"><i class="fa fa-globe-europe fa-lg"></i></a>&nbsp;&nbsp;&nbsp;',
+//        '<a launchpad title="Search Launchpad" target="_blank"><i class="fa fa-bug fa-lg"></i></a>&nbsp;&nbsp;&nbsp;',
+//        '<a google title="Search Google" target="_blank"><i class="fab fa-google fa-lg"></i></a>&nbsp;&nbsp;&nbsp</li>');
+
+    // Reload active page
+    document.querySelectorAll('.openCTISoftphoneModule')[0].insertAdjacentHTML('afterend', '<a id="refresh" onclick="document.location.reload(true);"><i class="fas fa-sync-alt"></i></a>');
 
     // Jump to top of the page
-    document.querySelectorAll('.efdvJumpLinkTitle')[0].insertAdjacentHTML('afterbegin', '<a id="top" title="Jump to top" href="#"><i class="fas fa-arrow-up"></i></a>');
+    document.querySelectorAll('.openCTISoftphoneModule')[0].insertAdjacentHTML('afterend', '<a id="top" title="Jump to top" href="#"><i class="fas fa-arrow-up"></i></a>');
 
     // Jump to bottom of the page
-    document.querySelectorAll('.efdvJumpLinkTitle')[0].insertAdjacentHTML('afterbegin', '<a id="end" title="Jump to bottom" href="#footer"><i class="fas fa-arrow-down"></i></a>');
+    document.querySelectorAll('.openCTISoftphoneModule')[0].insertAdjacentHTML('afterend', '<a id="end" title="Jump to bottom" href="#footer"><i class="fas fa-arrow-down"></i></a>');
+
     document.getElementsByClassName('sfdcBody')[0].insertAdjacentHTML('beforeend', '<footer id="footer"></footer>')
 
-    related_list_items[0].insertAdjacentHTML('beforebegin', `<br />${toolbox}<hr />`)
+   // related_list_items[0].insertAdjacentHTML('beforebegin', `<br />${toolbox}<hr />`)
 
     var new_timecard_link = document.querySelector('input[value="New time card"]').getAttribute('onClick').match(/this.form.action = (.*?['"]([^'"]*)['"])/);
     if (new_timecard_link) {
         var new_timecard_msg = document.domain + new_timecard_link[2];
     }
 
-    var sidebar_html = `<hr />
-    <li>&nbsp;<i class="fas fa-eye"></i>&nbsp;&nbsp;(H) <a btn>Show/Hide comments</a></li>
-    <li>&nbsp;<i class="fas fa-phone"></i>&nbsp;&nbsp;(L) <a id="log_call" class="tbox_call" title="All calls must be logged separately from time cards"
-       href="https://${log_call_msg}" target="_blank">Log a Customer Call</a></li>
-    <li>&nbsp;<i class="fas fa-history"></i>&nbsp;&nbsp;(T) <a id="new_timecard" class="tbox_time" title="Add a new time card. Must be done by EOD!"
-       href="https://${new_timecard_msg}" target="_blank">New time card</a></li>
-    <li style="text-align: center;"><br />
-       <a title="Public URL to case" target="_blank" href="${public_url}"><i class="fas fa-link"></i></a>&nbsp;&nbsp;&nbsp;
-       <a translate title="Translate highlighted text" target="_blank"><i class="fa fa-globe-europe fa-lg"></i></a>&nbsp;&nbsp;&nbsp;
-       <a launchpad title="Search Launchpad" target="_blank"><i class="fa fa-bug fa-lg"></i></a>&nbsp;&nbsp;&nbsp;
-       <a google title="Search Google" target="_blank"><i class="fab fa-google fa-lg"></i></a>&nbsp;&nbsp;&nbsp;
-    </li>`;
+//     var sidebar_html = `<hr />
+//     <li>&nbsp;<i class="fas fa-eye"></i>&nbsp;&nbsp;(H) <a btn>Show/Hide comments</a></li>
+//     <li>&nbsp;<i class="fas fa-phone"></i>&nbsp;&nbsp;(L) <a id="log_call" class="tbox_call" title="All calls must be logged separately from time cards"
+//        href="https://${log_call_msg}" target="_blank">Log a Customer Call</a></li>
+//     <li>&nbsp;<i class="fas fa-history"></i>&nbsp;&nbsp;(T) <a id="new_timecard" class="tbox_time" title="Add a new time card. Must be done by EOD!"
+//        href="https://${new_timecard_msg}" target="_blank">New time card</a></li>
+//     <li style="text-align: center;"><br />
+//        <a title="Public URL to case" target="_blank" href="${public_url}"><i class="fas fa-link"></i></a>&nbsp;&nbsp;&nbsp;
+//        <a translate title="Translate highlighted text" target="_blank"><i class="fa fa-globe-europe fa-lg"></i></a>&nbsp;&nbsp;&nbsp;
+//        <a launchpad title="Search Launchpad" target="_blank"><i class="fa fa-bug fa-lg"></i></a>&nbsp;&nbsp;&nbsp;
+//        <a google title="Search Google" target="_blank"><i class="fab fa-google fa-lg"></i></a>&nbsp;&nbsp;&nbsp;
+//     </li>`;
 
-    sidebar_html += create_link_list('&nbsp;&nbsp;sFTP uploads...', case_attachments, -1)
-    sidebar_html += create_link_list('&nbsp;&nbsp;Pastebin pastes', pastebin_links, -2)
-    sidebar_html += create_link_list("Uploaded files", uploaded_files, -1);
+//     sidebar_html += create_link_list('&nbsp;&nbsp;sFTP uploads...', case_attachments, -1)
+//     sidebar_html += create_link_list('&nbsp;&nbsp;Pastebin pastes', pastebin_links, -2)
+//     sidebar_html += create_link_list("Uploaded files", uploaded_files, -1);
 
-    related_list_items[0].insertAdjacentHTML('beforeend', sidebar_html)
+//     related_list_items[0].insertAdjacentHTML('beforeend', sidebar_html)
 }
 
 // Create the collapsible 'sFTP uploads...' dialog actions
 var coll = document.getElementsByClassName("collapsible");
 var i;
 
-for (i = 0; i < coll.length; i++) {
-  coll[i].addEventListener("click", function() {
-    this.classList.toggle("active");
-    var content = this.nextElementSibling;
-    if (content.style.display === "block") {
-      content.style.display = "none";
-    } else {
-      content.style.display = "block";
-    }
-  });
-}
+// for (i = 0; i < coll.length; i++) {
+//   coll[i].addEventListener("click", function() {
+//     this.classList.toggle("active");
+//     var content = this.nextElementSibling;
+//     if (content.style.display === "block") {
+//       content.style.display = "none";
+//     } else {
+//       content.style.display = "block";
+//     }
+//   });
+// }
 
-// This is needed to create the draggable toolbox around the page
-const qsa = (selector, parent = document) => parent.querySelectorAll(selector)
-qsa('[id^="toolboxModule"]').forEach(element => { dragElement(document.getElementById(element.id)); })
+// // This is needed to create the draggable toolbox around the page
+// const qsa = (selector, parent = document) => parent.querySelectorAll(selector)
+// qsa('[id^="toolboxModule"]').forEach(element => { dragElement(document.getElementById(element.id)); })
 
-function dragElement(n){var t=0,o=0,u=0,l=0;function e(e){(e=e||window.event).preventDefault();u=e.clientX;l=e.clientY;document.onmouseup=m;document.onmousemove=d}
-function d(e){(e=e||window.event).preventDefault();t=u-e.clientX;o=l-e.clientY;u=e.clientX;l=e.clientY;n.style.top=n.offsetTop-o+"px";n.style.left=n.offsetLeft-t+"px"}
-function m(){document.onmouseup=null;document.onmousemove=null}
-document.getElementById(n.id+"header")?document.getElementById(n.id+"header").onmousedown=e:n.onmousedown=e}
+// function dragElement(n){var t=0,o=0,u=0,l=0;function e(e){(e=e||window.event).preventDefault();u=e.clientX;l=e.clientY;document.onmouseup=m;document.onmousemove=d}
+// function d(e){(e=e||window.event).preventDefault();t=u-e.clientX;o=l-e.clientY;u=e.clientX;l=e.clientY;n.style.top=n.offsetTop-o+"px";n.style.left=n.offsetLeft-t+"px"}
+// function m(){document.onmouseup=null;document.onmousemove=null}
+// document.getElementById(n.id+"header")?document.getElementById(n.id+"header").onmousedown=e:n.onmousedown=e}
+
+
+
+
+
+
