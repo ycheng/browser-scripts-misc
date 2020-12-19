@@ -10,7 +10,7 @@
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
 // @resource       customCSS https://gist.githubusercontent.com/desrod/6c018a76e687b6d64321d9a0fd65c8b1/raw/
-// @version        2.122
+// @version        2.123
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 // ==/UserScript==
@@ -70,6 +70,7 @@ var url = ''
 
 // Keycodes interrogated here: https://keycode.info/
 // const KEY_A = 65; // Add to case team
+const KEY_B = 66; // (b) Jump to bottom of page
 const KEY_E = 69; // (e) to Edit case
 const KEY_F = 70; // (f) jump to Files section
 const KEY_H = 72; // (h) to Show/Hide private comments
@@ -107,18 +108,21 @@ function listen_keypress(keyCode, handler) {
 //   document.querySelector('input[value="Add Me to Case Team"]').click();
 //  }
 // })
-
+listen_keypress(KEY_B, function(event) {
+    if (!match_keypress('textarea') && !match_keypress('input')) {
+        document.getElementById("footer").scrollIntoView();
+    }
+})
 listen_keypress(KEY_E, function(event) {
     if (!match_keypress('textarea') && !match_keypress('input')) {
         document.querySelector('input[value=" Edit "]').click();
     }
 })
-// listen_keypress(KEY_F, function(event) {
-//     console.log('DEBUG: Key pressed');
-//     if (!match_keypress('textarea') && !match_keypress('input')) {
-//         document.querySelector('[id$="_RelatedFileList_title"]').scrollIntoView();
-//     }
-// })
+listen_keypress(KEY_F, function(event) {
+    if (!match_keypress('textarea') && !match_keypress('input')) {
+        document.querySelector('[id$="_RelatedFileList_title"]').scrollIntoView();
+    }
+})
 listen_keypress(KEY_H, function(event) {
     if (!match_keypress('textarea') && !match_keypress('input')) {
         toggle();
@@ -499,10 +503,8 @@ document.querySelectorAll(`[id*="RelatedFileList_body"] a[title*="Download"`).fo
 });
 
 // Insert a new class for the Files section
-document.querySelectorAll('.efodBody').forEach(node => {
-    var foo = ['[id*="RelatedFileList_title"]']
-    foo.push('[id*="files_section"]');
-});
+document.querySelector('[id*="RelatedFileList"]').setAttribute("id", "files_section");
+
 
 var is_weekend = ([0,6].indexOf(new Date().getDay()) != -1);
 if (is_weekend === true && case_asset.includes("Standard")) {
@@ -527,7 +529,7 @@ if (document.getElementsByClassName('sidebarCell').length > 0) {
 //     var related_list_items = document.querySelectorAll('.sidebarModuleBody > ul');
 
     // Jump to files
-    // document.querySelectorAll('.openCTISoftphoneModule')[0].insertAdjacentHTML('afterend', '<a id="jumpto_files" onclick="#RelatedFileList_title"><i class="fas fa-file"></i></a>');
+    document.querySelectorAll('.sidebarModuleBody')[0].insertAdjacentHTML('afterend', '<a title="Jump to Files" href="#files_section"><i class="fas fa-file"></i></a>');
 //     ,
 //        '<li style="text-align: center;"><br />',
 //        '<a title="Public URL to case" target="_blank" href="${public_url}"><i class="fas fa-link"></i></a>&nbsp;&nbsp;&nbsp;',
@@ -536,13 +538,13 @@ if (document.getElementsByClassName('sidebarCell').length > 0) {
 //        '<a google title="Search Google" target="_blank"><i class="fab fa-google fa-lg"></i></a>&nbsp;&nbsp;&nbsp</li>');
 
     // Reload active page
-    document.querySelectorAll('.openCTISoftphoneModule')[0].insertAdjacentHTML('afterend', '<a id="refresh" onclick="document.location.reload(true);"><i class="fas fa-sync-alt"></i></a>');
+    document.querySelectorAll('.sidebarModuleBody')[0].insertAdjacentHTML('afterend', '<a id="refresh" onclick="document.location.reload(true);"><i class="fas fa-sync-alt"></i></a>');
 
     // Jump to top of the page
-    document.querySelectorAll('.openCTISoftphoneModule')[0].insertAdjacentHTML('afterend', '<a id="top" title="Jump to top" href="#"><i class="fas fa-arrow-up"></i></a>');
+    document.querySelectorAll('.sidebarModuleBody')[0].insertAdjacentHTML('afterend', '<a id="top" title="Jump to top" href="#"><i class="fas fa-arrow-up"></i></a>');
 
     // Jump to bottom of the page
-    document.querySelectorAll('.openCTISoftphoneModule')[0].insertAdjacentHTML('afterend', '<a id="end" title="Jump to bottom" href="#footer"><i class="fas fa-arrow-down"></i></a>');
+    document.querySelectorAll('.sidebarModuleBody')[0].insertAdjacentHTML('afterend', '<a id="end" title="Jump to bottom" href="#footer"><i class="fas fa-arrow-down"></i></a>');
 
     document.getElementsByClassName('sfdcBody')[0].insertAdjacentHTML('beforeend', '<footer id="footer"></footer>')
 
@@ -597,9 +599,3 @@ if (document.getElementsByClassName('sidebarCell').length > 0) {
 // function d(e){(e=e||window.event).preventDefault();t=u-e.clientX;o=l-e.clientY;u=e.clientX;l=e.clientY;n.style.top=n.offsetTop-o+"px";n.style.left=n.offsetLeft-t+"px"}
 // function m(){document.onmouseup=null;document.onmousemove=null}
 // document.getElementById(n.id+"header")?document.getElementById(n.id+"header").onmousedown=e:n.onmousedown=e}
-
-
-
-
-
-
