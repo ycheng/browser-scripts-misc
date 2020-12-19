@@ -10,7 +10,7 @@
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
 // @resource       customCSS https://gist.githubusercontent.com/desrod/6c018a76e687b6d64321d9a0fd65c8b1/raw/
-// @version        2.120
+// @version        2.122
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 // ==/UserScript==
@@ -18,6 +18,11 @@
 'use strict';
 var sfuicss = GM_getResourceText ("customCSS");
 GM_addStyle (sfuicss);
+
+// This eliminates the page's iframes loading THIS script 3 times
+if (window.top != window.self) {
+    return;
+}
 
 // Try to extract the Community URL to KB articles, link in the Properties box
 if ( window.location.href.match(/articles\/.*\/Knowledge\//i) ) {
@@ -30,7 +35,7 @@ if ( window.location.href.match(/articles\/.*\/Knowledge\//i) ) {
                                      </span>`)};
 
 if ( window.location.href.match(/.*\/search\/ui\//i) ) {
-    const search_term = document.getElementById("secondSearchText").value;
+    const search_term = document.getElementById("secondSearchText").value.trim();
     const contentElement = document.getElementById('searchBody')
     console.log("DEBUG: ", search_term);
     if (search_term) {
@@ -375,7 +380,7 @@ if (customer_name) { toolbox += `Customer: <strong>${customer_name.trim()}</stro
 var case_owner = getElementByXpath("//*[contains(text(),'Case Owner')]/following::td[1]");
 if (case_owner) { toolbox += `Case owner: <strong>${case_owner.trim()}</strong><br />`}
 
-var case_comments = getElementByXpath("//a[contains(text(),'Case Comments')]").replace(/.*[\[\(](\d+)[\)\]].*/g, '$1');
+// var case_comments = getElementByXpath("//a[contains(text(),'Case Comments')]").replace(/.*[\[\(](\d+)[\)\]].*/g, '$1');
 var case_asset = getElementByXpath("//*[contains(text(),'Product Service SLA')]/following::td[1]");
 var case_subject = getElementByXpath("//*[contains(text(),'Subject')]/following::td[1]");
 if (document.title.includes('Case:')) {
@@ -449,7 +454,8 @@ document.querySelectorAll('.dataCell b').forEach((el) => {
     }
 });
 
-var comment_count = case_comments;
+var comment_count = document.querySelectorAll('.pbBody .dataRow b').length;
+
 document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
     // Build an array of all attachments linked in the case comments
     case_attachments = push_links(node, 'https?:\/\/files\.support[^\/\s]+\/files\/[^<\\s]+', case_attachments)
@@ -568,8 +574,8 @@ if (document.getElementsByClassName('sidebarCell').length > 0) {
 }
 
 // Create the collapsible 'sFTP uploads...' dialog actions
-var coll = document.getElementsByClassName("collapsible");
-var i;
+// var coll = document.getElementsByClassName("collapsible");
+// var i;
 
 // for (i = 0; i < coll.length; i++) {
 //   coll[i].addEventListener("click", function() {
