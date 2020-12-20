@@ -10,7 +10,7 @@
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
 // @resource       customCSS https://gist.githubusercontent.com/desrod/6c018a76e687b6d64321d9a0fd65c8b1/raw/
-// @version        2.123
+// @version        2.125
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 // ==/UserScript==
@@ -37,7 +37,6 @@ if ( window.location.href.match(/articles\/.*\/Knowledge\//i) ) {
 if ( window.location.href.match(/.*\/search\/ui\//i) ) {
     const search_term = document.getElementById("secondSearchText").value.trim();
     const contentElement = document.getElementById('searchBody')
-    console.log("DEBUG: ", search_term);
     if (search_term) {
         const replaced = contentElement.innerHTML.replace(new RegExp(search_term, 'gi'), '<mark>$&</mark>');
         contentElement.innerHTML = replaced
@@ -128,16 +127,16 @@ listen_keypress(KEY_H, function(event) {
         toggle();
     }
 })
-listen_keypress(KEY_L, function(event) {
-    if (!match_keypress('textarea') && !match_keypress('input')) {
-        document.getElementById("log_call").click();
-    }
-})
-listen_keypress(KEY_T, function(event) {
-    if (!match_keypress('textarea') && !match_keypress('input')) {
-        document.getElementById("new_timecard").click();
-    }
-})
+// listen_keypress(KEY_L, function(event) {
+//     if (!match_keypress('textarea') && !match_keypress('input')) {
+//         document.getElementById("log_call").click();
+//     }
+// })
+// listen_keypress(KEY_T, function(event) {
+//     if (!match_keypress('textarea') && !match_keypress('input')) {
+//         document.getElementById("new_timecard").click();
+//     }
+// })
 listen_keypress(KEY_U, function(event) {
     if (!match_keypress('textarea') && !match_keypress('input')) {
         document.querySelector('input[value="Upload Files"]').click();
@@ -278,10 +277,12 @@ let mutation_observer_list = mutation_target,
     },
     observer = new MutationObserver(mutation_callback);
 
+var intervalX_count = 0;
 function mutation_callback(mutations) {
     for (let mutation of mutations) {
         // Check if the table was sorted or dropdown used, then recolor
-        if (mutation.target.className == 'listBody') { check_lpu(); };
+        if (mutation.target.className == 'listBody') { check_lpu(); case_updates_notifier(); };
+        break;
     }
 }
 
@@ -296,9 +297,16 @@ const setIntervalX = (fn, delay, times) => {
     }, delay)
 }
 
+// These run on initial page load, vs. the data reload watched by mutation.observer below
 setIntervalX(function () {
-    check_lpu()
+    check_lpu();
 }, 300, 10);
+
+
+setIntervalX(function () {
+    case_updates_notifier();
+}, 2000, 1);
+
 
 const case_status_classes = {
     Customer:   'cus',
@@ -323,9 +331,9 @@ function colorize_case_list(node) {
             break;
         } else if (nval.includes('/')) {
             if (now - Date.parse(nval) > 7 * 24 * 60 * 60 * 1000) {
-                node.classList.add('update-now');
+                node.parentElement.parentElement.classList.add('update-now');
             } else if (now - Date.parse(nval) > 3 * 24 * 60 * 60 * 1000) {
-                node.classList.add('update-soon');
+                node.parentElement.parentElement.classList.add('update-soon');
             }
         }
     }
@@ -340,10 +348,22 @@ function check_lpu() {
     } else {
         node_class.push('[class*="col-CASES_LAST_UPDATE"]');
     }
-
     document.querySelectorAll(node_class).forEach(node => {
         colorize_case_list(node);
     });
+}
+
+function case_updates_notifier() {
+    setIntervalX(function () {
+        var cases_needing_update = document.querySelectorAll('[class*="update-now"]').length;
+        if (document.getElementById('lpu')) {
+            var elem = document.getElementById("lpu");
+            elem.parentNode.removeChild(elem);
+        }
+        if (cases_needing_update > 0) {
+            document.getElementById('tabBar').insertAdjacentHTML("afterend", '<h3 id="lpu" style="background: #ffe940; text-align: center;">' + cases_needing_update + ' cases need public updates</h3>');
+        }
+    }, 1000, 1);
 }
 
 var cols = document.evaluate("//th[contains(text(),'Member Role')]", document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null);
@@ -421,7 +441,6 @@ function push_links(node, uri, links_array) {
     }
     return links_array
 }
-
 // Search the table for active, nearing and expired rows
 const check_table_rows = Array.from(
     document.querySelectorAll(`div.assetBlock > div > div > table tbody tr,
@@ -497,33 +516,32 @@ document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
 });
 
 // Build a list of files uploaded to the case, deploy them into the sidebar
-document.querySelectorAll(`[id*="RelatedFileList_body"] a[title*="Download"`).forEach(node => {
-    // Small feature gap here, only the first 10 attached files are visible, unless AJAX function is run
-    uploaded_files.push(`${node.href}/${node.title.match(/Download - Record \d+ - (.*)/)[1]}`);
-});
+// document.querySelectorAll(`[id*="RelatedFileList_body"] a[title*="Download"`).forEach(node => {
+//     // Small feature gap here, only the first 10 attached files are visible, unless AJAX function is run
+//     uploaded_files.push(`${node.href}/${node.title.match(/Download - Record \d+ - (.*)/)[1]}`);
+// });
 
 // Insert a new class for the Files section
-document.querySelector('[id*="RelatedFileList"]').setAttribute("id", "files_section");
+// document.querySelector('[id*="RelatedFileList"]').setAttribute("id", "files_section");
 
+// var is_weekend = ([0,6].indexOf(new Date().getDay()) != -1);
+// if (is_weekend === true && case_asset.includes("Standard")) {
+//     toolbox += `Weekend: <strong style="color:#f00;">8x5 support</strong><br />`
+//     document.getElementsByClassName("efdvJumpLink")[0].style = "border: 2px solid #ff9494; background: repeating-linear-gradient(45deg,#f7f7f7,#f7f7f7 10px,#fff 10px, #fff 20px);"
+// }
 
-var is_weekend = ([0,6].indexOf(new Date().getDay()) != -1);
-if (is_weekend === true && case_asset.includes("Standard")) {
-    toolbox += `Weekend: <strong style="color:#f00;">8x5 support</strong><br />`
-    document.getElementsByClassName("efdvJumpLink")[0].style = "border: 2px solid #ff9494; background: repeating-linear-gradient(45deg,#f7f7f7,#f7f7f7 10px,#fff 10px, #fff 20px);"
-}
+// if (sev_level) {
+//     // Add some urgency to the L1 level cases
+//     sev_level.includes('L1') ? sev_level = `<span class="urgent">${sev_level}</span>` : sev_level
+//     sev_level.includes('L1') ? document.getElementsByClassName("efdvJumpLink")[0].style = "border:2px solid #f00 !important;border-radius:10px !important;" : ''
+//     toolbox += `Severity: <strong>${sev_level.trim()}</strong><br />`
 
-if (sev_level) {
-    // Add some urgency to the L1 level cases
-    sev_level.includes('L1') ? sev_level = `<span class="urgent">${sev_level}</span>` : sev_level
-    sev_level.includes('L1') ? document.getElementsByClassName("efdvJumpLink")[0].style = "border:2px solid #f00 !important;border-radius:10px !important;" : ''
-    toolbox += `Severity: <strong>${sev_level.trim()}</strong><br />`
-
-}
+// }
 
 if (document.getElementsByClassName('sidebarCell').length > 0) {
-    var log_call = document.querySelector('input[value="Log a Call"]').getAttribute('onclick');
-    var log_call_match = log_call.match(/navigateToUrl(.*?['"]([^'"]*)['"])/);
-    var log_call_msg = document.domain + log_call_match[2]
+//     var log_call = document.querySelector('input[value="Log a Call"]').getAttribute('onclick');
+//     var log_call_match = log_call.match(/navigateToUrl(.*?['"]([^'"]*)['"])/);
+//     var log_call_msg = document.domain + log_call_match[2]
 
 //     var related_list_box = document.querySelectorAll('.sidebarModuleBody');
 //     var related_list_items = document.querySelectorAll('.sidebarModuleBody > ul');
@@ -550,52 +568,9 @@ if (document.getElementsByClassName('sidebarCell').length > 0) {
 
    // related_list_items[0].insertAdjacentHTML('beforebegin', `<br />${toolbox}<hr />`)
 
-    var new_timecard_link = document.querySelector('input[value="New time card"]').getAttribute('onClick').match(/this.form.action = (.*?['"]([^'"]*)['"])/);
-    if (new_timecard_link) {
-        var new_timecard_msg = document.domain + new_timecard_link[2];
-    }
-
-//     var sidebar_html = `<hr />
-//     <li>&nbsp;<i class="fas fa-eye"></i>&nbsp;&nbsp;(H) <a btn>Show/Hide comments</a></li>
-//     <li>&nbsp;<i class="fas fa-phone"></i>&nbsp;&nbsp;(L) <a id="log_call" class="tbox_call" title="All calls must be logged separately from time cards"
-//        href="https://${log_call_msg}" target="_blank">Log a Customer Call</a></li>
-//     <li>&nbsp;<i class="fas fa-history"></i>&nbsp;&nbsp;(T) <a id="new_timecard" class="tbox_time" title="Add a new time card. Must be done by EOD!"
-//        href="https://${new_timecard_msg}" target="_blank">New time card</a></li>
-//     <li style="text-align: center;"><br />
-//        <a title="Public URL to case" target="_blank" href="${public_url}"><i class="fas fa-link"></i></a>&nbsp;&nbsp;&nbsp;
-//        <a translate title="Translate highlighted text" target="_blank"><i class="fa fa-globe-europe fa-lg"></i></a>&nbsp;&nbsp;&nbsp;
-//        <a launchpad title="Search Launchpad" target="_blank"><i class="fa fa-bug fa-lg"></i></a>&nbsp;&nbsp;&nbsp;
-//        <a google title="Search Google" target="_blank"><i class="fab fa-google fa-lg"></i></a>&nbsp;&nbsp;&nbsp;
-//     </li>`;
-
-//     sidebar_html += create_link_list('&nbsp;&nbsp;sFTP uploads...', case_attachments, -1)
-//     sidebar_html += create_link_list('&nbsp;&nbsp;Pastebin pastes', pastebin_links, -2)
-//     sidebar_html += create_link_list("Uploaded files", uploaded_files, -1);
-
-//     related_list_items[0].insertAdjacentHTML('beforeend', sidebar_html)
+//     var new_timecard_link = document.querySelector('input[value="New time card"]').getAttribute('onClick').match(/this.form.action = (.*?['"]([^'"]*)['"])/);
+//     if (new_timecard_link) {
+//         var new_timecard_msg = document.domain + new_timecard_link[2];
+//     }
 }
 
-// Create the collapsible 'sFTP uploads...' dialog actions
-// var coll = document.getElementsByClassName("collapsible");
-// var i;
-
-// for (i = 0; i < coll.length; i++) {
-//   coll[i].addEventListener("click", function() {
-//     this.classList.toggle("active");
-//     var content = this.nextElementSibling;
-//     if (content.style.display === "block") {
-//       content.style.display = "none";
-//     } else {
-//       content.style.display = "block";
-//     }
-//   });
-// }
-
-// // This is needed to create the draggable toolbox around the page
-// const qsa = (selector, parent = document) => parent.querySelectorAll(selector)
-// qsa('[id^="toolboxModule"]').forEach(element => { dragElement(document.getElementById(element.id)); })
-
-// function dragElement(n){var t=0,o=0,u=0,l=0;function e(e){(e=e||window.event).preventDefault();u=e.clientX;l=e.clientY;document.onmouseup=m;document.onmousemove=d}
-// function d(e){(e=e||window.event).preventDefault();t=u-e.clientX;o=l-e.clientY;u=e.clientX;l=e.clientY;n.style.top=n.offsetTop-o+"px";n.style.left=n.offsetLeft-t+"px"}
-// function m(){document.onmouseup=null;document.onmousemove=null}
-// document.getElementById(n.id+"header")?document.getElementById(n.id+"header").onmousedown=e:n.onmousedown=e}
