@@ -10,7 +10,7 @@
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
 // @resource       customCSS https://gist.githubusercontent.com/desrod/6c018a76e687b6d64321d9a0fd65c8b1/raw/
-// @version        2.125
+// @version        2.127
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 // ==/UserScript==
@@ -356,12 +356,15 @@ function check_lpu() {
 function case_updates_notifier() {
     setIntervalX(function () {
         var cases_needing_update = document.querySelectorAll('[class*="update-now"]').length;
-        if (document.getElementById('lpu')) {
-            var elem = document.getElementById("lpu");
+        if (document.getElementById('npu')) { // Needs Public Update (npu)
+            var elem = document.getElementById("npu");
             elem.parentNode.removeChild(elem);
         }
         if (cases_needing_update > 0) {
-            document.getElementById('tabBar').insertAdjacentHTML("afterend", '<h3 id="lpu" style="background: #ffe940; text-align: center;">' + cases_needing_update + ' cases need public updates</h3>');
+            // Will clean this up later as a more reusable 'pluralize' function, something like:
+            // pluralize = (count, noun, suffix = 's') => `${count} ${noun}${count !== 1 ? suffix : ''}`;
+            var banner = cases_needing_update + (cases_needing_update > 1 ? ' cases need public updates' : ' case needs a public update')
+            document.getElementById('tabBar').insertAdjacentHTML("afterend", '<h3 style="background-color:#ffe940; text-align: center;" id="npu">' + banner + '</h3>');
         }
     }, 1000, 1);
 }
