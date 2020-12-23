@@ -10,7 +10,7 @@
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
 // @resource       customCSS https://gist.githubusercontent.com/desrod/6c018a76e687b6d64321d9a0fd65c8b1/raw/
-// @version        2.127
+// @version        2.128
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 // ==/UserScript==
@@ -329,10 +329,11 @@ function colorize_case_list(node) {
         if (nval.includes(status)) {
             node.classList.add(`status-wo${cls}`);
             break;
-        } else if (nval.includes('/')) {
-            if (now - Date.parse(nval) > 7 * 24 * 60 * 60 * 1000) {
+        } else if (nval.includes('/' | '-')) {
+            var iso_date = nval.replace(/.*(\d{4}[/-]\d{2}[/-]\d{2})\,\s(\d+?:\d+?)\s[ap]\.m\./, '$1 $2');
+            if (now - Date.parse(iso_date.replace(',','')) > 7 * 24 * 60 * 60 * 1000) {
                 node.parentElement.parentElement.classList.add('update-now');
-            } else if (now - Date.parse(nval) > 3 * 24 * 60 * 60 * 1000) {
+            } else if (now - Date.parse(iso_date.replace(',','')) > 3 * 24 * 60 * 60 * 1000) {
                 node.parentElement.parentElement.classList.add('update-soon');
             }
         }
