@@ -10,7 +10,7 @@
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
 // @resource       customCSS https://gist.githubusercontent.com/desrod/6c018a76e687b6d64321d9a0fd65c8b1/raw/
-// @version        2.128
+// @version        2.129
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 // ==/UserScript==
@@ -68,7 +68,7 @@ var url = ''
 // var profile_details = document.querySelectorAll('.efhpLabeledFieldValue > a');
 
 // Keycodes interrogated here: https://keycode.info/
-// const KEY_A = 65; // Add to case team
+const KEY_A = 65; // Add to case team
 const KEY_B = 66; // (b) Jump to bottom of page
 const KEY_E = 69; // (e) to Edit case
 const KEY_F = 70; // (f) jump to Files section
@@ -102,11 +102,11 @@ function listen_keypress(keyCode, handler) {
   });
 }
 
-// listen_keypress(KEY_A, function(event) {
-//  if (!match_keypress('textarea')) {
-//   document.querySelector('input[value="Add Me to Case Team"]').click();
-//  }
-// })
+listen_keypress(KEY_A, function(event) {
+ if (!match_keypress('textarea')) {
+  document.querySelector('input[value="Add Me to Case Team"]').click();
+ }
+})
 listen_keypress(KEY_B, function(event) {
     if (!match_keypress('textarea') && !match_keypress('input')) {
         document.getElementById("footer").scrollIntoView();
@@ -127,16 +127,16 @@ listen_keypress(KEY_H, function(event) {
         toggle();
     }
 })
-// listen_keypress(KEY_L, function(event) {
-//     if (!match_keypress('textarea') && !match_keypress('input')) {
-//         document.getElementById("log_call").click();
-//     }
-// })
-// listen_keypress(KEY_T, function(event) {
-//     if (!match_keypress('textarea') && !match_keypress('input')) {
-//         document.getElementById("new_timecard").click();
-//     }
-// })
+listen_keypress(KEY_L, function(event) {
+    if (!match_keypress('textarea') && !match_keypress('input')) {
+        document.querySelector('input[value="Log a Call"]').click();
+    }
+})
+listen_keypress(KEY_T, function(event) {
+    if (!match_keypress('textarea') && !match_keypress('input')) {
+        document.querySelector('input[value="New time card"]').click();
+    }
+})
 listen_keypress(KEY_U, function(event) {
     if (!match_keypress('textarea') && !match_keypress('input')) {
         document.querySelector('input[value="Upload Files"]').click();
