@@ -10,7 +10,7 @@
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
 // @resource       customCSS https://gist.githubusercontent.com/desrod/6c018a76e687b6d64321d9a0fd65c8b1/raw/
-// @version        2.129
+// @version        2.130
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 // ==/UserScript==
@@ -437,7 +437,7 @@ function push_links(node, uri, links_array) {
     if(results !== null) {
         results.forEach(url => {
             // console.log('DEBUG', url)
-            if(url.match(/https?:\/\/([-a-zA-Z0-9()@:%_\+.~#?&\;//=]*)?/gim)) {
+            if(url.match(/https?:\/\/([-a-zA-Z0-9()@:%_\+.~#?&\;//=][^]*)?/gim)) {
                 links_array.push(url);
             }
         }
