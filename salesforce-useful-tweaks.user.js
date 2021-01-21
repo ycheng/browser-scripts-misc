@@ -10,7 +10,7 @@
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
 // @resource       customCSS https://gist.githubusercontent.com/desrod/6c018a76e687b6d64321d9a0fd65c8b1/raw/
-// @version        2.131
+// @version        2.132
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 // ==/UserScript==
@@ -201,6 +201,12 @@ function search_highlight(highlight, loc) {
         return false;
     }
 }
+
+
+// document.querySelectorAll('slds__group-list-grouped-details-availability').forEach(node => {
+//         console.log("DEBUG: ", node);
+// });
+
 
 // Add a handler for the 'click' event on the hide/show private comments button
 // window.addEventListener("load", ()=> document.querySelector("[btn]").addEventListener("click", toggle, false), false);
@@ -509,7 +515,7 @@ document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
                                             u_usnsearch + '$2" target="_blank">$2</a></span>')
 
     // Attempt to turn anything that looks like a URL in a case comment, into a clickable link
-    node.innerHTML = node.innerHTML.replace(/(?=(https?:\/{2}[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\;//=]*)?))\1(?!['"]|<\/a>)+/gim,
+    node.innerHTML = node.innerHTML.replace(/(?=(https?:\/{2}[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\;//=][^)]*)?))\1(?!['"]|<\/a>)+/gim,
                                             `<a style="color:blue;" href="$&">$&</a>`)
 
     // This is brittle, it should be: getElementByXpath("//*[contains(text(),'Make Public')]/following::td[1]")
