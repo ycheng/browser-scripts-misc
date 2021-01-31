@@ -10,7 +10,7 @@
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
 // @resource       customCSS https://gist.githubusercontent.com/desrod/6c018a76e687b6d64321d9a0fd65c8b1/raw/
-// @version        2.134
+// @version        2.135
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 // ==/UserScript==
@@ -42,14 +42,6 @@ if ( window.location.href.match(/.*\/search\/ui\//i) ) {
         contentElement.innerHTML = replaced
     }
 };
-
-// Added browser spellcheck support to Article review pages
-// var selection = document.querySelector('.htmlDetailElementTable') !== null;
-// if (selection) {
-//     document.querySelector(".htmlDetailElementTable:not(a)").setAttribute("contenteditable", "true");
-//     document.querySelector(".htmlDetailElementTable:not(a)").setAttribute("spellcheck", "true");
-// }
-
 
 var style = document.createElement('style');
 var public_url = `https://support.canonical.com/ua/s/case/${window.location.pathname.split('/')[1]}`
@@ -529,37 +521,7 @@ document.querySelectorAll('.noStandardTab .dataRow').forEach(node => {
     comment_count--
 });
 
-// Build a list of files uploaded to the case, deploy them into the sidebar
-// document.querySelectorAll(`[id*="RelatedFileList_body"] a[title*="Download"`).forEach(node => {
-//     // Small feature gap here, only the first 10 attached files are visible, unless AJAX function is run
-//     uploaded_files.push(`${node.href}/${node.title.match(/Download - Record \d+ - (.*)/)[1]}`);
-// });
-
-// Insert a new class for the Files section
-// document.querySelector('[id*="RelatedFileList"]').setAttribute("id", "files_section");
-
-// var is_weekend = ([0,6].indexOf(new Date().getDay()) != -1);
-// if (is_weekend === true && case_asset.includes("Standard")) {
-//     toolbox += `Weekend: <strong style="color:#f00;">8x5 support</strong><br />`
-//     document.getElementsByClassName("efdvJumpLink")[0].style = "border: 2px solid #ff9494; background: repeating-linear-gradient(45deg,#f7f7f7,#f7f7f7 10px,#fff 10px, #fff 20px);"
-// }
-
-// if (sev_level) {
-//     // Add some urgency to the L1 level cases
-//     sev_level.includes('L1') ? sev_level = `<span class="urgent">${sev_level}</span>` : sev_level
-//     sev_level.includes('L1') ? document.getElementsByClassName("efdvJumpLink")[0].style = "border:2px solid #f00 !important;border-radius:10px !important;" : ''
-//     toolbox += `Severity: <strong>${sev_level.trim()}</strong><br />`
-
-// }
-
 if (document.getElementsByClassName('sidebarCell').length > 0) {
-//     var log_call = document.querySelector('input[value="Log a Call"]').getAttribute('onclick');
-//     var log_call_match = log_call.match(/navigateToUrl(.*?['"]([^'"]*)['"])/);
-//     var log_call_msg = document.domain + log_call_match[2]
-
-//     var related_list_box = document.querySelectorAll('.sidebarModuleBody');
-//     var related_list_items = document.querySelectorAll('.sidebarModuleBody > ul');
-
     // Jump to files
     document.querySelectorAll('.sidebarModuleBody')[0].insertAdjacentHTML('afterend', '<a title="Jump to Files" href="#files_section"><i class="fas fa-file"></i></a>');
 //     ,
@@ -579,12 +541,5 @@ if (document.getElementsByClassName('sidebarCell').length > 0) {
     document.querySelectorAll('.sidebarModuleBody')[0].insertAdjacentHTML('afterend', '<a id="end" title="Jump to bottom" href="#footer"><i class="fas fa-arrow-down"></i></a>');
 
     document.getElementsByClassName('sfdcBody')[0].insertAdjacentHTML('beforeend', '<footer id="footer"></footer>')
-
-   // related_list_items[0].insertAdjacentHTML('beforebegin', `<br />${toolbox}<hr />`)
-
-//     var new_timecard_link = document.querySelector('input[value="New time card"]').getAttribute('onClick').match(/this.form.action = (.*?['"]([^'"]*)['"])/);
-//     if (new_timecard_link) {
-//         var new_timecard_msg = document.domain + new_timecard_link[2];
-//     }
 }
 
