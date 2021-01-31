@@ -10,7 +10,7 @@
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
 // @resource       customCSS https://gist.githubusercontent.com/desrod/6c018a76e687b6d64321d9a0fd65c8b1/raw/
-// @version        2.133
+// @version        2.134
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 // ==/UserScript==
@@ -425,6 +425,10 @@ var acct_dse = map["Dedicated Services Engineer"]
 var acct_tam = map["Technical Account Manager"]
 toolbox += (acct_dse||[]).map( value => `DSE: <strong>${value}</strong><br />`).join('')
 toolbox += (acct_tam||[]).map( value => `TAM: <strong>${value}</strong><br />`).join('')
+
+document.querySelectorAll('[id*="w_ileinner"]').forEach(node => {
+    node.innerHTML = node.innerHTML.replace(/(.*)/, '<span class="action_plan">$1</span>');
+});
 
 // Hacky, but checks for CVE and USN references in the case summary, re-links them as below
 document.querySelectorAll('#cas15_ileinner').forEach(node => {
