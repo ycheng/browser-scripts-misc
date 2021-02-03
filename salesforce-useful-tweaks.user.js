@@ -10,7 +10,7 @@
 // @require        https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js
 // @require        https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js
 // @resource       customCSS https://gist.githubusercontent.com/desrod/6c018a76e687b6d64321d9a0fd65c8b1/raw/
-// @version        2.136
+// @version        2.137
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 // ==/UserScript==
@@ -60,7 +60,7 @@ var url = ''
 // var profile_details = document.querySelectorAll('.efhpLabeledFieldValue > a');
 
 // Keycodes interrogated here: https://keycode.info/
-const KEY_A = 65; // Add to case team
+// const KEY_A = 65; // (a) Add to case team
 const KEY_B = 66; // (b) Jump to bottom of page
 const KEY_E = 69; // (e) to Edit case
 const KEY_F = 70; // (f) jump to Files section
@@ -94,11 +94,11 @@ function listen_keypress(keyCode, handler) {
   });
 }
 
-listen_keypress(KEY_A, function(event) {
- if (!match_keypress('textarea')) {
-  document.querySelector('input[value="Add Me to Case Team"]').click();
- }
-})
+// listen_keypress(KEY_A, function(event) {
+//  if (!match_keypress('textarea')) {
+//   document.querySelector('input[value="Add Me to Case Team"]').click();
+//  }
+// })
 listen_keypress(KEY_B, function(event) {
     if (!match_keypress('textarea') && !match_keypress('input')) {
         document.getElementById("footer").scrollIntoView();
