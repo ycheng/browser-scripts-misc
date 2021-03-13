@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name           Greenhouse Recruiting Tweaks
 // @namespace      http://greenhouse.io/
-// @description    Tweak the Greenhouse tabular layout to be more obvious when rows expire/near expiry
+// @description    Tweak the Greenhouse layout for more efficient workflow
 // @include        /^https?://.*greenhouse\.io/.*$/
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
-// @version        3.0
+// @version        3.01
 // ==========================================================================
 //
 // TODO:
