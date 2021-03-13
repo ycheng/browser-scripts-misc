@@ -142,7 +142,7 @@ body {font-family: "Ubuntu", san-serif; font-size: 10px; };
 .person-info-column p a {font-size: 0.9em !important;}
 .interview-kit-actions {line-height: 8px !important; display: block ruby; }
 .job-cell .cell-content {white-space: normal !important;}
-/* span {white-space: normal !important;} */
+span {white-space: normal !important;}
 tbody tr:nth-child(odd) { background-color: #f5faff !important; }
 .near-expiry{padding:0; background-color: #fcfcd9 !important;}
 .expired{padding:0; background-color: #ffe8e8 !important;}
