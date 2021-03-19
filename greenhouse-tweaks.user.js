@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name           Greenhouse Recruiting Tweaks
 // @namespace      http://greenhouse.io/
-// @description    Tweak the Greenhouse layout for more efficient workflow
+// @description    Tweak the Greenhouse tabular layout to be more obvious when rows expire/near expiry
 // @include        /^https?://.*greenhouse\.io/.*$/
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
-// @version        3.02
+// @version        3.04
 // ==========================================================================
 //
 // TODO:
@@ -52,13 +52,21 @@ const setIntervalX = (fn, delay, times) => {
 }
 
 // Add styling and various helpful colors/injects to the candidate lists
-function parse_candidates() {
+async function parse_candidates() {
     var candidate_row, candidate_name, candidate_attr, candidate_expiry, candidate_status, candidate_job, candidate_stage = '';
+    document.querySelectorAll('p[class="name"]').forEach(async (node) => {
+        const re = /.*\/people\/(\d+)\?.*/i;
+        const candidate_id = node.innerHTML.match(re)[1];
+        const tags = await fetch_candidate_tags(candidate_id)
+        node.insertAdjacentHTML('afterend', tags)
+    });
+
     document.querySelectorAll('img[class="alert"]').forEach(node => {
         let re = new RegExp('(.*) has been in (.*) for more than (.*) days');
         var candidate_state = re.exec(node.getAttribute("title"))
         if (candidate_state !== null) {
             candidate_name = node.closest('.person-info-column > p').innerText;
+
             candidate_stage = candidate_state[2];
             candidate_expiry = candidate_state[3];
             candidate_status = node.closest('.person-info-column');
@@ -87,6 +95,7 @@ function parse_candidates() {
     });
 
     document.querySelectorAll('div[class="interview-kit-actions"]').forEach((node) => {
+
         var job_id = node.closest('table[candidate_hiring_plan]').getAttribute('candidate_hiring_plan');
         node.innerHTML = node.innerHTML.replace(/(Send Email)/, '<i class="fa fa-envelope" title="$1">&nbsp;</i>');
         node.innerHTML = node.innerHTML.replace(/(Select Interview Kit)/, '<i class="fa fa-box" title="$1">&nbsp;</i>');
@@ -103,6 +112,19 @@ function parse_jobs() {
     });
 }
 
+async function fetch_candidate_tags(candidate_id) {
+    var fetch_url = "https://canonical.greenhouse.io/people/" + candidate_id;
+    const response = await fetch(fetch_url)
+    if (response.status == 200) {
+        const html = await response.text()
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        // const tags = doc.querySelectorAll('div[class="applied-tag-container"]').map((node) => node.innerText);
+        var tags = Array.from(doc.querySelectorAll('div.applied-tag-container'), (node) => node.innerText.trim())
+        return tags
+    }
+}
+
 const insertLinks = (node, job_id) => {
   node.insertAdjacentHTML('beforeend', `<a href="/plans/${job_id}/setup" title="Job Setup"><i class="fa fa-cog">&nbsp;</i></a>` +
                           `<a href="/plans/${job_id}" title="Job Info"><i class="fa fa-info-circle">&nbsp;</i></a>` +
@@ -115,7 +137,7 @@ if ( window.location.href.match(/\/alljobs$/) ) {
     }, 1000, 1);
 }
 
-if ( window.location.href.match(/\/people.*/) ) {
+if ( window.location.href.match(/\/people.*|plans.*/) ) {
     parse_candidates();
 }
 
@@ -142,7 +164,6 @@ body {font-family: "Ubuntu", san-serif; font-size: 10px; };
 .person-info-column p a {font-size: 0.9em !important;}
 .interview-kit-actions {line-height: 8px !important; display: block ruby; }
 .job-cell .cell-content {white-space: normal !important;}
-span {white-space: normal !important;}
 tbody tr:nth-child(odd) { background-color: #f5faff !important; }
 .near-expiry{padding:0; background-color: #fcfcd9 !important;}
 .expired{padding:0; background-color: #ffe8e8 !important;}
@@ -151,3 +172,5 @@ tbody tr:nth-child(odd) { background-color: #f5faff !important; }
 
 // Add the injected stylesheet to the bottom of the page's <head> tag
 document.head.appendChild(style);
+
+
