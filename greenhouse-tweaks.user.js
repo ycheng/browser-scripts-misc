@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
-// @version        3.07
+// @version        3.08
 // ==========================================================================
 //
 // ==/UserScript==
@@ -167,7 +167,7 @@ body {font-family: "Ubuntu", san-serif; font-size: 10px; };
 .candidate {line-height: 2em !important;}
 .person-info-column p a {font-size: 0.9em !important;}
 .interview-kit-actions {line-height: 8px !important; display: block ruby; }
-.job-cell .cell-content {white-space: normal !important;}
+.job-cell .cell-content .job-title {white-space: normal !important;}
 tbody tr:nth-child(odd) { background-color: #f5faff !important; }
 .near-expiry{padding:0; background-color: #fcfcd9 !important;}
 .expired{padding:0; background-color: #ffe8e8 !important;}
