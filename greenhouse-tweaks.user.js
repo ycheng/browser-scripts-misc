@@ -6,12 +6,8 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
-// @version        3.04
+// @version        3.07
 // ==========================================================================
-//
-// TODO:
-// * Add a listener to the filter page for jobs, so it recreates the icons
-//   when the table dynamically updates
 //
 // ==/UserScript==
 
@@ -32,9 +28,12 @@ let mutation_observer_list = mutation_target,
     observer = new MutationObserver(mutation_callback);
 
 var intervalX_count = 0;
+
 function mutation_callback(mutations) {
     for (let mutation of mutations) {
-        if (mutation.target.getAttribute("data-provides")) { parse_jobs(); };
+        if (mutation.target.getAttribute("data-provides")) {
+            parse_jobs();
+        };
         // console.log("DEBUG: ", mutation.target)
         break;
     }
@@ -44,10 +43,10 @@ observer.observe(mutation_observer_list, options);
 
 // Set an interval to check for page load completion, loop for a small interval, then stop
 const setIntervalX = (fn, delay, times) => {
-    if(!times) return
+    if (!times) return
     setTimeout(() => {
         fn()
-        setIntervalX(fn, delay, times-1)
+        setIntervalX(fn, delay, times - 1)
     }, delay)
 }
 
@@ -59,6 +58,11 @@ async function parse_candidates() {
         const candidate_id = node.innerHTML.match(re)[1];
         const tags = await fetch_candidate_tags(candidate_id)
         node.insertAdjacentHTML('afterend', tags)
+    });
+
+    document.querySelectorAll('div[class="job-name"] > a[class="nav-title"]').forEach((node) => {
+        var job_title = node.innerText
+        document.title = document.title.replace(/(.*)\| Greenhouse/, `$1 | ${job_title}`);
     });
 
     document.querySelectorAll('img[class="alert"]').forEach(node => {
@@ -80,7 +84,7 @@ async function parse_candidates() {
             }
             if (candidate_expiry.length < 3) {
                 var candidate_waiting = node.parentNode.children[0].innerHTML.replace(/(.*)/im,
-                                                                                      `$1<br /><strong>${candidate_expiry} days</strong> in ${candidate_stage}`);
+                    `$1<br /><strong>${candidate_expiry} days</strong> in ${candidate_stage}`);
                 node.parentNode.children[0].innerHTML = candidate_waiting
             }
         }
@@ -126,18 +130,18 @@ async function fetch_candidate_tags(candidate_id) {
 }
 
 const insertLinks = (node, job_id) => {
-  node.insertAdjacentHTML('beforeend', `<a href="/plans/${job_id}/setup" title="Job Setup"><i class="fa fa-cog">&nbsp;</i></a>` +
-                          `<a href="/plans/${job_id}" title="Job Info"><i class="fa fa-info-circle">&nbsp;</i></a>` +
-                          `<a href="/plans/${job_id}/jobapp" title="Job Posts"><i class="fa fa-clipboard">&nbsp;</i></a>`)
+    node.insertAdjacentHTML('beforeend', `<a href="/plans/${job_id}/setup" title="Job Setup"><i class="fa fa-cog">&nbsp;</i></a>` +
+                            `<a href="/plans/${job_id}" title="Job Info"><i class="fa fa-info-circle">&nbsp;</i></a>` +
+                            `<a href="/plans/${job_id}/jobapp" title="Job Posts"><i class="fa fa-clipboard">&nbsp;</i></a>`)
 }
 
-if ( window.location.href.match(/\/alljobs$/) ) {
-    setIntervalX(function () {
+if (window.location.href.match(/\/alljobs$/)) {
+    setIntervalX(function() {
         parse_jobs();
     }, 1000, 1);
 }
 
-if ( window.location.href.match(/\/people.*|plans.*/) ) {
+if (window.location.href.match(/\/people.*|plans.*/)) {
     parse_candidates();
 }
 
@@ -172,5 +176,4 @@ tbody tr:nth-child(odd) { background-color: #f5faff !important; }
 
 // Add the injected stylesheet to the bottom of the page's <head> tag
 document.head.appendChild(style);
-
 
