@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
-// @version        3.08
+// @version        3.12
 // ==========================================================================
 //
 // ==/UserScript==
@@ -34,7 +34,6 @@ function mutation_callback(mutations) {
         if (mutation.target.getAttribute("data-provides")) {
             parse_jobs();
         };
-        // console.log("DEBUG: ", mutation.target)
         break;
     }
 }
@@ -51,13 +50,22 @@ const setIntervalX = (fn, delay, times) => {
 }
 
 // Add styling and various helpful colors/injects to the candidate lists
-async function parse_candidates() {
+async function parse_candidate_list() {
     var candidate_row, candidate_name, candidate_attr, candidate_expiry, candidate_status, candidate_job, candidate_stage = '';
+    var url = 'https://canonical.greenhouse.io/people/'
     document.querySelectorAll('p[class="name"]').forEach(async (node) => {
         const re = /.*\/people\/(\d+)\?.*/i;
         const candidate_id = node.innerHTML.match(re)[1];
-        const tags = await fetch_candidate_tags(candidate_id)
-        node.insertAdjacentHTML('afterend', tags)
+        const response = await request_page(url + candidate_id);
+
+        // Reach into the candidate's profile, extract the tags and pull them back to the All Candidates list
+        var tags = Array.from(response.querySelectorAll('div.applied-tag-container > a'),
+                              node => ({ ctagid: node.getAttribute('ctagid'), tag_name: node.innerText.trim() }))
+        tags.forEach(obj => {
+            const url = `/people?candidate_tag_id[]=${obj.ctagid}&stage_status_id[]=2`;
+            node.insertAdjacentHTML('afterend',`<a class="tag tiny-button" href=${url}` +
+                                    `ctagid="${obj.ctagid}">${obj.tag_name}</a>`);
+        });
     });
 
     document.querySelectorAll('div[class="job-name"] > a[class="nav-title"]').forEach((node) => {
@@ -99,13 +107,42 @@ async function parse_candidates() {
     });
 
     document.querySelectorAll('div[class="interview-kit-actions"]').forEach((node) => {
-
         var job_id = node.closest('table[candidate_hiring_plan]').getAttribute('candidate_hiring_plan');
         node.innerHTML = node.innerHTML.replace(/(Send Email)/, '<i class="fa fa-envelope" title="$1">&nbsp;</i>');
         node.innerHTML = node.innerHTML.replace(/(Select Interview Kit)/, '<i class="fa fa-box" title="$1">&nbsp;</i>');
         insertLinks(node, job_id)
     });
 }
+
+// Not a fan of parsing this information in multiple places, but it's not
+// stored in the same way under the list of candidates nor their individual
+// profile, so.. here we are.
+async function parse_candidate_profile() {
+    var job_id = document.querySelector('li[class="job-setup-tab"] > a').getAttribute('href').match(/\d+/)[0];
+    var url = `https://canonical.greenhouse.io/plans/${job_id}/team`;
+    const response = await request_page(url)
+
+    var managers = find_matching_el(response, 'ul[id="hiring_manager"] > li > span').map(e => e.innerText).join("<br>");
+    var recruiters = find_matching_el(response, 'ul[id="recruiter"] > li > span').map(e => e.innerText).join("<br>");
+    document.querySelectorAll('div[class*="candidate-controls"]').forEach((node) => {
+        node.insertAdjacentHTML('afterbegin', `<div class="hiring-team section"><div class="title">Hiring Managers</div>` +
+                                `<br /><span style="font-size: 12px;">${managers}</span></div>`)
+        node.insertAdjacentHTML('afterbegin', `<div class="recruiter-team section"><div class="title">Recruiters</div>` +
+                                `<br /><span style="font-size: 12px;">${recruiters}</span></div>`)
+
+        // Add clickable links to the Candidate Tags on their individual profile page
+        var tags = Array.from(document.querySelectorAll('div.applied-tag-container > a'));
+
+        tags.forEach(tag=> {
+            const ctagid = tag.getAttribute('ctagid');
+            const url = `/people?candidate_tag_id[]=${ctagid}&stage_status_id[]=2`;
+            tag.href=url;
+        });
+
+    });
+}
+
+function find_matching_el(response, selector) { return Array.from(response.querySelectorAll(selector)); }
 
 // Add styling to the 'alljobs' section
 function parse_jobs() {
@@ -116,16 +153,13 @@ function parse_jobs() {
     });
 }
 
-async function fetch_candidate_tags(candidate_id) {
-    var fetch_url = "https://canonical.greenhouse.io/people/" + candidate_id;
-    const response = await fetch(fetch_url)
+async function request_page(url) {
+    const response = await fetch(url)
     if (response.status == 200) {
         const html = await response.text()
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
-        // const tags = doc.querySelectorAll('div[class="applied-tag-container"]').map((node) => node.innerText);
-        var tags = Array.from(doc.querySelectorAll('div.applied-tag-container'), (node) => node.innerText.trim())
-        return tags
+        return doc;
     }
 }
 
@@ -142,8 +176,13 @@ if (window.location.href.match(/\/alljobs$/)) {
 }
 
 if (window.location.href.match(/\/people.*|plans.*/)) {
-    parse_candidates();
+    parse_candidate_list();
 }
+
+if (window.location.href.match(/.*\/people\/(\d+).*application_id=(\d+)/)) {
+    parse_candidate_profile();
+}
+
 
 // Add column sorting to all table cells
 const get_cell_val = (tr, idx) => tr.children[idx].innerText || tr.children[idx].textContent;
