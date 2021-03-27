@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
-// @version        3.12
+// @version        3.13
 // ==========================================================================
 //
 // ==/UserScript==
@@ -61,6 +61,9 @@ async function parse_candidate_list() {
         // Reach into the candidate's profile, extract the tags and pull them back to the All Candidates list
         var tags = Array.from(response.querySelectorAll('div.applied-tag-container > a'),
                               node => ({ ctagid: node.getAttribute('ctagid'), tag_name: node.innerText.trim() }))
+
+        tags.sort((a, b) => { if (a > b) { return -1; } else { return 1; } return 0; });
+
         tags.forEach(obj => {
             const url = `/people?candidate_tag_id[]=${obj.ctagid}&stage_status_id[]=2`;
             node.insertAdjacentHTML('afterend',`<a class="tag tiny-button" href=${url}` +
