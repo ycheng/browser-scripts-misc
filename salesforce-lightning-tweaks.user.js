@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-lightning-tweaks.user.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-lightning-tweaks.user.js
-// @version        1.12
+// @version        1.13
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 // ==/UserScript==
@@ -75,11 +75,6 @@ function colorize_case_list(node) {
             break;
         } else if (nval.includes('/' | '-')) {
             var iso_date = nval.replace(/.*(\d{4}[/-]\d{2}[/-]\d{2})\,\s(\d+?:\d+?)\s[ap]\.m\./, '$1 $2');
-            if (now - Date.parse(iso_date.replace(',','')) > 7 * 24 * 60 * 60 * 1000) {
-                node.parentElement.parentElement.classList.add('update-now');
-            } else if (now - Date.parse(iso_date.replace(',','')) > 3 * 24 * 60 * 60 * 1000) {
-                node.parentElement.parentElement.classList.add('update-soon');
-            }
         }
     }
 }
@@ -124,8 +119,6 @@ style.innerHTML += `
 .status-wonew{background-color:#debe66;}
 .status-wores{background-color:#86ff6e;}
 .status-woexp{background-color:#afccc7;}
-.update-soon {background-color:#feffcf;}
-.update-now  {background-color:#ffdfdf;}
 .external{background-color:#ff0;display:block;margin:-.5em;padding-left:.5em;}
 .internal{background-color:#90ee90;display:block;margin:-.5em;padding-left:.5em;}
 body {font-family: "Ubuntu", san-serif; font-size: 15px !important; }
