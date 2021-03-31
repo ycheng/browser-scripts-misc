@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-lightning-tweaks.user.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-lightning-tweaks.user.js
-// @version        1.11
+// @version        1.12
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 // ==/UserScript==
@@ -27,7 +27,7 @@ let mutation_observer_list = mutation_target,
 var intervalX_count = 0;
 function mutation_callback(mutations) {
     for (let mutation of mutations) {
-        if (mutation.target.className == 'oneConsoleObjectHome') { startup_items(); };
+        if (mutation.target.className == 'oneConsoleObjectHome') { check_lpu(); startup_items(); };
         continue; // break;
     }
 }
@@ -128,7 +128,6 @@ style.innerHTML += `
 .update-now  {background-color:#ffdfdf;}
 .external{background-color:#ff0;display:block;margin:-.5em;padding-left:.5em;}
 .internal{background-color:#90ee90;display:block;margin:-.5em;padding-left:.5em;}
-@import url("https://use.fontawesome.com/releases/v5.13.1/css/all.css")
 body {font-family: "Ubuntu", san-serif; font-size: 15px !important; }
 tbody tr:nth-child(odd) { background-color: #f5faff !important; }
 `;
