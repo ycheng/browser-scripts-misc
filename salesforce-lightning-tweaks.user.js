@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-lightning-tweaks.user.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-lightning-tweaks.user.js
-// @version        1.13
+// @version        1.15
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 // ==/UserScript==
@@ -15,7 +15,7 @@
 var style = document.createElement('style');
 
 let mutation_target = document.body;
-let mutation_observer_list = mutation_target,
+let mutation_config = mutation_target,
     options = {
         childList: true,
         attributes: true,
@@ -24,16 +24,15 @@ let mutation_observer_list = mutation_target,
     },
     observer = new MutationObserver(mutation_callback);
 
-var intervalX_count = 0;
 function mutation_callback(mutations) {
     for (let mutation of mutations) {
-        if (mutation.target.className == 'oneConsoleObjectHome') { check_lpu(); startup_items(); };
-        continue; // break;
+        // console.log("DEBUG: ", mutation.target.className);
+        if (mutation.target.className === 'slds-checkbox') { startup_items(); };
+        continue;
     }
 }
 
-observer.observe(mutation_observer_list, options);
-
+observer.observe(mutation_config, options);
 
 // Set an interval to check for page load completion, loop for a small interval, then stop
 const setIntervalX = (fn, delay, times) => {
@@ -44,12 +43,10 @@ const setIntervalX = (fn, delay, times) => {
     }, delay)
 }
 
-
 // These run on initial page load, vs. the data reload watched by mutation.observer below
 setIntervalX(function () {
-    startup_items();
+    minimize_natter();
 }, 4000, 3);
-
 
 const case_status_classes = {
     Customer:   'cus',
@@ -70,7 +67,7 @@ function colorize_case_list(node) {
     var now = new Date();
     var nval = node.innerText;
     for (const [status, cls] of Object.entries(case_status_classes)) {
-        if (nval.endsWith("Waiting on " + status)) {
+        if (nval.endsWith(status)) {
             node.classList.add(`status-wo${cls}`);
             break;
         } else if (nval.includes('/' | '-')) {
@@ -82,17 +79,18 @@ function colorize_case_list(node) {
 
 function check_lpu() {
     // Yes, it's literally this long
-    document.querySelectorAll('div[class*="slds-table--edit_container slds-is-relative  inlineEdit--disabled"] > table > tbody > tr> td').forEach((node) => {
+    document.querySelectorAll('div[class*="slds-table--edit_container slds-is-relative  inlineEdit--disabled"] > table > tbody > tr > td').forEach((node) => {
         colorize_case_list(node);
     });
 }
 
-
-// Automatically minimize Natterbox panel on page reloads
-function startup_items () {
+function minimize_natter() {
     // window.scrollTo(0, 0);
     document.querySelector('button[title="Minimize"]').click();
+    // document.querySelector('[class*="oneUtilityBarPanel DOCKED"]').className = "oneUtilityBarPanel MINIMIZED"
+}
 
+function startup_items () {
     if (startup_items.fired ) return;
     // This needs to be more surgical, will fine-tune in later commits
     document.querySelectorAll('[class*="slds-truncate textUnderline outputLookupLink slds-truncate outputLookupLink"]').forEach((node) => {
@@ -103,9 +101,9 @@ function startup_items () {
         }
     });
     check_lpu();
+    minimize_natter();
     // startup_items.fired = true;
 }
-
 
 style.innerHTML += `
 /* Case status colors */
@@ -127,3 +125,8 @@ tbody tr:nth-child(odd) { background-color: #f5faff !important; }
 
 // Add the injected stylesheet to the bottom of the page's <head> tag
 document.head.appendChild(style);
+
+let disconnect = () =>{
+    observer.disconnect();
+}
+
