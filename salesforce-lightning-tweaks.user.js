@@ -6,13 +6,21 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-lightning-tweaks.user.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-lightning-tweaks.user.js
-// @version        1.15
+// @version        1.16
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 // ==/UserScript==
 
 'use strict';
 var style = document.createElement('style');
+
+// Add EPT timing to individual case pages (the most-complex Lightning assets)
+// https://trailhead.salesforce.com/en/content/learn/modules/lightning-experience-performance-optimization/measure-lightning-experience-performance-and-experience-page-time-ept
+if (window.location.href.match(/\/view$/)) {
+    const sf_ept = new URLSearchParams(window.location.search);
+    sf_ept.set('eptVisible', '1');
+    window.location.search = sf_ept;
+}
 
 let mutation_target = document.body;
 let mutation_config = mutation_target,
