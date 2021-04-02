@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-lightning-tweaks.user.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-lightning-tweaks.user.js
-// @version        1.16
+// @version        1.17
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 // ==/UserScript==
@@ -14,12 +14,28 @@
 'use strict';
 var style = document.createElement('style');
 
-// Add EPT timing to individual case pages (the most-complex Lightning assets)
-// https://trailhead.salesforce.com/en/content/learn/modules/lightning-experience-performance-optimization/measure-lightning-experience-performance-and-experience-page-time-ept
-if (window.location.href.match(/\/view$/)) {
-    const sf_ept = new URLSearchParams(window.location.search);
-    sf_ept.set('eptVisible', '1');
-    window.location.search = sf_ept;
+// Some tuning for developers
+var debug = 1;
+
+if (debug) {
+    // Measuring page-load time/performance, this will get cleaned up and convered to using the timing API later:
+    // https://developer.mozilla.org/en-US/docs/Web/API/User_Timing_API
+    document.addEventListener('readystatechange', function() {
+        // What did the browser mark as the page status at this stage, and how long
+        console.log("DEBUG: Page marked as '" + document.readyState + "' after " + performance.now()/1000 + " seconds");
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        // How long did it take the DOM to load in the browser's context
+        console.log("DEBUG: DOMContentLoaded took " + performance.now()/1000 + " seconds");
+    }, false);
+
+    // Add EPT timing to individual case pages (the most-complex Lightning assets)
+    // https://trailhead.salesforce.com/en/content/learn/modules/lightning-experience-performance-optimization/measure-lightning-experience-performance-and-experience-page-time-ept
+    if (window.location.href.match(/\/view$/)) {
+        const sf_ept = new URLSearchParams(window.location.search);
+        sf_ept.set('eptVisible', '1');
+        window.location.href.append = sf_ept;
+    }
 }
 
 let mutation_target = document.body;
@@ -137,4 +153,5 @@ document.head.appendChild(style);
 let disconnect = () =>{
     observer.disconnect();
 }
+
 
