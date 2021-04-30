@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
-// @version        3.13
+// @version        3.15
 // ==========================================================================
 //
 // ==/UserScript==
@@ -63,6 +63,7 @@ async function parse_candidate_list() {
                               node => ({ ctagid: node.getAttribute('ctagid'), tag_name: node.innerText.trim() }))
 
         tags.sort((a, b) => { if (a > b) { return -1; } else { return 1; } return 0; });
+        // tags.sort((a, b) => a > b ? -1 : 1)
 
         tags.forEach(obj => {
             const url = `/people?candidate_tag_id[]=${obj.ctagid}&stage_status_id[]=2`;
@@ -145,6 +146,15 @@ async function parse_candidate_profile() {
     });
 }
 
+async function parse_hiring_team() {
+    var job_id = document.querySelector('li[class="job-setup-tab"] > a').getAttribute('href').match(/\d+/)[0];
+    var url = `https://canonical.greenhouse.io/plans/${job_id}/team`;
+    const response = await request_page(url)
+
+    var managers = find_matching_el(response, 'ul[id="hiring_manager"] > li > span').map(e => e.innerText).join("<br>");
+    var recruiters = find_matching_el(response, 'ul[id="recruiter"] > li > span').map(e => e.innerText).join("<br>");
+}
+
 function find_matching_el(response, selector) { return Array.from(response.querySelectorAll(selector)); }
 
 // Add styling to the 'alljobs' section
@@ -186,6 +196,11 @@ if (window.location.href.match(/.*\/people\/(\d+).*application_id=(\d+)/)) {
     parse_candidate_profile();
 }
 
+if (window.location.href.match(/.*\/sdash\/(\d+)/)) {
+    const {href:job_id, innerText:job_title} = document.querySelector('a[class="nav-title"]');
+    document.title = document.title.replace(/(.*)\| Greenhouse/, `${job_id.match(/\d+/)[0]} | ${job_title}`);
+    parse_hiring_team();
+}
 
 // Add column sorting to all table cells
 const get_cell_val = (tr, idx) => tr.children[idx].innerText || tr.children[idx].textContent;
