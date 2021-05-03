@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-lightning-tweaks.user.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/salesforce-lightning-tweaks.user.js
-// @version        1.17
+// @version        1.23
 // @grant          GM_addStyle
 // @grant          GM_getResourceText
 // ==/UserScript==
@@ -15,9 +15,9 @@
 var style = document.createElement('style');
 
 // Some tuning for developers
-var debug = 1;
+var debug = 0;
 
-if (debug) {
+if (debug > 0) {
     // Measuring page-load time/performance, this will get cleaned up and convered to using the timing API later:
     // https://developer.mozilla.org/en-US/docs/Web/API/User_Timing_API
     document.addEventListener('readystatechange', function() {
@@ -32,6 +32,7 @@ if (debug) {
     // Add EPT timing to individual case pages (the most-complex Lightning assets)
     // https://trailhead.salesforce.com/en/content/learn/modules/lightning-experience-performance-optimization/measure-lightning-experience-performance-and-experience-page-time-ept
     if (window.location.href.match(/\/view$/)) {
+        console.log("DEBUG: ", window.location.href);
         const sf_ept = new URLSearchParams(window.location.search);
         sf_ept.set('eptVisible', '1');
         window.location.href.append = sf_ept;
@@ -73,16 +74,19 @@ setIntervalX(function () {
 }, 4000, 3);
 
 const case_status_classes = {
-    Customer:   'cus',
-    Support:    'sup',
-    Engineering:'eng',
-    Upstream:   'ups',
-    Operations: 'ops',
-    CPC:        'cpc',
-    SRU:        'sru',
-    New:        'new',
-    Resolved:   'res',
-    Expired:    'exp'
+    Customer:       'cus',
+    Support:        'sup',
+    Engineering:    'eng',
+    Upstream:       'ups',
+    Operations:     'ops',
+    CPC:            'cpc',
+    SRU:            'sru',
+    New:            'new',
+    Resolved:       'res',
+    Expired:        'exp',
+    Void:           'vod',
+    'Auto Expired': 'axp',
+    'Fix released': 'fix'
 };
 
 
@@ -91,7 +95,9 @@ function colorize_case_list(node) {
     var now = new Date();
     var nval = node.innerText;
     for (const [status, cls] of Object.entries(case_status_classes)) {
-        if (nval.endsWith(status)) {
+
+        // Ideally, a RegExp .match() on word boundaries, but... because Salesforce, I must do it this way
+        if (nval.endsWith(`Waiting on ${status}`) || (nval.startsWith(status) && nval.endsWith(status))) {
             node.classList.add(`status-wo${cls}`);
             break;
         } else if (nval.includes('/' | '-')) {
@@ -118,14 +124,13 @@ function startup_items () {
     if (startup_items.fired ) return;
     // This needs to be more surgical, will fine-tune in later commits
     document.querySelectorAll('[class*="slds-truncate textUnderline outputLookupLink slds-truncate outputLookupLink"]').forEach((node) => {
-        if(node.innerText.endsWith('(portal)')) {
+        if (node.innerText.endsWith('(portal)')) {
             node.parentNode.classList.add('external')
         } else {
             node.parentNode.classList.add('internal')
         }
     });
     check_lpu();
-    minimize_natter();
     // startup_items.fired = true;
 }
 
@@ -141,6 +146,10 @@ style.innerHTML += `
 .status-wonew{background-color:#debe66;}
 .status-wores{background-color:#86ff6e;}
 .status-woexp{background-color:#afccc7;}
+.status-wovod{background-color:#867f86;}
+.status-wofix{background-color:#e0c8f9;}
+.status-woaxp{background-color:#cd9d9c;}
+
 .external{background-color:#ff0;display:block;margin:-.5em;padding-left:.5em;}
 .internal{background-color:#90ee90;display:block;margin:-.5em;padding-left:.5em;}
 body {font-family: "Ubuntu", san-serif; font-size: 15px !important; }
