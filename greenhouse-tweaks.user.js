@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
-// @version        3.15
+// @version        3.16
 // ==========================================================================
 //
 // ==/UserScript==
@@ -34,7 +34,7 @@ function mutation_callback(mutations) {
         if (mutation.target.getAttribute("data-provides")) {
             parse_jobs();
         };
-        break;
+        continue;
     }
 }
 
@@ -126,9 +126,19 @@ async function parse_candidate_profile() {
     var url = `https://canonical.greenhouse.io/plans/${job_id}/team`;
     const response = await request_page(url)
 
+    if (window.location.href.match(/.*#activity_feed$/)) {
+        document.querySelectorAll('p[class*="ActivityExtras__Text"]').forEach((node) => {
+            if (node.innerText.startsWith('Rejected from') || node.innerText.startsWith('Reason:')) {
+                node.classList.add(`status-rej`);
+            }
+        });
+    }
+
     var managers = find_matching_el(response, 'ul[id="hiring_manager"] > li > span').map(e => e.innerText).join("<br>");
     var recruiters = find_matching_el(response, 'ul[id="recruiter"] > li > span').map(e => e.innerText).join("<br>");
     document.querySelectorAll('div[class*="candidate-controls"]').forEach((node) => {
+
+
         node.insertAdjacentHTML('afterbegin', `<div class="hiring-team section"><div class="title">Hiring Managers</div>` +
                                 `<br /><span style="font-size: 12px;">${managers}</span></div>`)
         node.insertAdjacentHTML('afterbegin', `<div class="recruiter-team section"><div class="title">Recruiters</div>` +
@@ -217,11 +227,13 @@ document.querySelectorAll('th').forEach(th => th.addEventListener('click', (() =
         .forEach(tr => tbody.appendChild(tr));
 })));
 
-
+var page_height = document.body.scrollHeight - 700;
+console.log("DEBUG: ", page_height);
 style.innerHTML += `
 @import url("https://use.fontawesome.com/releases/v5.13.1/css/all.css");
 body {font-family: "Ubuntu", san-serif; font-size: 10px; };
 .candidate {line-height: 2em !important;}
+.document-container {height: ${page_height}px !important; scroll-y:auto; }
 .person-info-column p a {font-size: 0.9em !important;}
 .interview-kit-actions {line-height: 8px !important; display: block ruby; }
 .job-cell .cell-content .job-title {white-space: normal !important;}
@@ -229,6 +241,7 @@ tbody tr:nth-child(odd) { background-color: #f5faff !important; }
 .near-expiry{padding:0; background-color: #fcfcd9 !important;}
 .expired{padding:0; background-color: #ffe8e8 !important;}
 .new-candidate{background-color:#def3ff !important;}
+.status-rej{background-color:#ffdbdf !important;}
 `;
 
 // Add the injected stylesheet to the bottom of the page's <head> tag
