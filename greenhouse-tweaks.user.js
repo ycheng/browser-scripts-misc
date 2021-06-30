@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
-// @version        3.24
+// @version        3.25
 // ==========================================================================
 //
 // ==/UserScript==
@@ -57,6 +57,12 @@ const setIntervalX = (fn, delay, times) => {
     }, delay)
 }
 
+function random_color(){
+    return "hsl(" + 360 * Math.random() + ',' +
+        (25 + 70 * Math.random()) + '%,' +
+        (85 + 10 * Math.random()) + '%)'
+}
+
 // Add styling and various helpful colors/injects to the candidate lists
 async function parse_candidate_list() {
     var candidate_row, candidate_name, candidate_attr, candidate_expiry, candidate_status, candidate_job, candidate_stage = '';
@@ -70,12 +76,11 @@ async function parse_candidate_list() {
         var tags = Array.from(response.querySelectorAll('div.applied-tag-container > a'),
                               node => ({ ctagid: node.getAttribute('ctagid'), tag_name: node.innerText.trim() }))
 
-        tags.sort((a, b) => { if (a > b) { return -1; } else { return 1; } return 0; });
-        // tags.sort((a, b) => a > b ? -1 : 1)
+        tags.sort((a, b) => a > b ? -1 : 1)
 
         tags.forEach(obj => {
             const url = `/people?candidate_tag_id[]=${obj.ctagid}&stage_status_id[]=2`;
-            node.insertAdjacentHTML('afterend',`<a class="tag tiny-button" href=${url}` +
+            node.insertAdjacentHTML('afterend',`<a class="tag tiny-button" style="background-color:${random_color()};" href=${url}` +
                                     `ctagid="${obj.ctagid}">${obj.tag_name}</a>`);
         });
     });
