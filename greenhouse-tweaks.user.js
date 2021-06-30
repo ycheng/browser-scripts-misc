@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
-// @version        3.16
+// @version        3.23
 // ==========================================================================
 //
 // ==/UserScript==
@@ -16,6 +16,10 @@
 
 'use strict';
 var style = document.createElement('style');
+
+// Keycodes interrogated here: https://keycode.info/
+const KEY_T = 84; // (t) Create candidate tags
+const KEY_ESC = 27; // (esc) Save/Edit the tags created/no tags
 
 let mutation_target = document.body;
 let mutation_observer_list = mutation_target,
@@ -28,6 +32,25 @@ let mutation_observer_list = mutation_target,
     observer = new MutationObserver(mutation_callback);
 
 var intervalX_count = 0;
+
+function match_keypress(selector) {
+    if (document.activeElement) {
+        return document.activeElement.matches(selector);
+    } else {
+        return false;
+    }
+}
+
+function listen_keypress(keyCode, handler) {
+    window.addEventListener('keyup', function(event) {
+        if (event.keyCode !== keyCode) {
+            return;
+            // ignore Ctrl key
+        } else if (event.keyCode !== '17') {
+            handler(event);
+        }
+    });
+}
 
 function mutation_callback(mutations) {
     for (let mutation of mutations) {
@@ -202,6 +225,20 @@ if (window.location.href.match(/\/people.*|plans.*/)) {
     parse_candidate_list();
 }
 
+// Edit/update Candidate tags, if doing quick review or viewing their profile directly
+// The listen events only work if you're not actively typing in a form field
+if (window.location.href.match(/.*application_review\?hiring_plan_id=.*|\/people\/\d+\?application_id.*/)) {
+    listen_keypress(KEY_T, function(event) {
+        if (!match_keypress('textarea') && !match_keypress('input')) {
+            document.querySelector('a[class*="modify-tags"]').click();
+            document.getElementById('s2id_autogen1').select().preventDefault();
+        }
+    })
+    listen_keypress(KEY_ESC, function(event) {
+        document.querySelector('a[class*="done-tagging-button"]').click();
+    })
+}
+
 if (window.location.href.match(/.*\/people\/(\d+).*application_id=(\d+)/)) {
     parse_candidate_profile();
 }
@@ -227,7 +264,7 @@ document.querySelectorAll('th').forEach(th => th.addEventListener('click', (() =
         .forEach(tr => tbody.appendChild(tr));
 })));
 
-var page_height = document.body.scrollHeight - 700;
+var page_height = document.body.scrollHeight;
 console.log("DEBUG: ", page_height);
 style.innerHTML += `
 @import url("https://use.fontawesome.com/releases/v5.13.1/css/all.css");
@@ -246,4 +283,3 @@ tbody tr:nth-child(odd) { background-color: #f5faff !important; }
 
 // Add the injected stylesheet to the bottom of the page's <head> tag
 document.head.appendChild(style);
-
