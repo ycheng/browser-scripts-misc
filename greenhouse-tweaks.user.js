@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
-// @version        3.25
+// @version        3.27
 // ==========================================================================
 //
 // ==/UserScript==
@@ -57,11 +57,11 @@ const setIntervalX = (fn, delay, times) => {
     }, delay)
 }
 
-function random_color(){
-    return "hsl(" + 360 * Math.random() + ',' +
-        (25 + 70 * Math.random()) + '%,' +
-        (85 + 10 * Math.random()) + '%)'
-}
+// function random_color(){
+//     return "hsl(" + 360 * Math.random() + ',' +
+//         (25 + 70 * Math.random()) + '%,' +
+//         (85 + 10 * Math.random()) + '%)'
+// }
 
 // Add styling and various helpful colors/injects to the candidate lists
 async function parse_candidate_list() {
@@ -80,7 +80,7 @@ async function parse_candidate_list() {
 
         tags.forEach(obj => {
             const url = `/people?candidate_tag_id[]=${obj.ctagid}&stage_status_id[]=2`;
-            node.insertAdjacentHTML('afterend',`<a class="tag tiny-button" style="background-color:${random_color()};" href=${url}` +
+            node.insertAdjacentHTML('afterend',`<a class="tag tiny-button" href=${url}` +
                                     `ctagid="${obj.ctagid}">${obj.tag_name}</a>`);
         });
     });
