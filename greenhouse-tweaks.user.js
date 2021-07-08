@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
-// @version        3.27
+// @version        3.28
 // ==========================================================================
 //
 // ==/UserScript==
@@ -230,6 +230,11 @@ if (window.location.href.match(/.*application_review\?hiring_plan_id=.*|\/people
             document.querySelector('a[class*="done-tagging-button"]').click();
             document.activeElement.blur();
         }
+
+        if (event.key === 'f') { // flip the document-container element
+            document.getElementsByTagName('iframe')[0].classList.toggle("document-container-flip");
+            document.activeElement.blur();
+        }
     });
 }
 
@@ -265,6 +270,11 @@ style.innerHTML += `
 body {font-family: "Ubuntu", san-serif; font-size: 10px; };
 .candidate {line-height: 2em !important;}
 .document-container {height: ${page_height}px !important; scroll-y:auto; }
+.document-container-flip {
+  transform:rotate(180deg) !important;
+  -ms-transform:rotate(180deg) !important;
+  -webkit-transform:rotate(180deg) !important;
+}
 .person-info-column p a {font-size: 0.9em !important;}
 .interview-kit-actions {line-height: 8px !important; display: block ruby; }
 .job-cell .cell-content .job-title {white-space: normal !important;}
