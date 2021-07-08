@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
-// @version        3.28
+// @version        3.29
 // ==========================================================================
 //
 // ==/UserScript==
@@ -219,22 +219,23 @@ if (window.location.href.match(/\/people.*|plans.*/)) {
 // The listen events only work if you're not actively typing in a form field
 if (window.location.href.match(/.*application_review\?hiring_plan_id=.*|\/people\/\d+\?application_id.*/)) {
     document.addEventListener('keyup', function(event) {
-        if (event.key === 't') { // Edit tags for the candidate
-            if (!match_keypress('textarea') && !match_keypress('input')) {
+        if (!match_keypress('textarea') && !match_keypress('trix-editor') && !match_keypress('input')) {
+            if (event.key === 't') { // Edit tags for the candidate
                 document.querySelector('a[class*="modify-tags"]').click();
                 document.getElementById('s2id_autogen1').select();
             }
+
+            if (event.key === 'Escape') { // Save tags or exit if no tags were added
+                document.querySelector('a[class*="done-tagging-button"]').click();
+                document.activeElement.blur();
+            }
+
+            if (event.key === 'f') { // flip the document-container element
+                document.getElementsByTagName('iframe')[0].classList.toggle("document-container-flip");
+                document.activeElement.blur();
+            }
         }
 
-        if (event.key === 'Escape') { // Save tags or exit if no tags were added
-            document.querySelector('a[class*="done-tagging-button"]').click();
-            document.activeElement.blur();
-        }
-
-        if (event.key === 'f') { // flip the document-container element
-            document.getElementsByTagName('iframe')[0].classList.toggle("document-container-flip");
-            document.activeElement.blur();
-        }
     });
 }
 
