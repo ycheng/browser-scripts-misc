@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
-// @version        3.29
+// @version        3.30
 // ==========================================================================
 //
 // ==/UserScript==
@@ -154,7 +154,7 @@ async function parse_candidate_profile() {
 
         node.insertAdjacentHTML('afterbegin', `<div class="hiring-team section"><div class="title">Hiring Managers</div>` +
                                 `<br /><span style="font-size: 12px;">${managers}</span></div>`)
-        node.insertAdjacentHTML('afterbegin', `<div class="recruiter-team section"><div class="title">Recruiters</div>` +
+        node.insertAdjacentHTML('afterbegin', `<div class="recruiter-team section"><div class="title">Hiring Lead</div>` +
                                 `<br /><span style="font-size: 12px;">${recruiters}</span></div>`)
 
         // Add clickable links to the Candidate Tags on their individual profile page
@@ -219,18 +219,22 @@ if (window.location.href.match(/\/people.*|plans.*/)) {
 // The listen events only work if you're not actively typing in a form field
 if (window.location.href.match(/.*application_review\?hiring_plan_id=.*|\/people\/\d+\?application_id.*/)) {
     document.addEventListener('keyup', function(event) {
+        if (match_keypress('textarea') || match_keypress('input')) {
+            if (event.key === 'Escape') { // Save tags or exit if no tags were added
+                console.log("DEBUG: You hit the <esc> key!");
+                document.querySelector('a[class*="done-tagging-button"]').click();
+                document.activeElement.blur();
+            }
+        }
         if (!match_keypress('textarea') && !match_keypress('trix-editor') && !match_keypress('input')) {
             if (event.key === 't') { // Edit tags for the candidate
+                console.log("DEBUG: You hit the 't' key!");
                 document.querySelector('a[class*="modify-tags"]').click();
                 document.getElementById('s2id_autogen1').select();
             }
 
-            if (event.key === 'Escape') { // Save tags or exit if no tags were added
-                document.querySelector('a[class*="done-tagging-button"]').click();
-                document.activeElement.blur();
-            }
-
             if (event.key === 'f') { // flip the document-container element
+                console.log("DEBUG: You hit the 'f' key!");
                 document.getElementsByTagName('iframe')[0].classList.toggle("document-container-flip");
                 document.activeElement.blur();
             }
