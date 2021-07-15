@@ -132,7 +132,6 @@ async function parse_candidate_list() {
         var job_id = node.closest('table[candidate_hiring_plan]').getAttribute('candidate_hiring_plan');
         node.innerHTML = node.innerHTML.replace(/(Send Email)/, '<i class="fa fa-envelope" title="$1">&nbsp;</i>');
         node.innerHTML = node.innerHTML.replace(/(Select Interview Kit)/, '<i class="fa fa-box" title="$1">&nbsp;</i>');
-        insertLinks(node, job_id)
     });
 }
 
@@ -196,9 +195,10 @@ async function request_page(url) {
 }
 
 const insertLinks = (node, job_id) => {
-    node.insertAdjacentHTML('beforeend', `<span><a href="/plans/${job_id}/setup" title="Job Setup"><i class="fa fa-cog">&nbsp;</i></a></span>` +
-                            `<span><a href="/plans/${job_id}" title="Job Info"><i class="fa fa-info-circle">&nbsp;</i></a></span>` +
-                            `<span><a href="/plans/${job_id}/jobapp" title="Job Posts"><i class="fa fa-clipboard">&nbsp;</i></a></span>`)
+    node.insertAdjacentHTML('afterend',
+                            `<span><a href="/plans/${job_id}/setup" title="Job Setup"><i class="fa fa-cog">&nbsp;</i></a>` +
+                            `<a href="/plans/${job_id}" title="Job Info"><i class="fa fa-info-circle">&nbsp;</i></a>` +
+                            `<a href="/plans/${job_id}/jobapp" title="Job Posts"><i class="fa fa-clipboard">&nbsp;</i></a></span>`)
 }
 
 if (window.location.href.match(/\/alljobs$/)) {
@@ -275,7 +275,8 @@ body {font-family: "Ubuntu", san-serif; font-size: 10px; };
 .person-info-column p a {font-size: 0.9em !important;}
 .interview-kit-actions {line-height: 8px !important; display: block ruby; }
 .job-cell .cell-content .job-title {white-space: normal !important;}
-tbody tr:nth-child(odd) { background-color: #f5faff !important; }
+.follow-jobs-wrapper{width:100px;text-align:right;}
+tbody tr:nth-child(odd) {background-color: #f5faff !important; }
 .near-expiry{padding:0; background-color: #fcfcd9 !important;}
 .expired{padding:0; background-color: #ffe8e8 !important;}
 .new-candidate{background-color:#def3ff !important;}
