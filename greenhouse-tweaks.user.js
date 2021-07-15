@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
-// @version        3.30
+// @version        3.31
 // ==========================================================================
 //
 // ==/UserScript==
@@ -200,9 +200,9 @@ async function request_page(url) {
 }
 
 const insertLinks = (node, job_id) => {
-    node.insertAdjacentHTML('beforeend', `<a href="/plans/${job_id}/setup" title="Job Setup"><i class="fa fa-cog">&nbsp;</i></a>` +
-                            `<a href="/plans/${job_id}" title="Job Info"><i class="fa fa-info-circle">&nbsp;</i></a>` +
-                            `<a href="/plans/${job_id}/jobapp" title="Job Posts"><i class="fa fa-clipboard">&nbsp;</i></a>`)
+    node.insertAdjacentHTML('beforeend', `<span><a href="/plans/${job_id}/setup" title="Job Setup"><i class="fa fa-cog">&nbsp;</i></a></span>` +
+                            `<span><a href="/plans/${job_id}" title="Job Info"><i class="fa fa-info-circle">&nbsp;</i></a></span>` +
+                            `<span><a href="/plans/${job_id}/jobapp" title="Job Posts"><i class="fa fa-clipboard">&nbsp;</i></a></span>`)
 }
 
 if (window.location.href.match(/\/alljobs$/)) {
@@ -288,8 +288,9 @@ tbody tr:nth-child(odd) { background-color: #f5faff !important; }
 .expired{padding:0; background-color: #ffe8e8 !important;}
 .new-candidate{background-color:#def3ff !important;}
 .status-rej{background-color:#ffdbdf !important;}
+.fa-cog{color:rgb(34,139,34);}
+.fa-clipboard{color: rgb(255,140,0);}
 `;
 
 // Add the injected stylesheet to the bottom of the page's <head> tag
 document.head.appendChild(style);
-
