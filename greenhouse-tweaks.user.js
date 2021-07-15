@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
-// @version        3.31
+// @version        3.33
 // ==========================================================================
 //
 // ==/UserScript==
@@ -57,12 +57,6 @@ const setIntervalX = (fn, delay, times) => {
     }, delay)
 }
 
-// function random_color(){
-//     return "hsl(" + 360 * Math.random() + ',' +
-//         (25 + 70 * Math.random()) + '%,' +
-//         (85 + 10 * Math.random()) + '%)'
-// }
-
 // Add styling and various helpful colors/injects to the candidate lists
 async function parse_candidate_list() {
     var candidate_row, candidate_name, candidate_attr, candidate_expiry, candidate_status, candidate_job, candidate_stage = '';
@@ -83,6 +77,17 @@ async function parse_candidate_list() {
             node.insertAdjacentHTML('afterend',`<a class="tag tiny-button" href=${url}` +
                                     `ctagid="${obj.ctagid}">${obj.tag_name}</a>`);
         });
+
+        if (node.parentElement.parentElement.childNodes[5].childNodes[3].textContent.includes('Waiting for candidate')) {
+            var time_in_stage = Array.from(response.querySelectorAll('tr[class*="current-stage"] > td > span:nth-child(3)'),
+                                           node => ({ start_date: node.textContent.split(/\W+/).slice(1,4) }))
+
+            time_in_stage.forEach(obj => {
+                var time_waiting = Math.abs(Date.parse(obj.start_date) - Date.now());
+                node.insertAdjacentHTML('afterend',`<strong class="waiting">${Math.round(time_waiting / (1000 * 3600 * 24))} total days in this stage</strong><br />`);
+            });
+
+        }
     });
 
     document.querySelectorAll('div[class="job-name"] > a[class="nav-title"]').forEach((node) => {
@@ -154,7 +159,7 @@ async function parse_candidate_profile() {
 
         node.insertAdjacentHTML('afterbegin', `<div class="hiring-team section"><div class="title">Hiring Managers</div>` +
                                 `<br /><span style="font-size: 12px;">${managers}</span></div>`)
-        node.insertAdjacentHTML('afterbegin', `<div class="recruiter-team section"><div class="title">Hiring Lead</div>` +
+        node.insertAdjacentHTML('afterbegin', `<div class="recruiter-team section"><div class="title">Recruiters</div>` +
                                 `<br /><span style="font-size: 12px;">${recruiters}</span></div>`)
 
         // Add clickable links to the Candidate Tags on their individual profile page
@@ -167,15 +172,6 @@ async function parse_candidate_profile() {
         });
 
     });
-}
-
-async function parse_hiring_team() {
-    var job_id = document.querySelector('li[class="job-setup-tab"] > a').getAttribute('href').match(/\d+/)[0];
-    var url = `https://canonical.greenhouse.io/plans/${job_id}/team`;
-    const response = await request_page(url)
-
-    var managers = find_matching_el(response, 'ul[id="hiring_manager"] > li > span').map(e => e.innerText).join("<br>");
-    var recruiters = find_matching_el(response, 'ul[id="recruiter"] > li > span').map(e => e.innerText).join("<br>");
 }
 
 function find_matching_el(response, selector) { return Array.from(response.querySelectorAll(selector)); }
@@ -221,20 +217,17 @@ if (window.location.href.match(/.*application_review\?hiring_plan_id=.*|\/people
     document.addEventListener('keyup', function(event) {
         if (match_keypress('textarea') || match_keypress('input')) {
             if (event.key === 'Escape') { // Save tags or exit if no tags were added
-                console.log("DEBUG: You hit the <esc> key!");
                 document.querySelector('a[class*="done-tagging-button"]').click();
                 document.activeElement.blur();
             }
         }
         if (!match_keypress('textarea') && !match_keypress('trix-editor') && !match_keypress('input')) {
             if (event.key === 't') { // Edit tags for the candidate
-                console.log("DEBUG: You hit the 't' key!");
                 document.querySelector('a[class*="modify-tags"]').click();
                 document.getElementById('s2id_autogen1').select();
             }
 
             if (event.key === 'f') { // flip the document-container element
-                console.log("DEBUG: You hit the 'f' key!");
                 document.getElementsByTagName('iframe')[0].classList.toggle("document-container-flip");
                 document.activeElement.blur();
             }
@@ -250,7 +243,6 @@ if (window.location.href.match(/.*\/people\/(\d+).*application_id=(\d+)/)) {
 if (window.location.href.match(/.*\/sdash\/(\d+)/)) {
     const {href:job_id, innerText:job_title} = document.querySelector('a[class="nav-title"]');
     document.title = document.title.replace(/(.*)\| Greenhouse/, `${job_id.match(/\d+/)[0]} | ${job_title}`);
-    parse_hiring_team();
 }
 
 // Add column sorting to all table cells
@@ -290,7 +282,15 @@ tbody tr:nth-child(odd) { background-color: #f5faff !important; }
 .status-rej{background-color:#ffdbdf !important;}
 .fa-cog{color:rgb(34,139,34);}
 .fa-clipboard{color: rgb(255,140,0);}
+textarea,trix-editor{box-shadow: inset 2px 2px 5px 0 #ccc !important;}
+.card,.hiring-team,.recruiter-team,.show-interviews,.person{background-color: #fff; border:1px solid #ccc; box-shadow: 3px 3px 7px #ccc;}
+.hiring-team,.recruiter-team{padding: 5px;}
+.person{margin:7px;}
+.section{padding-top:5px !important;}
+.tabs-nav li:hover{background-color: #f5faff;}
+.waiting{color:#f00;}
 `;
 
 // Add the injected stylesheet to the bottom of the page's <head> tag
 document.head.appendChild(style);
+
