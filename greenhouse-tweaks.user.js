@@ -6,7 +6,7 @@
 // @author         setuid@gmail.com
 // @updateUrl      https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
 // @downloadUrl    https://raw.githubusercontent.com/desrod/browser-scripts-misc/master/greenhouse-tweaks.user.js
-// @version        3.33
+// @version        3.34
 // ==========================================================================
 //
 // ==/UserScript==
@@ -56,6 +56,15 @@ const setIntervalX = (fn, delay, times) => {
         setIntervalX(fn, delay, times - 1)
     }, delay)
 }
+
+function expose_job_ids() {
+    var job_id = window.location.href.match(/\/plans\/(\d+)\/jobapp/);
+    document.querySelectorAll('div[class="job-action-links"] > span > a[class*="tracking_link_modal_link"]').forEach(node => {
+        var app_id = node.getAttribute("modal_path").match(/.*?(\d+)$/)[1];
+        node.insertAdjacentHTML('afterend',`<span class="automation">job_id: ${job_id[1]} | app_id: ${app_id}</span>`);
+    });
+}
+
 
 // Add styling and various helpful colors/injects to the candidate lists
 async function parse_candidate_list() {
@@ -207,6 +216,11 @@ if (window.location.href.match(/\/alljobs$/)) {
     }, 1000, 1);
 }
 
+
+if (window.location.href.match(/\/plans\/(\d+)\/jobapp/)) {
+    expose_job_ids();
+}
+
 if (window.location.href.match(/\/people.*|plans.*/)) {
     parse_candidate_list();
 }
@@ -261,7 +275,6 @@ document.querySelectorAll('th').forEach(th => th.addEventListener('click', (() =
 })));
 
 var page_height = document.body.scrollHeight;
-console.log("DEBUG: ", page_height);
 style.innerHTML += `
 @import url("https://use.fontawesome.com/releases/v5.13.1/css/all.css");
 body {font-family: "Ubuntu", san-serif; font-size: 10px; };
@@ -287,6 +300,7 @@ textarea,trix-editor{box-shadow: inset 2px 2px 5px 0 #ccc !important;}
 .card,.hiring-team,.recruiter-team,.show-interviews,.person{background-color: #fff; border:1px solid #ccc; box-shadow: 3px 3px 7px #ccc;}
 .hiring-team,.recruiter-team{padding: 5px;}
 .person{margin:7px;}
+.automation{font-weight: lighter; color: #909090;display:block;)
 .section{padding-top:5px !important;}
 .tabs-nav li:hover{background-color: #f5faff;}
 .waiting{color:#f00;}
