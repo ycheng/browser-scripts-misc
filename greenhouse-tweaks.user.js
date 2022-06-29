@@ -70,7 +70,7 @@ function expose_job_ids() {
 async function parse_candidate_list() {
     var candidate_row, candidate_name, candidate_attr, candidate_expiry, candidate_status, candidate_job, candidate_stage = '';
     var url = 'https://canonical.greenhouse.io/people/'
-    document.querySelectorAll('p[class="name"]').forEach(async (node) => {
+    document.querySelectorAll('p[class*="name"]').forEach(async (node) => {
         const re = /.*\/people\/(\d+)\?.*/i;
         const candidate_id = node.innerHTML.match(re)[1];
         const response = await request_page(url + candidate_id);
